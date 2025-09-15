@@ -1,4 +1,5 @@
 This is modified version of yoRadio (eRadio) project from: https://github.com/e2002/yoradio
+
 What's changed:
 - added support for polish fonts (tested on ST7789 320x240 display)
 - added support for SPDIF output. This can be either COAX or OPTICAL.
