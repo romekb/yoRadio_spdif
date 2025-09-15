@@ -4616,17 +4616,18 @@ int32_t Audio::Gain(int16_t s[2]) {
 
     if(m_balance < 0){
         step = step * (float)(abs(m_balance) * 16);
-        l = (uint8_t)(step);
+        r = (uint8_t)(step);            // bugfix
     }
     if(m_balance > 0){
         step = step * m_balance * 16;
-        r = (uint8_t)(step);
+        l = (uint8_t)(step);            // bugfix
     }
 
     v[LEFTCHANNEL] = (s[LEFTCHANNEL]  * (m_vol - l)) >> 8;
     v[RIGHTCHANNEL]= (s[RIGHTCHANNEL] * (m_vol - r)) >> 8;
 
-    return (v[LEFTCHANNEL] << 16) | (v[RIGHTCHANNEL] & 0xffff);
+//    return (v[LEFTCHANNEL] << 16) | (v[RIGHTCHANNEL] & 0xffff);
+    return (v[RIGHTCHANNEL] << 16) | (v[LEFTCHANNEL] & 0xffff);   // bugfix
 }
 //---------------------------------------------------------------------------------------------------------------------
 uint32_t Audio::inBufferFilled() {
