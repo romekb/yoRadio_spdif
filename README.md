@@ -13,4 +13,6 @@ If left undefined or set to 255, SPDIF support is disabled.
 In hardware, the COAXIAL spdif output is simple. For COAX just put a 470 ohm series resistor between the pin declared as SPDIF_OUT and the cinch socket that is the COAX output.
 For optical output you can use TOSLINK transmitter like FCR684214T or TOTX173, or any other. In some cases, even a red LED with a 100 ohm series resistor is sufficient.
 
-I provide my "myoptions.h" file for reference. I use CYD module with PCM5102A DAC and coaxial spdif output connected to Data pin of DAC for common usage.
+I provide my "myoptions.h" file for reference. I use CYD module with additional PSRAM chip, PCM5102A DAC and coaxial spdif output connected to Data pin of DAC for common usage.
+
+Tested on internet radio provided AAC and MP3 streams, and on MP3 files on SD card (testing UP to 192kbps).
