@@ -4532,10 +4532,10 @@ bool Audio::playSample(int16_t sample[2]) {
     uint32_t s32 = Gain(sample); // vosample2lume;
 
     if(m_spdif_output) {
-        spdif_write(s32);
-        if(m_sampleRate < 32000) {spdif_write(s32);}
-        if(m_sampleRate < 16000) {spdif_write(s32); spdif_write(s32);}
-        return true;
+        bool wrok = spdif_write(s32);
+        if(m_sampleRate < 32000) {wrok &= spdif_write(s32);}
+        if(m_sampleRate < 16000) {wrok &= spdif_write(s32); wrok &= spdif_write(s32);}
+        return wrok;
     }
     
     if(m_f_internalDAC) {

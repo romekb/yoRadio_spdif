@@ -5,7 +5,7 @@
     software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
     CONDITIONS OF ANY KIND, either express or implied.
 */
-//#include "freertos/FreeRTOS.h"
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcpp"
 #include <driver/i2s.h>
@@ -109,7 +109,7 @@ void spdif_init(int rate)
 
 
 // write audio data to I2S buffer
-static inline void IRAM_ATTR spdif_write_R(const uint32_t smp)
+static inline bool IRAM_ATTR spdif_write_R(const uint32_t smp)
 {
     uint16_t hi, lo, aux;
 
@@ -125,11 +125,10 @@ static inline void IRAM_ATTR spdif_write_R(const uint32_t smp)
     aux = 0xb333 ^ (((uint32_t)((int16_t)lo)) >> 17);
     // Send 'B' preamble only for the first frame of data-block
     if (spdif_ptr == spdif_buf+1) {
-        *spdif_ptr = VUCP_PREAMBLE_B | aux;
+        *spdif_ptr++ = VUCP_PREAMBLE_B | aux;
     } else {
-        *spdif_ptr = VUCP_PREAMBLE_M | aux;
+        *spdif_ptr++ = VUCP_PREAMBLE_M | aux;
     }
-    spdif_ptr++;
 
     uint16_t sample_right = smp >> 16;
     // BMC encode right channel, similar as above
@@ -142,14 +141,23 @@ static inline void IRAM_ATTR spdif_write_R(const uint32_t smp)
 
 	if (spdif_ptr >= &spdif_buf[SPDIF_BUF_ARRAY_SIZE]) {
     	size_t i2s_write_len;
-	    i2s_write((i2s_port_t)I2S_NUM, spdif_buf, sizeof(spdif_buf), &i2s_write_len, portMAX_DELAY);
+	    esp_err_t err = i2s_write((i2s_port_t)I2S_NUM, spdif_buf, sizeof(spdif_buf), &i2s_write_len, portMAX_DELAY);
 	    spdif_ptr = spdif_buf;
+        if(err != ESP_OK) {
+            log_e("ESP32 Errorcode %i", err);
+            return false;
+        }
+        if(i2s_write_len < sizeof(spdif_buf)) {
+            log_e("Can't stuff any more in I2S..."); // increase waitingtime or outputbuffer
+            return false;
+        }
     }
+    return true;
 }
 
-void spdif_write(const uint32_t smp)
+bool spdif_write(const uint32_t smp)
 {
-    spdif_write_R(smp);
+    return spdif_write_R(smp);
 }
 
 // change S/PDIF sample rate
