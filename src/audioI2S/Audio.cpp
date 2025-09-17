@@ -4426,21 +4426,23 @@ bool Audio::audioFileSeek(const float speed) {
     if((speed > 1.5f) || (speed < 0.25f)) return false;
 
     uint32_t srate = getSampleRate() * speed;
-    if(m_spdif_output) {
-        uint32_t sr = srate;
-        while(sr < 32000) sr *= 2;
-        spdif_set_sample_rates(sr);
-    } else i2s_set_sample_rates((i2s_port_t)m_i2s_num, srate);
+    uint32_t sr = srate;
+    if(m_spdif_output) { 
+        while(sr < 32000) sr *= 2; 
+        sr *= 2; 
+    }
+    i2s_set_sample_rates((i2s_port_t)m_i2s_num, sr);
     return true;
 }
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::setSampleRate(uint32_t sampRate) {
     if(!sampRate) sampRate = 16000; // fuse, if there is no value -> set default #209
-    if(m_spdif_output) {
-        uint32_t sr = sampRate;
-        while(sr < 32000) sr *= 2;
-        spdif_set_sample_rates(sr);
-    } else i2s_set_sample_rates((i2s_port_t)m_i2s_num, sampRate);   
+    uint32_t sr = sampRate;
+    if(m_spdif_output) { 
+        while(sr < 32000) sr *= 2; 
+        sr *= 2;
+    } 
+    i2s_set_sample_rates((i2s_port_t)m_i2s_num, sr);   
     m_sampleRate = sampRate;
     IIR_calculateCoefficients(m_gain0, m_gain1, m_gain2); // must be recalculated after each samplerate change
     return true;
@@ -4518,11 +4520,11 @@ bool Audio::playSample(int16_t sample[2]) {
         sample[RIGHTCHANNEL] = ((sample[RIGHTCHANNEL] & 0xff) -128) << 8;
     }
 
-    sample[LEFTCHANNEL]  = sample[LEFTCHANNEL]  >> 1; // half Vin so we can boost up to 6dB in filters
-    sample[RIGHTCHANNEL] = sample[RIGHTCHANNEL] >> 1;
-
     // Filterchain, can commented out if not used
     if(!m_spdif_output) {
+        sample[LEFTCHANNEL]  = sample[LEFTCHANNEL]  >> 1; // half Vin so we can boost up to 6dB in filters
+        sample[RIGHTCHANNEL] = sample[RIGHTCHANNEL] >> 1;
+
         sample = IIR_filterChain0(sample);
         sample = IIR_filterChain1(sample);
         sample = IIR_filterChain2(sample);
@@ -4626,7 +4628,6 @@ int32_t Audio::Gain(int16_t s[2]) {
     v[LEFTCHANNEL] = (s[LEFTCHANNEL]  * (m_vol - l)) >> 8;
     v[RIGHTCHANNEL]= (s[RIGHTCHANNEL] * (m_vol - r)) >> 8;
 
-//    return (v[LEFTCHANNEL] << 16) | (v[RIGHTCHANNEL] & 0xffff);
     return (v[RIGHTCHANNEL] << 16) | (v[LEFTCHANNEL] & 0xffff);   // bugfix
 }
 //---------------------------------------------------------------------------------------------------------------------

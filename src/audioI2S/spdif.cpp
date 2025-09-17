@@ -6,28 +6,17 @@
     CONDITIONS OF ANY KIND, either express or implied.
 */
 
+#include "../core/options.h"
+#include "spdif.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcpp"
 #include <driver/i2s.h>
 #pragma GCC diagnostic pop
-#include "spdif.h"
-#include "../core/options.h"
 using namespace std;
 
-#define I2S_NUM			I2S_NUM_0
-
-#define I2S_BITS_PER_SAMPLE	32
-#define I2S_CHANNELS		2
-#define BMC_BITS_PER_SAMPLE	64
-#define BMC_BITS_FACTOR		(BMC_BITS_PER_SAMPLE / I2S_BITS_PER_SAMPLE)
-#define SPDIF_BLOCK_SAMPLES	192
-#define SPDIF_BUF_DIV		1	// double buffering
-//#define DMA_BUF_COUNT		2
-#define DMA_BUF_LEN		(SPDIF_BLOCK_SAMPLES * BMC_BITS_PER_SAMPLE / I2S_BITS_PER_SAMPLE / SPDIF_BUF_DIV)
-#define I2S_BUG_MAGIC		(26 * 1000 * 1000)	// magic number for avoiding I2S bug
-#define SPDIF_BLOCK_SIZE	(SPDIF_BLOCK_SAMPLES * (BMC_BITS_PER_SAMPLE/8) * I2S_CHANNELS)
-#define SPDIF_BUF_SIZE		(SPDIF_BLOCK_SIZE / SPDIF_BUF_DIV)
-#define SPDIF_BUF_ARRAY_SIZE	(SPDIF_BUF_SIZE / sizeof(uint32_t))
+#define I2S_NUM			        I2S_NUM_0
+#define SPDIF_BLOCK_SIZE	    192*8*2 //(SPDIF_BLOCK_SAMPLES * (BMC_BITS_PER_SAMPLE/8) * I2S_CHANNELS)
+#define SPDIF_BUF_ARRAY_SIZE	(SPDIF_BLOCK_SIZE / sizeof(uint32_t))
 
 static uint32_t spdif_buf[SPDIF_BUF_ARRAY_SIZE];
 static uint32_t *spdif_ptr;
@@ -75,16 +64,15 @@ const uint32_t VUCP_PREAMBLE_W = 0xCCE40000; // 11001100 11100100
 // initialize I2S for S/PDIF transmission
 void spdif_init(int rate)
 {
-    uint32_t sample_rate = rate * BMC_BITS_FACTOR;
     i2s_config_t i2s_config = {
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
-    	.sample_rate = sample_rate,
+    	.sample_rate = (uint32_t)rate * 2,
         .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // interrupt priority
-        .dma_buf_count = psramInit()?16:4, //DMA_BUF_COUNT,
-        .dma_buf_len = DMA_BUF_LEN,
+        .dma_buf_count = psramInit()?16:4,
+        .dma_buf_len = 192*2,
         .use_apll = true,
 	    .tx_desc_auto_clear = true,
     };
@@ -109,7 +97,7 @@ void spdif_init(int rate)
 
 
 // write audio data to I2S buffer
-static inline bool IRAM_ATTR spdif_write_R(const uint32_t smp)
+bool spdif_write(const uint32_t smp)
 {
     uint16_t hi, lo, aux;
 
@@ -153,17 +141,4 @@ static inline bool IRAM_ATTR spdif_write_R(const uint32_t smp)
         }
     }
     return true;
-}
-
-bool spdif_write(const uint32_t smp)
-{
-    return spdif_write_R(smp);
-}
-
-// change S/PDIF sample rate
-void spdif_set_sample_rates(int rate)
-{
-    // uninstall and reinstall I2S driver for avoiding I2S bug
-    i2s_driver_uninstall((i2s_port_t)I2S_NUM);
-    spdif_init(rate);
 }

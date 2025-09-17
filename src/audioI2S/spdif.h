@@ -8,7 +8,6 @@
 
 #pragma once
 #pragma GCC optimize ("Ofast")
-
 #include "Arduino.h"
 #include "assert.h"
 #include <stdint.h>
@@ -26,9 +25,3 @@ void spdif_init(int rate);
  *   size: number of data bytes
  */
 bool spdif_write(const uint32_t smp);
-
-/*
- * change sampling rate
- *   rate: sampling rate, 44100Hz, 48000Hz etc.
- */ 
-void spdif_set_sample_rates(int rate);
