@@ -1,3 +1,4 @@
+//Módosítva v0.9.689
 #ifndef config_h
 #define config_h
 #pragma once
@@ -49,10 +50,12 @@ struct theme_t {
   uint16_t div;
   uint16_t weather;
   uint16_t vumax;
+  uint16_t vumid;   // Módosítás: plussz változó.
   uint16_t vumin;
   uint16_t clock;
   uint16_t clockbg;
   uint16_t seconds;
+  uint16_t nameday; // Módosítás: plussz változó. 
   uint16_t dow;
   uint16_t date;
   uint16_t heap;

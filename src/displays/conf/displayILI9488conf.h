@@ -1,3 +1,4 @@
+//v.0.9676
 /*************************************************************************************
     ST7796 480X320 displays configuration file.
     Copy this file to yoRadio/src/displays/conf/displayST7789conf_custom.h

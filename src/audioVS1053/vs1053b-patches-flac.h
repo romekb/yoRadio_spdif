@@ -1,3 +1,4 @@
+// v0.4.248
 /* User application code loading tables for VS10xx */
 /* http://www.vlsi.fi/fileadmin/software/VS10XX/vs1053b-patches290.zip*/
 

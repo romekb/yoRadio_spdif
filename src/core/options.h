@@ -1,3 +1,4 @@
+// v0.9.720 Módosítva! (Többnyelvűség) (VU_widget) (Clock_tts)
 #ifndef options_h
 #define options_h
 #pragma once
@@ -126,10 +127,10 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
   #define I2S_DOUT      27  // DIN connection
 #endif
 #ifndef I2S_BCLK
-  #define I2S_BCLK      255  // BCLK Bit clock
+  #define I2S_BCLK      26  // BCLK Bit clock
 #endif
 #ifndef I2S_LRC
-  #define I2S_LRC       255  // WSEL Left Right Clock
+  #define I2S_LRC       25  // WSEL Left Right Clock
 #endif
 
 /*        SPDIF                  */
@@ -139,7 +140,6 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #ifndef SPDIF_OUT
   #define SPDIF_OUT     255  // SPDIF out pin
 #endif
-
 
 /*        SDCARD                  */
 #ifndef SDC_CS
@@ -414,6 +414,9 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #ifndef COLOR_VU_MAX
   #define COLOR_VU_MAX            231, 211,  90
 #endif
+#ifndef COLOR_VU_MID                                // Módosítás: új bejegyzés (VU_widget)
+  #define COLOR_VU_MID            255, 255, 0
+#endif
 #ifndef COLOR_VU_MIN
   #define COLOR_VU_MIN            123, 125, 123
 #endif
@@ -489,8 +492,23 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 
 #define EN  1
 #define RU  2
+#define HU  3  // Módosítás plussz sor "Többnyelvűség"
+#define PL  4  // Módosítás plussz sor "Többnyelvűség"
+#define NL  5  // Módosítás plussz sor "Többnyelvűség"
+#define EL  6  // Módosítás plussz sor Görög "Többnyelvűség"
 #ifndef L10N_LANGUAGE
   #define L10N_LANGUAGE EN
+#endif
+
+/* CLOCK:TTS */
+#ifndef CLOCK_TTS_ENABLED   // Módisítás új bejegyzés "Clock_tts"
+ #define CLOCK_TTS_ENABLED false
+#endif
+#ifndef CLOCK_TTS_INTERVAL_MINUTES
+  #define CLOCK_TTS_INTERVAL_MINUTES 60
+#endif
+#ifndef CLOCK_TTS_LANGUAGE
+  #define CLOCK_TTS_LANGUAGE "EN"
 #endif
 
 #include <SPI.h>

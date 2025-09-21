@@ -1,3 +1,4 @@
+//Módosítva! v0.9.710
 #ifndef widgets_h
 #define widgets_h
 #if DSP_MODEL!=DSP_DUMMY
@@ -152,19 +153,22 @@ class SliderWidget: public Widget {
 
 class VuWidget: public Widget {
   public:
-    VuWidget() {}
-    VuWidget(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumincolor, uint16_t bgcolor)
-            { init(wconf, bands, vumaxcolor, vumincolor, bgcolor); }
-    ~VuWidget();
+    VuWidget() {}// Módosítás: vumidcolor plussz paraméter.
+    VuWidget(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumidcolor, uint16_t vumincolor, uint16_t bgcolor)
+            { init(wconf, bands, vumaxcolor, vumidcolor, vumincolor, bgcolor); }
+    ~VuWidget();// Módosítás: vumidcolor plussz paraméter.
     using Widget::init;
-    void init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumincolor, uint16_t bgcolor);
+    void init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumidcolor, uint16_t vumincolor, uint16_t bgcolor);
     void loop();
+    static void setLabelsDrawn(bool value); // Módosítás
+    static bool isLabelsDrawn(); // Módosítás
   protected:
     #if !defined(DSP_LCD) && !defined(DSP_OLED)
       Canvas *_canvas;
     #endif
+    static bool   _labelsDrawn; // Módosítás új változó.
     VUBandsConfig _bands;
-    uint16_t _vumaxcolor, _vumincolor;
+    uint16_t _vumaxcolor, _vumidcolor, _vumincolor; // Módosítás: plussz _vumidcolor
     void _draw();
     void _clear();
 };
@@ -210,16 +214,21 @@ class ClockWidget: public Widget {
     void clear(){ _clearClock(); }
     inline uint16_t dateSize(){ return _space+ _dateheight; }
     inline uint16_t clockWidth(){ return _clockwidth; }
+    #ifdef NAMEDAYS_FILE
+     char *gNameDay(){ return _namedayBuf; }
+    #endif
   private:
   #ifndef DSP_LCD
     Adafruit_GFX &getRealDsp();
   #endif
   protected:
     char  _timebuffer[20]="00:00";
-    char _tmp[30], _datebuf[30];
+    char _tmp[33], _datebuf[33]; // Módosítva 33-ra
     uint8_t _superfont;
     uint16_t _clockleft, _clockwidth, _timewidth, _dotsleft, _linesleft;
     uint8_t  _clockheight, _timeheight, _dateheight, _space;
+    char     _namedayBuf[30], _oldNamedayBuf[30];       // Módosítás
+    uint16_t _namedaywidth, _namedayleft, _oldnamedayleft, _oldnamedaywidth; //Módosítás
     uint16_t _forceflag = 0;
     bool dots = true;
     bool _fullclock;
@@ -230,6 +239,10 @@ class ClockWidget: public Widget {
     void _getTimeBounds();
     void _printClock(bool force=false);
     void _clearClock();
+    #ifdef NAMEDAYS_FILE
+     void  _printNameday();        // Módosítás új sor.
+     void getNamedayUpper(char* dest, size_t len); // Módosítás
+    #endif
     bool _getTime();
     uint16_t _left();
     uint16_t _top();
@@ -274,7 +287,5 @@ class PlayListWidget: public Widget {
 
 #endif
 #endif
-
-
 
 

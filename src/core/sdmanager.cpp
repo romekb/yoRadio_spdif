@@ -1,3 +1,4 @@
+//v0.9.686
 #include "options.h"
 #if SDC_CS!=255
 #include <Arduino.h>
@@ -135,5 +136,4 @@ void SDManager::indexSDPlaylist() {
   delay(50);
 }
 #endif
-
 

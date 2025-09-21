@@ -101,7 +101,10 @@ bool CommandHandler::exec(const char *command, const char *value, uint8_t cid) {
   if (strEquals(command, "key"))              { config.setWeatherKey(value); return true; }
   if (strEquals(command, "wint"))  { config.saveValue(&config.store.weatherSyncInterval, static_cast<uint16_t>(atoi(value))); return true; }
   
-  if (strEquals(command, "volume"))  { player.setVol(static_cast<uint8_t>(atoi(value))); return true; }
+  if (strEquals(command, "volume"))  {// Ha weben állítom a hangerő csúszkát itt kapja meg az értéket.
+     player.setVol(static_cast<uint8_t>(atoi(value))); 
+     return true; 
+    }
   if (strEquals(command, "sdpos"))   { config.setSDpos(static_cast<uint32_t>(atoi(value))); return true; }
   if (strEquals(command, "snuffle")) { config.setSnuffle(strcmp(value, "true") == 0); return true; }
   if (strEquals(command, "balance")) { config.setBalance(static_cast<uint8_t>(atoi(value))); return true; }

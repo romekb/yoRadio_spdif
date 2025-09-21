@@ -1,6 +1,7 @@
 #ifndef dsp_full_loc
 #define dsp_full_loc
 #include <pgmspace.h>
+#include "../myoptions.h"
 /*************************************************************************************
     HOWTO:
     Copy this file to yoRadio/locale/displayL10n_custom.h
@@ -21,7 +22,7 @@ const char thuf[] PROGMEM = "czwartek";
 const char frif[] PROGMEM = "piątek";
 const char satf[] PROGMEM = "sobota";
 const char sunf[] PROGMEM = "niedziela";
-
+/*
 const char jan[] PROGMEM = "styczeń";
 const char feb[] PROGMEM = "luty";
 const char mar[] PROGMEM = "marzec";
@@ -34,23 +35,36 @@ const char sep[] PROGMEM = "wrzesień";
 const char octt[] PROGMEM = "październik";
 const char nov[] PROGMEM = "listopad";
 const char decc[] PROGMEM = "grudzień";
+*/
+const char jan[] PROGMEM = "01";
+const char feb[] PROGMEM = "02";
+const char mar[] PROGMEM = "03";
+const char apr[] PROGMEM = "04";
+const char may[] PROGMEM = "05";
+const char jun[] PROGMEM = "06";
+const char jul[] PROGMEM = "07";
+const char aug[] PROGMEM = "08";
+const char sep[] PROGMEM = "09";
+const char octt[] PROGMEM = "10";
+const char nov[] PROGMEM = "11";
+const char decc[] PROGMEM = "12";
 
-const char wn_N[]      PROGMEM = "NORTH";
-const char wn_NNE[]    PROGMEM = "NNE";
-const char wn_NE[]     PROGMEM = "NE";
-const char wn_ENE[]    PROGMEM = "ENE";
-const char wn_E[]      PROGMEM = "EAST";
-const char wn_ESE[]    PROGMEM = "ESE";
-const char wn_SE[]     PROGMEM = "SE";
-const char wn_SSE[]    PROGMEM = "SSE";
-const char wn_S[]      PROGMEM = "SOUTH";
-const char wn_SSW[]    PROGMEM = "SSW";
-const char wn_SW[]     PROGMEM = "SW";
-const char wn_WSW[]    PROGMEM = "WSW";
-const char wn_W[]      PROGMEM = "WEST";
-const char wn_WNW[]    PROGMEM = "WNW";
-const char wn_NW[]     PROGMEM = "NW";
-const char wn_NNW[]    PROGMEM = "NNW";
+const char wn_N[]      PROGMEM = "północny"; //północ 
+const char wn_NNE[]    PROGMEM = "północny"; //północny północny wschód
+const char wn_NE[]     PROGMEM = "północno-wschodni"; //północny wschód
+const char wn_ENE[]    PROGMEM = "wschodni"; //wschodni północny wschód
+const char wn_E[]      PROGMEM = "wschodni"; //wschód 
+const char wn_ESE[]    PROGMEM = "wschodni"; //wschodni południowy wschód 
+const char wn_SE[]     PROGMEM = "południowo-wschodni"; //południowy wschód 
+const char wn_SSE[]    PROGMEM = "południowy"; //południowy południowy wschód 
+const char wn_S[]      PROGMEM = "południowy"; //południe 
+const char wn_SSW[]    PROGMEM = "południowy"; //południowy południowy zachód 
+const char wn_SW[]     PROGMEM = "południowo-zachodni"; //południowy zachód 
+const char wn_WSW[]    PROGMEM = "zachodni"; //zachodni południowy zachód 
+const char wn_W[]      PROGMEM = "zachodni"; //zachód 
+const char wn_WNW[]    PROGMEM = "zachodni"; //zachodni północny zachód  
+const char wn_NW[]     PROGMEM = "północno-zachodni"; //północny zachód 
+const char wn_NNW[]    PROGMEM = "północny"; //północny północny zachód 
 
 const char* const dow[]     PROGMEM = { sun, mon, tue, wed, thu, fri, sat };
 const char* const dowf[]    PROGMEM = { sunf, monf, tuef, wedf, thuf, frif, satf };
@@ -71,11 +85,19 @@ const char        apNameTxt[]    PROGMEM = "AP NAME";
 const char        apPassTxt[]    PROGMEM = "PASSWORD";
 const char       bootstrFmt[]    PROGMEM = "Connecting %s";
 const char        apSettFmt[]    PROGMEM = "SETTINGS PAGE ON: HTTP://%s/";
+
+
+
+#ifdef WEATHER_FMT_SHORT
+const char weatherFmt[] PROGMEM = "%.1f\011C  \007  %d hPa  \007  %d%% RH";
+#else
 #if EXT_WEATHER
-const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 odczuwalna: %.1f\011C \007 ciśnienie: %d hPa \007 wilgotność: %s%% \007 wiatr: %.1f m/s [%s]";
+const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Odcz: %.1f\011C \007 Ciśn: %dhPa \007 Wilg: %d%% \007 Wiatr: %.1fm/s, %s";
 #else
 const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 pressure: %d hPa \007 humidity: %s%%";
 #endif
+#endif
+
 const char     weatherUnits[]    PROGMEM = "metric";   /* standard, metric, imperial */
 const char      weatherLang[]    PROGMEM = "pl";       /* https://openweathermap.org/current#multi */
 

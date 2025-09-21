@@ -1,4 +1,6 @@
+//v0.9.720 Módosítva! "clock_tts"
 #include "Arduino.h"
+#include "clock_tts/clock_tts.h" // Módosítás: plussz sor. "clock_tts"
 #include "core/options.h"
 #include "core/config.h"
 #include "pluginsManager/pluginsManager.h"
@@ -8,7 +10,7 @@
 #include "core/network.h"
 #include "core/netserver.h"
 #include "core/controls.h"
-#include "core/mqtt.h"
+//#include "core/mqtt.h"
 #include "core/optionschecker.h"
 #include "core/timekeeper.h"
 #ifdef USE_NEXTION
@@ -94,9 +96,6 @@ void setup() {
   initControls();
   display.putRequest(DSP_START);
   while(!display.ready()) delay(10);
-  #ifdef MQTT_ROOT_TOPIC
-    mqttInit();
-  #endif
   #if USE_OTA
     setupOTA();
   #endif
@@ -105,6 +104,9 @@ void setup() {
   if (config.store.smartstart == 1) {
     player.sendCommand({PR_PLAY, config.lastStation()});
   }
+  #if CLOCK_TTS_ENABLED
+   clock_tts_setup(); // Módosítás: plussz sor. "clock_tts"
+  #endif
   pm.on_end_setup();
 }
 
@@ -121,6 +123,9 @@ void loop() {
   #ifdef NETSERVER_LOOP1
   netserver.loop();
   #endif
+  #if CLOCK_TTS_ENABLED
+   clock_tts_loop(); // Módosítás: plussz sor.  "clock_tts"
+  #endif 
 }
 
 #include "core/audiohandlers.h"

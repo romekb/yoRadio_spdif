@@ -1,3 +1,4 @@
+//v.0.9.710
 // yoEncoder.h
 // based on https://github.com/igorantolic/ai-esp32-rotary-encoder code
 

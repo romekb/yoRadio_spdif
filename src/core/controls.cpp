@@ -1,3 +1,4 @@
+//v0.9.670 // Módosítva. "hanglépték"
 #include "Arduino.h"
 #include "options.h"
 #include "controls.h"
@@ -262,7 +263,9 @@ void irLoop() {
           if (network.status != CONNECTED && network.status!=SDREADY && target!=IR_AST) return;
           if(target!=IR_AST && display.mode()==LOST) return;
           if (display.mode() == SCREENSAVER || display.mode() == SCREENBLANK) {
-            display.putRequest(NEWMODE, PLAYER);
+            if (player.status() == STOPPED && target != IR_PLAY) {    // wakeup only via PLAY key
+              return;
+            } else display.putRequest(NEWMODE, PLAYER);
             return;
           }
           switch (target){
@@ -457,12 +460,14 @@ void controlsEvent(bool toRight, int8_t volDelta) {
     #if !defined(DUMMYDISPLAY) || defined(USE_NEXTION)
       display.putRequest(NEWMODE, VOL);
     #endif
-    if(volDelta!=0){
-      int nv = config.store.volume+volDelta;
-      if(nv<0) nv=0;
-      if(nv>254) nv=254;
+   if (volDelta != 0) {
+      int nv = config.store.volume + volDelta * config.store.volsteps;
+      if (nv < 0)
+        nv = 0;
+      if (nv > 100)            // Módosítva. "hanglépték"
+        nv = 100; 
       player.setVol((uint8_t)nv);
-    }else{
+    } else {
       player.stepVol(toRight);
     }
   }

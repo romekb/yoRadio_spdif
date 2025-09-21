@@ -1,3 +1,4 @@
+//Módosítva v0.9.710 "hanglépték"
 #include "Arduino.h"
 #include "options.h"
 #include "WiFi.h"
@@ -170,6 +171,9 @@ void Display::_buildPager(){
   #endif
   #if !defined(DSP_LCD) && DSP_MODEL!=DSP_NOKIA5110
     _plbackground = new FillWidget(playlBGConf, config.theme.plcurrentfill);
+    #ifdef NAMEDAYS_FILE
+      _nameday = new ScrollWidget("", namedayConf, config.theme.nameday, config.theme.background);
+    #endif
     #if DSP_INVERT_TITLE || defined(DSP_OLED)
       _metabackground = new FillWidget(metaBGConf, config.theme.metafill);
     #else
@@ -180,8 +184,8 @@ void Display::_buildPager(){
     _plbackground = new FillWidget(playlBGConf, 1);
     //_metabackground = new FillWidget(metaBGConf, 1);
   #endif
-  #ifndef HIDE_VU
-    _vuwidget = new VuWidget(vuConf, bandsConf, config.theme.vumax, config.theme.vumin, config.theme.background);
+  #ifndef HIDE_VU // Módosítás config.theme.vumid új
+    _vuwidget = new VuWidget(vuConf, bandsConf, config.theme.vumax, config.theme.vumid, config.theme.vumin, config.theme.background);
   #endif
   #ifndef HIDE_VOLBAR
     _volbar = new SliderWidget(volbarConf, config.theme.volbarin, config.theme.background, 254, config.theme.volbarout);
@@ -212,7 +216,8 @@ void Display::_buildPager(){
   if(_metabackground) pages[PG_PLAYER]->addWidget( _metabackground);
   pages[PG_PLAYER]->addWidget(_meta);
   pages[PG_PLAYER]->addWidget(_title1);
-  if(_title2) pages[PG_PLAYER]->addWidget(_title2);
+  if(_nameday) pages[PG_PLAYER]->addWidget(_nameday);
+  if(_title2)  pages[PG_PLAYER]->addWidget(_title2);
   if(_weather) pages[PG_PLAYER]->addWidget(_weather);
   #if BITRATE_FULL
     _fullbitrate = new BitrateWidget(fullbitrateConf, config.theme.bitrate, config.theme.background);
@@ -367,7 +372,9 @@ void Display::_swichMode(displayMode_e newmode) {
   }
   if (newmode == VOL) {
     #ifndef HIDE_IP
-      _showDialog(LANG::const_DlgVolume);
+      #ifndef NO_VOLUME_SCREEN                                // NO Volume screen !
+        _showDialog(LANG::const_DlgVolume);
+      #endif  
     #else
       _showDialog(config.ipToStr(WiFi.localIP()));
     #endif
@@ -623,6 +630,14 @@ void Display::_time(bool redraw) {
     //_clock->moveTo({clockConf.left, ft, 0});
     _clock->moveTo({lt, ft, 0});
   }
+  #ifdef NAMEDAYS_FILE
+    static char bday[30];
+    if(strcmp(_clock->gNameDay(), bday) != 0) {
+      strlcpy(bday, _clock->gNameDay(), sizeof(bday));
+      _nameday->setText(bday);
+      Serial.println("ND UPDATE");
+    }
+  #endif
   _clock->draw(redraw);
   /*#ifdef USE_NEXTION
     nextion.printClock(network.timeinfo);
@@ -630,12 +645,26 @@ void Display::_time(bool redraw) {
 }
 
 void Display::_volume() {
-  if(_volbar) _volbar->setValue(config.store.volume);
+  if (_volbar) {                                 // Módosítás "hanglépték"
+    int vol = (config.store.volume * 254) / 100; // A 0-100 értéket felskálázza 0-254 re.
+    if (vol > 254)
+      vol = 254;
+    if (vol < 0)
+      vol = 0;
+    _volbar->setValue(vol);
+  }
   #ifndef HIDE_VOL
-    if(_voltxt) _voltxt->setText(config.store.volume, voltxtFmt);
+   //if (_voltxt) {                               // ha az alapképernyő van
+   // char buf[8];                                // Módosítás "hanglépték"
+   // snprintf(buf, sizeof(buf), "\023\025%d%d%%", config.store.volume);
+   // _voltxt->setText(buf);
+     if(_voltxt) _voltxt->setText(config.store.volume, voltxtFmt);
+  //}
   #endif
   if(_mode==VOL) {
+  #ifndef NO_VOLUME_SCREEN                                // NO Volume screen !
     timekeeper.waitAndReturnPlayer(3);
+  #endif  
     _nums->setText(config.store.volume, numtxtFmt);
   }
   /*#ifdef USE_NEXTION

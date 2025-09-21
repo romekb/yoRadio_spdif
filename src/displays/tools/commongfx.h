@@ -1,7 +1,8 @@
 #ifndef common_gfx_h
 #define common_gfx_h
 #include "../widgets/widgetsconfig.h" // displayXXXDDDDconf.h
-#include "utf8Rus.h"
+#include "utf8To.h"
+#define ADAFRUIT_CLIPPING !defined(DSP_LCD) && DSP_MODEL!=DSP_ILI9225
 
 typedef struct clipArea {
   uint16_t left; 
@@ -33,7 +34,7 @@ class DspCore: public yoDisplay {
       #if DSP_MODEL!=DSP_SSD1306x32
         drawBitmap((width()  - LOGO_WIDTH ) / 2, top, logo, LOGO_WIDTH, LOGO_HEIGHT, 1);
       #else
-        setTextSize(1); setCursor((width() - 6*CHARWIDTH) / 2, 0); setTextColor(TFT_FG, TFT_BG); print(utf8Rus("ёRadio", false));
+        setTextSize(1); setCursor((width() - 6*CHARWIDTH) / 2, 0); setTextColor(TFT_FG, TFT_BG); print(utf8To("ёRadio", false));
       #endif
       display();
     }
@@ -63,7 +64,31 @@ class DspCore: public yoDisplay {
     void setScrollId(void * scrollid) { _scrollid = scrollid; }
     void * getScrollId() { return _scrollid; }
     uint16_t textWidth(const char *txt);
-    #if !defined(DSP_LCD)
+    #if DSP_MODEL==DSP_ILI9225
+      uint16_t width(void) { return (int16_t)maxX(); }
+      uint16_t height(void) { return (int16_t)maxY(); }
+      inline void drawRGBBitmap(int16_t x, int16_t y, const uint16_t *bitmap, int16_t w, int16_t h){ drawBitmap(x, y, bitmap, w, h); }
+      uint16_t print(const char* s);
+      void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+      void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+      void setFont(const GFXfont *f = NULL);
+      void setFont(uint8_t* font, bool monoSp=false );
+      void setTextColor(uint16_t fg, uint16_t bg);
+      void setCursor(int16_t x, int16_t y);
+      void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+      void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+      inline uint16_t drawChar(uint16_t x, uint16_t y, uint16_t ch, uint16_t color = COLOR_WHITE){
+        if(_clipping){
+          if ((x < _cliparea.left) || (x >= _cliparea.left+_cliparea.width) || (y < _cliparea.top) || (y > _cliparea.top + _cliparea.height))  {
+            return cfont.width;
+          }
+        }
+        uint16_t ret=TFT_22_ILI9225::drawChar(x, y, ch, color);
+        return ret;
+      }
+      void setTextSize(uint8_t s);
+    #endif
+    #if ADAFRUIT_CLIPPING
       inline void writePixel(int16_t x, int16_t y, uint16_t color) {
         if(_clipping){
           if ((x < _cliparea.left) || (x > _cliparea.left+_cliparea.width) || (y < _cliparea.top) || (y > _cliparea.top + _cliparea.height)) return;
@@ -97,6 +122,12 @@ class DspCore: public yoDisplay {
     #ifdef PSFBUFFER
     psFrameBuffer* _fb=nullptr;
     #endif
+    #if DSP_MODEL==DSP_ILI9225
+      uint16_t _bgcolor, _fgcolor;
+      int16_t  _cursorx, _cursory;
+      bool _gFont/*, _started*/;
+    #endif
+    
 };
 
 extern DspCore dsp;

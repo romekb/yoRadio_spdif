@@ -1,3 +1,4 @@
+//Módosítva! v0.9.710
 #include "options.h"
 #include "Arduino.h"
 #include "timekeeper.h"
@@ -284,6 +285,8 @@ bool _getWeather() {
     
     client->onData([](void * arg, AsyncClient * c, void * data, size_t len){
       uint8_t * d = (uint8_t*)data;
+  //    Serial.print("##WEATHER data: ");
+  //    Serial.println((char*)data);
       const char *bodyStart = strstr((const char*)d, "\r\n\r\n");
       if (bodyStart != NULL) {
         bodyStart += 4;
@@ -310,13 +313,14 @@ bool _getWeather() {
         if (cursor) { sscanf(cursor, "\"humidity\":%d", &hum); }else{ Serial.println("##WEATHER###: humidity not found !"); result=false; }
         cursor = strstr(line, "\"feels_like\":");
         if (cursor) { sscanf(cursor, "\"feels_like\":%f", &tempfl); }else{ Serial.println("##WEATHER###: feels_like not found !"); result=false; }
-        cursor = strstr(line, "\"grnd_level\":");
-        if (cursor) { sscanf(cursor, "\"grnd_level\":%d", &press); }
+       // cursor = strstr(line, "\"grnd_level\":");
+       // if (cursor) { sscanf(cursor, "\"grnd_level\":%d", &press); }
         cursor = strstr(line, "\"speed\":");
         if (cursor) { sscanf(cursor, "\"speed\":%f", &wind_speed); }else{ Serial.println("##WEATHER###: wind speed not found !"); result=false; }
         cursor = strstr(line, "\"deg\":");
         if (cursor) { sscanf(cursor, "\"deg\":%d", &wind_deg); }else{ Serial.println("##WEATHER###: wind deg not found !"); result=false; }
-        press = press / 1.333;
+       // press = press / 1.333;
+       // press = press / 0.973; //Módosítva hPa kijelzéshez.
 
         if(!result) return;
 
@@ -340,10 +344,10 @@ bool _getWeather() {
           nextion.putcmd("cond_img.pic", 50+iconofset);
           nextion.weatherVisible(1);
         #endif
-        
+        desc[0] = toupper((unsigned char)desc[0]);
         Serial.printf("##WEATHER###: description: %s, temp:%.1f C, pressure:%dmmHg, humidity:%d%%, wind: %d\n", desc, tempf, press, hum, (int)(wind_deg/22.5));
         #ifdef WEATHER_FMT_SHORT
-        sprintf(timekeeper.weatherBuf, weatherFmt, tempf, press, hum);
+        sprintf(timekeeper.weatherBuf, LANG::weatherFmt, tempf, press, hum); //Módisítás LANG:: hozzáírva.
         #else
           #if EXT_WEATHER
             sprintf(timekeeper.weatherBuf, LANG::weatherFmt, desc, tempf, tempfl, press, hum, wind_speed, LANG::wind[(int)(wind_deg/22.5)]);

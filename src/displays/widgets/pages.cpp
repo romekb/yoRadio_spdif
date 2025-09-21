@@ -1,3 +1,4 @@
+//v0.9.670
 #include "../../core/options.h"
 #if DSP_MODEL!=DSP_DUMMY
 #include "../dspcore.h"

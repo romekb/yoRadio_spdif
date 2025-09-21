@@ -1,3 +1,5 @@
+//v0.9.720
+#include "options.h"
 #include "options.h"
 #ifdef MQTT_ROOT_TOPIC
 

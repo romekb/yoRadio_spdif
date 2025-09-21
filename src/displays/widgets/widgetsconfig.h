@@ -1,3 +1,4 @@
+// v0.9.670
 #ifndef widgetsconfig_h
 #define widgetsconfig_h
 

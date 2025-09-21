@@ -1,3 +1,4 @@
+//Módosítva v0.9.710
 #include "options.h"
 #include "config.h"
 #include "display.h"
@@ -340,7 +341,9 @@ void Config::loadTheme(){
   theme.div           = color565(COLOR_DIVIDER);
   theme.weather       = color565(COLOR_WEATHER);
   theme.vumax         = color565(COLOR_VU_MAX);
+  theme.vumid         = color565(COLOR_VU_MID);  // Módosítás: plussz sor.
   theme.vumin         = color565(COLOR_VU_MIN);
+  theme.nameday       = color565(COLOR_NAMEDAY); // Módosítás: plussz sor.
   theme.clock         = color565(COLOR_CLOCK);
   theme.clockbg       = color565(COLOR_CLOCK_BG);
   theme.seconds       = color565(COLOR_SECONDS);
@@ -1047,4 +1050,3 @@ void Config::bootInfo() {
   if(SDC_CS!=255) BOOTLOG("SD:\t\t%d", SDC_CS);
   BOOTLOG("------------------------------------------------");
 }
-
