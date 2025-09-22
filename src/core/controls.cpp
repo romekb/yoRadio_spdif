@@ -457,7 +457,7 @@ void controlsEvent(bool toRight, int8_t volDelta) {
     display.putRequest(NEWMODE, PLAYER);
   }
   if (display.mode() != STATIONS) {
-    #if !defined(DUMMYDISPLAY) || defined(USE_NEXTION)
+    #if (!defined(DUMMYDISPLAY) || defined(USE_NEXTION)) && !defined(NO_VOLUME_SCREEN)
       display.putRequest(NEWMODE, VOL);
     #endif
    if (volDelta != 0) {

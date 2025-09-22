@@ -4591,22 +4591,15 @@ void Audio::setBalance(int8_t bal){ // bal -16...16
     m_balance = bal;
 }
 //---------------------------------------------------------------------------------------------------------------------
-void Audio::setVolume(uint8_t vol) { // vol 22 steps, 0...21
-    vol = (vol * 254) / 100;  //Visszaalakítja a 0-100 értéket a dekodernek  0-254 -re.
-    if(vol > 254) vol = 254;  // Módosítva. "hanglépték"
-    m_vol = vol;              // m_vol 0 - 254 -es érték.
-/*    if(vol > 21) vol = 21;
-    m_vol = volumetable[vol];*/
+void Audio::setVolume(uint8_t vol) {
+    uint16_t wvol = ((uint16_t)vol * 254) / 100;  //Visszaalakítja a 0-100 értéket a dekodernek  0-254 -re.
+    if(wvol > 254) wvol = 254;  // Módosítva. "hanglépték"
+    m_vol = wvol;              // m_vol 0 - 254 -es érték.
 }
 //---------------------------------------------------------------------------------------------------------------------
 uint8_t Audio::getVolume() {
-    uint8_t vol = ((uint16_t)m_vol * 100) / 254;
+    uint16_t vol = ((uint16_t)m_vol * 100) / 254;
     return vol;  // 0 - 100 -as értéket ad vissza.
-    /*for(uint8_t i = 0; i < 22; i++) {
-        if(volumetable[i] == m_vol) return i;
-    }
-    m_vol = 12; // if m_vol not found in table
-    return m_vol;*/
 }
 //---------------------------------------------------------------------------------------------------------------------
 uint8_t Audio::getI2sPort() {

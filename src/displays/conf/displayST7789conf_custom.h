@@ -54,7 +54,7 @@ const WidgetConfig apPassConf     PROGMEM = { TFT_FRAMEWDT, 130, 2, WA_CENTER };
 const WidgetConfig apPass2Conf    PROGMEM = { TFT_FRAMEWDT, 154, 2, WA_CENTER };
 const WidgetConfig  clockConf     PROGMEM = { 4, 166, 0, WA_RIGHT };
 //const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT, 100, 1, WA_LEFT };
-const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT, 197, 1, WA_CENTER };
+const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT+17, 197, 1, WA_CENTER };
 
 const WidgetConfig bootWdtConf    PROGMEM = { 0, 162, 1, WA_CENTER };
 const ProgressConfig bootPrgConf  PROGMEM = { 90, 14, 4 };
@@ -62,7 +62,7 @@ const ProgressConfig bootPrgConf  PROGMEM = { 90, 14, 4 };
 const BitrateConfig fullbitrateConf PROGMEM = {{8, 114, 2, WA_RIGHT}, 46 };
 
 /* BANDS  */                             /* { onebandwidth, onebandheight, bandsHspace, bandsVspace, numofbands, fadespeed } */
-const VUBandsConfig bandsConf     PROGMEM = { 270, 6, 2, 2, 30, 6 };
+const VUBandsConfig bandsConf     PROGMEM = { 255, 6, 2, 2, 30, 6 };
 
 /* STRINGS  */
 const char         numtxtFmt[]    PROGMEM = "%d";

@@ -311,10 +311,10 @@ void Player::toggle() {
 
 void Player::stepVol(bool up) {
   if (up) {
-    if (config.store.volume <= 254 - config.store.volsteps) {
+    if (config.store.volume <= 100 - config.store.volsteps) {
       setVol(config.store.volume + config.store.volsteps);
     }else{
-      setVol(254);
+      setVol(100);
     }
   } else {
     if (config.store.volume >= config.store.volsteps) {
@@ -326,8 +326,8 @@ void Player::stepVol(bool up) {
 }
 
 uint8_t Player::volToI2S(uint8_t volume) {
-  int vol = map(volume, 0, 254 - config.station.ovol * 3 , 0, 254);
-  if (vol > 254) vol = 254;
+  int vol = map(volume, 0, 100 - config.station.ovol * 3 , 0, 100);
+  if (vol > 100) vol = 100;
   if (vol < 0) vol = 0;
   return vol;
 }

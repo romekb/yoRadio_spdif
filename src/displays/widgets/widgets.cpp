@@ -579,9 +579,9 @@ void VuWidget::_draw() {
 #ifndef BOOMBOX_STYLE
   if (played && !_labelsDrawn) {
     // Serial.println("L/R rajzolás");
-    int label_width = _bands.height + 15;
+    int label_width = _bands.height + 10;
     int label_height = _bands.height + 4;
-    int label_offset = label_width + 4;
+    int label_offset = label_width + 3;
     int label_left = _config.left - label_offset;
     if (label_left >= 0) {
       dsp.fillRect(label_left, _config.top - 4, label_width, label_height, 0x7BEF);

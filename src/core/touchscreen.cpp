@@ -129,7 +129,7 @@ void TouchScreen::loop(){
             touchLongPress=millis();
             if(display.mode()==PLAYER || display.mode()==VOL){
               int16_t xDelta = map(abs(touchVol - touchX), 0, _width, 0, TS_STEPS);
-              display.putRequest(NEWMODE, VOL);
+              //display.putRequest(NEWMODE, VOL);
               if (xDelta>1) {
                 controlsEvent((touchVol - touchX)<0);
                 touchVol = touchX;

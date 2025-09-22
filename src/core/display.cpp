@@ -635,7 +635,7 @@ void Display::_time(bool redraw) {
     if(strcmp(_clock->gNameDay(), bday) != 0) {
       strlcpy(bday, _clock->gNameDay(), sizeof(bday));
       _nameday->setText(bday);
-      Serial.println("ND UPDATE");
+//      Serial.println("ND UPDATE");
     }
   #endif
   _clock->draw(redraw);
