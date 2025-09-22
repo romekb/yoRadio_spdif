@@ -1,13 +1,17 @@
 This is modified version of yoRadio (eRadio) project from: https://github.com/e2002/yoradio
 
 New version based on yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip.
-WORKING ONLY WITH ST7789 320x240 display ! Standard ESP32 WROVER (or WROOM + External PSRAM) is supported too.
+WORKING ONLY WITH ST7789 320x240 display ! Should work on ILI9341 320x240 displays.
+Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32S3 is supported.
 
 What's changed:
 - added support for SPDIF output. This can be either COAX or OPTICAL.
 - added support for multiple languages: EN,RU,PL,HU,NL,EL
-- changed display layout. Only for ST7789 320x240 display
+- changed display layout. Only for ST7789 and ILI9341 320x240 displays
 - added scroll for displaying name days (PL,NL,HU)
+- only "Play" key on remote can wakeup player from sleep/screensaver mode.
+- no Volume page. Changing volume is indicated only via volume bar and value on main player screen.
+- allow multiple scrolls working at the same time.
   
 The SPDIF output can coexist with normal I2S DAC, or internal DAC. You can't use SPDIF with VS1053. Only way in this situation is completly disable VS1053.
 You can switch ("on the fly") current output type via "Settings" in WWW interface. For this I use the "Touch debug" switch. 

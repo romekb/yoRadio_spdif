@@ -1,19 +1,16 @@
 /*************************************************************************************
-    ST7789 320x240 displays configuration file.
-    Copy this file to yoRadio/src/displays/conf/displayST7789conf_custom.h
+    ILI9341 320x240 displays configuration file.
+    Copy this file to yoRadio/src/displays/conf/displayILI9341conf_custom.h
     and modify it
     More info on https://github.com/e2002/yoradio/wiki/Widgets#widgets-description
 *************************************************************************************/
 
-#ifndef displayST7789conf_h
-#define displayST7789conf_h
+#ifndef displayILI9341conf_h
+#define displayILI9341conf_h
 
 #define DSP_WIDTH       320
 #define TFT_FRAMEWDT    8
 #define MAX_WIDTH       DSP_WIDTH-TFT_FRAMEWDT*2
-//#define PLMITEMS        11
-//#define PLMITEMLENGHT   40
-//#define PLMITEMHEIGHT   22
 
 #if BITRATE_FULL
   #define TITLE_FIX 44
@@ -21,6 +18,7 @@
   #define TITLE_FIX 0
 #endif
 #define bootLogoTop     68
+
 
 /* SROLLS  */                            /* {{ left, top, fontsize, align }, buffsize, uppercase, width, scrolldelay, scrolldelta, scrolltime } */
 const ScrollConfig metaConf       PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 3, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 5, 30 };
@@ -34,7 +32,6 @@ const ScrollConfig namedayConf    PROGMEM = {{ TFT_FRAMEWDT, 153, 2, WA_LEFT }, 
 
 
 /* BACKGROUNDS  */                       /* {{ left, top, fontsize, align }, width, height, outlined } */
-//const FillConfig   metaBGConf     PROGMEM = {{ 0, 0, 0, WA_LEFT }, DSP_WIDTH, 38, false };
 const FillConfig   metaBGConf     PROGMEM = {{1, 35, 0, WA_CENTER}, DSP_WIDTH - 2, 1, true}; // Csík rajzolása a rádióadó neve alá.
 const FillConfig   metaBGConfInv  PROGMEM = {{ 0, 38, 0, WA_LEFT }, DSP_WIDTH, 1, false };
 const FillConfig   volbarConf     PROGMEM = {{ TFT_FRAMEWDT, 240-TFT_FRAMEWDT-5, 0, WA_LEFT }, MAX_WIDTH, 7, true };
@@ -53,12 +50,10 @@ const WidgetConfig apName2Conf    PROGMEM = { TFT_FRAMEWDT, 90, 2, WA_CENTER };
 const WidgetConfig apPassConf     PROGMEM = { TFT_FRAMEWDT, 130, 2, WA_CENTER };
 const WidgetConfig apPass2Conf    PROGMEM = { TFT_FRAMEWDT, 154, 2, WA_CENTER };
 const WidgetConfig  clockConf     PROGMEM = { 4, 166, 0, WA_RIGHT };
-//const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT, 100, 1, WA_LEFT };
 const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT+17, 196, 1, WA_CENTER };
 
 const WidgetConfig bootWdtConf    PROGMEM = { 0, 162, 1, WA_CENTER };
 const ProgressConfig bootPrgConf  PROGMEM = { 90, 14, 4 };
-//const BitrateConfig fullbitrateConf PROGMEM = {{DSP_WIDTH-TFT_FRAMEWDT-34, 43, 2, WA_LEFT}, 42 };
 const BitrateConfig fullbitrateConf PROGMEM = {{8, 114, 2, WA_RIGHT}, 46 };
 
 /* BANDS  */                             /* { onebandwidth, onebandheight, bandsHspace, bandsVspace, numofbands, fadespeed } */
