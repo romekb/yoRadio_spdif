@@ -1,35 +1,36 @@
 Zmodyfikowana wersja projektu yoRadio (eRadio) z: https://github.com/e2002/yoradio
 
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
-DZIA£A TYLKO Z wyœwietlaczem ST7789 320x240! Powinna dzia³aæ z wyœwietlaczami ILI9341 320x240. 
-Obs³ugiwany jest standardowy uk³ad ESP32 WROVER (lub WROOM + zewnêtrzna pamiêæ PSRAM) lub ESP32S3.
+DZIAÅA TYLKO Z wyÅ›wietlaczem ST7789 320x240! Powinna dziaÅ‚aÄ‡ z wyÅ›wietlaczami ILI9341 320x240. 
+ObsÅ‚ugiwany jest standardowy ukÅ‚ad ESP32 WROVER (lub WROOM + zewnÄ™trzna pamiÄ™Ä‡ PSRAM) lub ESP32S3.
 
-Co siê zmieni³o:
-- Dodano obs³ugê wyjœcia SPDIF. Mo¿e to byæ wyjœcie koncentryczne (COAX) lub optyczne (OPTICAL).
-- Dodano obs³ugê wielu jêzyków: EN, RU, PL, HU, NL, EL.
-- Zmieniono uk³ad wyœwietlacza. Tylko dla wyœwietlaczy ST7789 i ILI9341 o rozdzielczoœci 320x240
-- Dodano przewijanie dla wyœwietlania imienin (PL, NL, HU)
-- Tylko przycisk „Play” na pilocie mo¿e wybudziæ odtwarzacz z trybu uœpienia/wygaszacza ekranu.
-- Brak strony z ustawieniami g³oœnoœci. Zmiana g³oœnoœci jest sygnalizowana tylko za pomoc¹ paska g³oœnoœci i wartoœci na g³ównym ekranie odtwarzacza.
-- Jednoczesne dzia³anie wielu scroll'i na ekranie.
+Co siÄ™ zmieniÅ‚o:
+- Dodano obsÅ‚ugÄ™ wyjÅ›cia SPDIF. MoÅ¼e to byÄ‡ wyjÅ›cie koncentryczne (COAX) lub optyczne (OPTICAL).
+- Dodano obsÅ‚ugÄ™ wielu jÄ™zykÃ³w: EN, RU, PL, HU, NL, EL.
+- Zmieniono ukÅ‚ad wyÅ›wietlacza. Tylko dla wyÅ›wietlaczy ST7789 i ILI9341 o rozdzielczoÅ›ci 320x240
+- Dodano przewijanie dla wyÅ›wietlania imienin (PL, NL, HU)
+- Tylko przycisk â€Playâ€ na pilocie moÅ¼e wybudziÄ‡ odtwarzacz z trybu uÅ›pienia/wygaszacza ekranu.
+- Brak strony z ustawieniami gÅ‚oÅ›noÅ›ci. Zmiana gÅ‚oÅ›noÅ›ci jest sygnalizowana tylko za pomocÄ… paska gÅ‚oÅ›noÅ›ci i wartoÅ›ci na gÅ‚Ã³wnym ekranie odtwarzacza.
+- Jednoczesne dziaÅ‚anie wielu scroll'i na ekranie.
 
-Wyjœcie SPDIF mo¿e dzia³aæ zamiennie ze zwyk³ym przetwornikiem cyfrowo-analogowym I2S lub wewnêtrznym przetwornikiem cyfrowo-analogowym. Nie mo¿na u¿ywaæ SPDIF wraz z VS1053. 
-Jedynym sposobem w tej sytuacji jest ca³kowite wy³¹czenie VS1053. 
-Aktualny typ wyjœcia mo¿na prze³¹czaæ („w locie”) za pomoc¹ „Ustawieñ” w interfejsie WWW. 
-W tym celu u¿ywam prze³¹cznika „Touch debug” na stronie ustawieñ. 
-W folderze „data” udostêpniam zmodyfikowan¹ stronê ustawieñ ze zmienionym opisem prze³¹cznika z „Touch debug” na „SPDIF output”. 
-W pliku „myoptions.h” nale¿y dodaæ definicjê pinu „#define SPDIF_OUT xx” dla zdefiniowania pinu SPDIF. Ten pin mo¿na zdefiniowaæ te¿ jako ten sam pin, co pin DATA dla konwertera I2S. 
-Jeœli pozostanie niezdefiniowany lub ustawiony na 255, obs³uga SPDIF zostanie wy³¹czona.
+WyjÅ›cie SPDIF moÅ¼e dziaÅ‚aÄ‡ zamiennie ze zwykÅ‚ym przetwornikiem cyfrowo-analogowym I2S lub wewnÄ™trznym przetwornikiem cyfrowo-analogowym. Nie moÅ¼na uÅ¼ywaÄ‡ SPDIF wraz z VS1053. 
+Jedynym sposobem w tej sytuacji jest caÅ‚kowite wyÅ‚Ä…czenie VS1053. 
+Aktualny typ wyjÅ›cia moÅ¼na przeÅ‚Ä…czaÄ‡ (â€w locieâ€) za pomocÄ… â€UstawieÅ„â€ w interfejsie WWW. 
+W tym celu uÅ¼ywam przeÅ‚Ä…cznika â€Touch debugâ€ na stronie ustawieÅ„. 
+W folderze â€dataâ€ udostÄ™pniam zmodyfikowanÄ… stronÄ™ ustawieÅ„ ze zmienionym opisem przeÅ‚Ä…cznika z â€Touch debugâ€ na â€SPDIF outputâ€. 
+W pliku â€myoptions.hâ€ naleÅ¼y dodaÄ‡ definicjÄ™ pinu â€#define SPDIF_OUT xxâ€ dla zdefiniowania pinu wyjÅ›ciowego SPDIF. 
+Ten pin moÅ¼na zdefiniowaÄ‡ teÅ¼ jako ten sam pin, co pin DATA dla konwertera I2S. 
+JeÅ¼li pozostanie niezdefiniowany lub ustawiony na 255, obsÅ‚uga SPDIF zostanie wyÅ‚Ä…czona.
 
-W wersji sprzêtowej wyjœcie COAXIAL SPDIF jest proste. 
-W przypadku COAX wystarczy umieœciæ rezystor szeregowy 470 omów miêdzy pinem zadeklarowanym jako SPDIF_OUT a gniazdem cinch, które jest wyjœciem COAX. 
-Do wyjœcia optycznego mo¿na u¿yæ nadajnika TOSLINK, takiego jak FCR684214T lub TOTX173, lub dowolnego innego. 
-W niektórych przypadkach wystarczy nawet czerwona dioda LED z rezystorem szeregowym 100 omów.
+SprzÄ™toweo wyjÅ›cie COAXIAL SPDIF jest proste. 
+W przypadku COAX wystarczy wstawiÄ‡ rezystor szeregowy 470 omÃ³w miÄ™dzy pinem zadeklarowanym jako SPDIF_OUT a gniazdem cinch, ktÃ³re jest wyjÅ›ciem COAX. 
+Do wyjÅ›cia optycznego moÅ¼na uÅ¼yÄ‡ nadajnika TOSLINK, takiego jak FCR684214T lub TOTX173, lub dowolnego innego. 
+W niektÃ³rych przypadkach wystarczy nawet czerwona dioda LED z rezystorem szeregowym 100 omÃ³w.
 
-Za³¹czam plik „myoptions.h” w celach referencyjnych. 
-U¿ywam modu³u CYD z dodatkowym uk³adem PSRAM, przetwornikiem cyfrowo-analogowym PCM5102A i koncentrycznym wyjœciem SPDIF pod³¹czonym do pinu Data przetwornika DAC.
+ZaÅ‚Ä…czam mÃ³j plik â€myoptions.hâ€ w celach referencyjnych. 
+UÅ¼ywam pÅ‚ytki ESP32 CYD z dodanym ukÅ‚adem pamiÄ™ci PSRAM, przetwornikiem cyfrowo-analogowym PCM5102A i koncentrycznym wyjÅ“ciem SPDIF podÅ‚Ä…czonym do pinu Data przetwornika DAC.
 
-Testy przeprowadzono na radiach internetowych, korzystaj¹c ze strumieni AAC i MP3 oraz plików MP3 na karcie SD (testowano stacje MP3 o przep³ywnoœci do 320 kbps i AAC o przep³ywnoœci oko³o 200 kbps).
+Testy przeprowadzono na radiach internetowych, korzystajÄ…c ze strumieni AAC i MP3 oraz plikÃ³w MP3 na karcie SD (testowano stacje MP3 o bitrate do 320 kbps i AAC o bitraate okoÅ‚o 200 kbps).
 
 ------------------------------------------------------------------------------------------------------
 
