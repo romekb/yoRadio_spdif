@@ -12,6 +12,7 @@ Co się zmieniło:
 - Tylko przycisk „Play” na pilocie może wybudzić odtwarzacz z trybu uśpienia/wygaszacza ekranu.
 - Brak strony z ustawieniami głośności. Zmiana głośności jest sygnalizowana tylko za pomocą paska głośności i wartości na głównym ekranie odtwarzacza.
 - Jednoczesne działanie wielu scroll'i na ekranie.
+- Zainstalowana wyszukiwarka stacji radiowych - lupka w interfejscie www.
 
 Wyjście SPDIF może działać zamiennie ze zwykłym przetwornikiem cyfrowo-analogowym I2S lub wewnętrznym przetwornikiem cyfrowo-analogowym. Nie można używać SPDIF wraz z VS1053. 
 Jedynym sposobem w tej sytuacji jest całkowite wyłączenie VS1053. 
@@ -48,6 +49,7 @@ What's changed:
 - only "Play" key on remote can wakeup player from sleep/screensaver mode.
 - no Volume page. Changing volume is indicated only via volume bar and value on main player screen.
 - allow multiple scrolls working at the same time.
+- installed radio stations search engine
   
 The SPDIF output can coexist with normal I2S DAC, or internal DAC. You can't use SPDIF with VS1053. Only way in this situation is completly disable VS1053.
 You can switch ("on the fly") current output type via "Settings" in WWW interface. For this I use the "Touch debug" switch. 
