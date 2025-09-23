@@ -271,7 +271,8 @@ private:
     bool playChunk();
     bool playSample(int16_t sample[2]) ;
     void playI2Sremains();
-    int32_t Gain(int16_t s[2]);
+    void Gain(int16_t *sample);
+    void computeLimit();
     bool fill_InputBuf();
     void showstreamtitle(const char* ml);
     bool parseContentType(char* ct);
@@ -461,9 +462,6 @@ private:
     typedef enum { LEFTCHANNEL=0, RIGHTCHANNEL=1 } SampleIndex;
     typedef enum { LOWSHELF = 0, PEAKEQ = 1, HIFGSHELF =2 } FilterType;
 
-    const uint8_t volumetable[22]={   0,  1,  2,  3,  4 , 6 , 8, 10, 12, 14, 17,
-                                     20, 23, 27, 30 ,34, 38, 43 ,48, 52, 58, 64}; //22 elements
-
     typedef struct _filter{
         float a0;
         float a1;
@@ -588,6 +586,7 @@ private:
     int16_t         m_pesDataLength = 0;
     uint16_t        vuLeft, vuRight;
     bool            m_spdif_output;
+    float           m_limit_left, m_limit_right;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

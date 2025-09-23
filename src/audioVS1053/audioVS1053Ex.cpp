@@ -343,7 +343,7 @@ void Audio::setVolume(uint8_t vol){
     uint16_t value;                                         // Value to send to SCI_VOL
     uint8_t valueL, valueR;
     int16_t balance_map = map(m_balance, -16, 16, -100, 100);
-    
+    if(vol > 100) vol = 100;
     valueL = vol;
     valueR = vol;
     if (balance_map < 0) {
@@ -357,8 +357,8 @@ void Audio::setVolume(uint8_t vol){
     uint8_t lgvolR = VS1053VOL(valueR);
     if(lgvolL==VS1053VOLM) lgvolL=0;
     if(lgvolR==VS1053VOLM) lgvolR=0;
-    valueL=map(lgvolL, 0, 254, 0xF8, 0x00);
-    valueR=map(lgvolR, 0, 254, 0xF8, 0x00);
+    valueL=map(lgvolL, 0, 100, 0xF8, 0x00);
+    valueR=map(lgvolR, 0, 100, 0xF8, 0x00);
     value=(valueL << 8) | valueR;
     write_register(SCI_VOL, value);
 /*    uint16_t value;                                         // Value to send to SCI_VOL

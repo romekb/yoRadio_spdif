@@ -97,11 +97,11 @@ void spdif_init(int rate)
 
 
 // write audio data to I2S buffer
-bool spdif_write(const uint32_t smp)
+bool spdif_write(int16_t smp[2])
 {
     uint16_t hi, lo, aux;
 
-    uint16_t sample_left = smp & 0xFFFF;
+    uint16_t sample_left = smp[0];
     // BMC encode and flip left channel bits
     hi = pgm_read_word(&spdif_bmclookup[(uint8_t)(sample_left >> 8)]);
     lo = pgm_read_word(&spdif_bmclookup[(uint8_t)sample_left]);
@@ -118,7 +118,7 @@ bool spdif_write(const uint32_t smp)
         *spdif_ptr++ = VUCP_PREAMBLE_M | aux;
     }
 
-    uint16_t sample_right = smp >> 16;
+    uint16_t sample_right = smp[1];
     // BMC encode right channel, similar as above
     hi = pgm_read_word(&spdif_bmclookup[(uint8_t)(sample_right >> 8)]);
     lo = pgm_read_word(&spdif_bmclookup[(uint8_t)sample_right]);

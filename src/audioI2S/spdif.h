@@ -24,4 +24,4 @@ void spdif_init(int rate);
  *   src: pointer to 16bit PCM stereo data
  *   size: number of data bytes
  */
-bool spdif_write(const uint32_t smp);
+bool spdif_write(int16_t smp[2]);

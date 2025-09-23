@@ -218,7 +218,8 @@ void Audio::setOutput(bool spdf)
         m_filter[i].a2  = 0;
         m_filter[i].b1  = 0;
         m_filter[i].b2  = 0;
-    }    
+    } 
+    computeLimit();   
 }
 
 Audio::Audio(bool internalDAC /* = false */, uint8_t channelEnabled /* = I2S_DAC_CHANNEL_BOTH_EN */, uint8_t i2sPort) {
@@ -4531,15 +4532,16 @@ bool Audio::playSample(int16_t sample[2]) {
     }
     //-------------------------------------------
     _computeVUlevel(sample);
-    uint32_t s32 = Gain(sample); // vosample2lume;
+    Gain(sample);
 
     if(m_spdif_output) {
-        bool wrok = spdif_write(s32);
-        if(m_sampleRate < 32000) {wrok &= spdif_write(s32);}
-        if(m_sampleRate < 16000) {wrok &= spdif_write(s32); wrok &= spdif_write(s32);}
+        bool wrok = spdif_write(sample);
+        if(m_sampleRate < 32000) {wrok &= spdif_write(sample);}
+        if(m_sampleRate < 16000) {wrok &= spdif_write(sample); wrok &= spdif_write(sample);}
         return wrok;
     }
-    
+    uint32_t s32 = (sample[RIGHTCHANNEL] << 16) | (sample[LEFTCHANNEL] & 0xffff);
+
     if(m_f_internalDAC) {
         s32 += 0x80008000;
     }
@@ -4589,41 +4591,37 @@ void Audio::setBalance(int8_t bal){ // bal -16...16
     if(bal < -16) bal = -16;
     if(bal >  16) bal =  16;
     m_balance = bal;
+    computeLimit();
 }
 //---------------------------------------------------------------------------------------------------------------------
 void Audio::setVolume(uint8_t vol) {
-    uint16_t wvol = ((uint16_t)vol * 254) / 100;  //Visszaalakítja a 0-100 értéket a dekodernek  0-254 -re.
-    if(wvol > 254) wvol = 254;  // Módosítva. "hanglépték"
-    m_vol = wvol;              // m_vol 0 - 254 -es érték.
+//    uint16_t wvol = ((uint16_t)vol * 254) / 100;  //Visszaalakítja a 0-100 értéket a dekodernek  0-254 -re.
+    if(vol > 100) vol = 100;  
+    m_vol = vol;
+    computeLimit();
 }
 //---------------------------------------------------------------------------------------------------------------------
 uint8_t Audio::getVolume() {
-    uint16_t vol = ((uint16_t)m_vol * 100) / 254;
-    return vol;  // 0 - 100 -as értéket ad vissza.
+//    uint16_t vol = ((uint16_t)m_vol * 100) / 254;
+    return m_vol;  // 0 - 100 -as értéket ad vissza.
 }
 //---------------------------------------------------------------------------------------------------------------------
 uint8_t Audio::getI2sPort() {
     return m_i2s_num;
 }
 //---------------------------------------------------------------------------------------------------------------------
-int32_t Audio::Gain(int16_t s[2]) {
-    int32_t v[2];
-    float step = (float)m_vol /254;
-    uint8_t l = 0, r = 0;
+void Audio::computeLimit() {    // is calculated when the volume or balance changes
+    double l = 1, r = 1, v = (float)m_vol / 100.0; // assume 100%
 
-    if(m_balance < 0){
-        step = step * (float)(abs(m_balance) * 16);
-        r = (uint8_t)(step);            // bugfix
-    }
-    if(m_balance > 0){
-        step = step * m_balance * 16;
-        l = (uint8_t)(step);            // bugfix
-    }
-
-    v[LEFTCHANNEL] = (s[LEFTCHANNEL]  * (m_vol - l)) >> 8;
-    v[RIGHTCHANNEL]= (s[RIGHTCHANNEL] * (m_vol - r)) >> 8;
-
-    return (v[RIGHTCHANNEL] << 16) | (v[LEFTCHANNEL] & 0xffff);   // bugfix
+    if(m_balance > 0) { l -= (double)abs(m_balance) / 16; }
+    else if(m_balance < 0) { r -= (double)abs(m_balance) / 16; }
+    m_limit_left = l * v;
+    m_limit_right = r * v;
+}
+//---------------------------------------------------------------------------------------------------------------------
+void Audio::Gain(int16_t *sample) {
+    sample[LEFTCHANNEL]  *= m_limit_left ;
+    sample[RIGHTCHANNEL] *= m_limit_right;
 }
 //---------------------------------------------------------------------------------------------------------------------
 uint32_t Audio::inBufferFilled() {
