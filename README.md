@@ -2,8 +2,10 @@ Zmodyfikowana wersja projektu yoRadio (eRadio) z: https://github.com/e2002/yorad
 
 <img src="yoRadio_mis.jpg" width="280" height="200">
 
+https://www.youtube.com/watch?v=0B93uhm7WAI
+
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
-DZIAŁA TYLKO Z wyświetlaczem ST7789 320x240! Powinna działać z wyświetlaczami ILI9341 320x240. 
+Działa z wyświetlaczem ST7789 320x240. Powinna działać z wyświetlaczami ILI9341 320x240. Innych nie obsługuje. 
 Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32S3.
 
 Co się zmieniło:
