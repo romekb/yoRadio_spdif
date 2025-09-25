@@ -53,8 +53,10 @@ const char *getNameDay(int month, int day) {
   // Megszámoljuk a nevek számát a karakterláncban (vesszővel elválasztva)
   uint8_t nameCount = 1;
   for (int i = 0; tempBuffer[i] != '\0'; i++) {
-    if (tempBuffer[i] == ',')
+    if (tempBuffer[i] == ',') {
       nameCount++;
+      tempBuffer[i] = ' ';  // replace ',' by space
+    }
   }
 
   // Ha csak egy név van, ne cseréld le

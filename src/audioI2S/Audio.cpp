@@ -667,6 +667,7 @@ bool Audio::httpPrint(const char* host) {
 }
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::setFileLoop(bool input){
+    if(m_codec == CODEC_M4A) return 0;
     m_f_loop = input;
     return input;
 }
@@ -2365,10 +2366,11 @@ void Audio::playI2Sremains() { // returns true if all dma_buffs flushed
     if(getBitsPerSample() > 8) memset(m_outBuff,   0, sizeof(m_outBuff));     //Clear OutputBuffer (signed)
     else                       memset(m_outBuff, 128, sizeof(m_outBuff));     //Clear OutputBuffer (unsigned, PCM 8u)
 
-    m_validSamples = m_i2s_config.dma_buf_len;
+    m_validSamples = m_i2s_config.dma_buf_len * m_i2s_config.dma_buf_count;
     while(m_validSamples) {
         playChunk();
     }
+    i2s_zero_dma_buffer((i2s_port_t) m_i2s_num);
     return;
 }
 //---------------------------------------------------------------------------------------------------------------------
@@ -3861,6 +3863,7 @@ bool Audio::parseContentType(char* ct) {
     else if(!strcmp(ct, "audio/x-mpegurl"))  ct_val = CT_M3U;
     else if(!strcmp(ct, "audio/ms-asf"))     ct_val = CT_ASX;
     else if(!strcmp(ct, "video/x-ms-asf"))   ct_val = CT_ASX;
+    else if(!strcmp(ct, "audio/x-ms-asx"))   ct_val = CT_ASX; // #413
 
     else if(!strcmp(ct, "application/ogg"))  ct_val = CT_OGG;
     else if(!strcmp(ct, "application/vnd.apple.mpegurl")) ct_val = CT_M3U8;
