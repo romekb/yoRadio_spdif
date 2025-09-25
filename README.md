@@ -1,6 +1,6 @@
 Zmodyfikowana wersja projektu yoRadio (eRadio) z: https://github.com/e2002/yoradio
 
-<img src="yoRadio_mis.jpg" width="280" height="200">
+<img src="yoRadio_mis.jpg" width="280" height="200">  <img src="settings.jpg" width="284" height="200">
 
 https://www.youtube.com/watch?v=0B93uhm7WAI
 
