@@ -3,7 +3,7 @@
 #define widgetsconfig_h
 
 enum WidgetAlign { WA_LEFT, WA_CENTER, WA_RIGHT };
-enum BitrateFormat { BF_UNKNOWN, BF_MP3, BF_AAC, BF_FLAC, BF_OGG, BF_WAV };
+enum BitrateFormat { BF_UNKNOWN, BF_MP3, BF_AAC, BF_FLAC, BF_OGG, BF_WAV, BF_OPUS, BF_VORB };
 
 struct WidgetConfig {
   uint16_t left; 

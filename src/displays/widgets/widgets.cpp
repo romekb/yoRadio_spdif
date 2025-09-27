@@ -1180,6 +1180,8 @@ void BitrateWidget::_draw(){  //Módosítás
     case BF_FLAC: dsp.print("FLC"); break;
     case BF_OGG:  dsp.print("OGG"); break;
     case BF_WAV:  dsp.print("WAV"); break;
+    case BF_OPUS: dsp.print("OPU"); break;
+    case BF_VORB: dsp.print("VOR"); break;
     default:                        break;
   }
 }
