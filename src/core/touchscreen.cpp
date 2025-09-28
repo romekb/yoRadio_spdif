@@ -131,7 +131,7 @@ void TouchScreen::loop(){
               int16_t xDelta = map(abs(touchVol - touchX), 0, _width, 0, TS_STEPS);
               //display.putRequest(NEWMODE, VOL);
               if (xDelta>1) {
-                controlsEvent((touchVol - touchX)<0);
+                controlsEvent((touchVol - touchX)<0, 0, true);
                 touchVol = touchX;
               }
             }

@@ -211,6 +211,8 @@ void Audio::setOutput(bool spdf)
         i2s_zero_dma_buffer((i2s_port_t) m_i2s_num);
     } else {
         spdif_init(44100);
+        m_i2s_config.dma_buf_len = 192*2;
+        m_i2s_config.dma_buf_count = psramInit()?16:4;
     }
 
     for(int i = 0; i <3; i++) {
@@ -343,7 +345,6 @@ void Audio::setDefaults() {
       if(_client) _client->stop();
       _client = static_cast<WiFiClient*>(&client); /* default to *something* so that no NULL deref can happen */
     }
-    playI2Sremains();
     ts_parsePacket(0, 0, 0); // reset ts routine
 
     AUDIO_INFO("buffers freed, free Heap: %lu bytes", ESP.getFreeHeap());
@@ -413,6 +414,7 @@ bool Audio::connecttohost(const char* host, const char* user, const char* pwd) {
 
     if(host == NULL) {
         AUDIO_INFO("Hostaddress is empty");
+        stopSong();
         if(audio_error) audio_error("Hostaddress is empty");
         return false;
     }
@@ -421,6 +423,7 @@ bool Audio::connecttohost(const char* host, const char* user, const char* pwd) {
 
     if(lenHost >= 512 - 10) {
         AUDIO_INFO("Hostaddress is too long");
+        stopSong();
         if(audio_error) audio_error("Hostaddress is too long");
         return false;
     }
@@ -584,6 +587,7 @@ bool Audio::httpPrint(const char* host) {
 
     if(host == NULL) {
         AUDIO_INFO("Hostaddress is empty");
+        stopSong();
         return false;
     }
 
@@ -2182,20 +2186,6 @@ uint32_t Audio::stopSong() {
     return pos;
 }
 //---------------------------------------------------------------------------------------------------------------------
-void Audio::playI2Sremains() { // returns true if all dma_buffs flushed
-    if(!getSampleRate()) setSampleRate(96000);
-    if(!getChannels()) setChannels(2);
-    if(getBitsPerSample() > 8) memset(m_outBuff,   0, sizeof(m_outBuff));     //Clear OutputBuffer (signed)
-    else                       memset(m_outBuff, 128, sizeof(m_outBuff));     //Clear OutputBuffer (unsigned, PCM 8u)
-
-    m_validSamples = m_i2s_config.dma_buf_len * m_i2s_config.dma_buf_count;
-    while(m_validSamples) {
-        playChunk();
-    }
-    i2s_zero_dma_buffer((i2s_port_t) m_i2s_num);
-    return;
-}
-//---------------------------------------------------------------------------------------------------------------------
 bool Audio::pauseResume() {
     bool retVal = false;
     if(getDatamode() == AUDIO_LOCALFILE || m_streamType == ST_WEBSTREAM) {
@@ -2930,7 +2920,6 @@ void Audio::processLocalFile() {
             }
         }
         InBuff.resetBuffer();
-        playI2Sremains();
 
         if(m_f_loop  && f_stream){  //eof
             AUDIO_INFO("loop from: %lu to: %lu", getFilePos(), m_audioDataStart); //TEST loop
@@ -3139,7 +3128,6 @@ void Audio::processWebFile() {
                 if(bytesDecoded > 2){InBuff.bytesWasRead(bytesDecoded); return;}
             }
         }
-    playI2Sremains();
     stopSong(); // Correct close when play known length sound #74 and before callback #11
     m_f_running = false;
     m_streamType = ST_NONE;

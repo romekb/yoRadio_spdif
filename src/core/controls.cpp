@@ -249,11 +249,11 @@ void irLoop() {
     }
     switch (irVolRepeat) {
       case 1: {
-          controlsEvent(display.mode() == STATIONS ? false : true);
+          controlsEvent(display.mode() == STATIONS ? false : true, 0, true);
           break;
         }
       case 2: {
-          controlsEvent(display.mode() == STATIONS ? true : false);
+          controlsEvent(display.mode() == STATIONS ? true : false, 0, true);
           break;
         }
     }
@@ -289,12 +289,12 @@ void irLoop() {
                 break;
               }
             case IR_UP: {
-                controlsEvent(display.mode() == STATIONS ? false : true);
+                controlsEvent(display.mode() == STATIONS ? false : true, 0, true);
                 irVolRepeat = 1;
                 break;
               }
             case IR_DOWN: {
-                controlsEvent(display.mode() == STATIONS ? true : false);
+                controlsEvent(display.mode() == STATIONS ? true : false, 0, true);
                 irVolRepeat = 2;
                 break;
               }
@@ -451,12 +451,24 @@ void onBtnDuringLongPress(int id) {
   }
 }
 
-void controlsEvent(bool toRight, int8_t volDelta) {
+void controlsEvent(bool toRight, int8_t volDelta, bool allowBrightness) {
   if (display.mode() == NUMBERS) {
     display.numOfNextStation = 0;
     display.putRequest(NEWMODE, PLAYER);
   }
   if (display.mode() != STATIONS) {
+  #if BRIGHTNESS_PIN!=255    
+    if (player.status() == STOPPED && allowBrightness) {
+      int br = config.store.brightness;                 // brightness change from remote/touchscreen
+      if(toRight) br += 5; else br -= 5;
+      if(br > 100) br = 100;
+      if(br < 5) br = 5;
+      config.store.brightness = br;
+      config.setBrightness(true);                       // set & save new brightness
+      config.screensaverTicks=SCREENSAVERSTARTUPDELAY;  // reset screensaver timeout
+      return;
+    }
+  #endif  
     #if (!defined(DUMMYDISPLAY) || defined(USE_NEXTION)) && !defined(NO_VOLUME_SCREEN)
       display.putRequest(NEWMODE, VOL);
     #endif
