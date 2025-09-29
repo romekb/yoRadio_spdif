@@ -559,7 +559,7 @@ void VuWidget::_draw() {
   // Bal csatorna
 
   if (peakL >= 2 && peakL < (int)_bands.width - peak_width) {
-    Serial.printf("peakL : %d, measL : %d \n", peakL, measL);
+  //  Serial.printf("peakL : %d, measL : %d \n", peakL, measL);
     _canvas->fillRect(peakL - 1, 0, peak_width + 2, _bands.height, peak_bright);
     _canvas->fillRect(peakL, 0, peak_width, _bands.height, peak_color);
   }

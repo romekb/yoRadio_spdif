@@ -56,8 +56,12 @@ const WidgetConfig bootWdtConf    PROGMEM = { 0, 162, 1, WA_CENTER };
 const ProgressConfig bootPrgConf  PROGMEM = { 90, 14, 4 };
 const BitrateConfig fullbitrateConf PROGMEM = {{8, 114, 2, WA_RIGHT}, 46 };
 
-/* BANDS  */                             /* { onebandwidth, onebandheight, bandsHspace, bandsVspace, numofbands, fadespeed } */
-const VUBandsConfig bandsConf     PROGMEM = { 255, 6, 2, 2, 30, 6 };
+/* BANDS  { onebandwidth, onebandheight, bandsHspace, bandsVspace, numofbands, fadespeed } */
+#ifdef BOOMBOX_STYLE
+ const VUBandsConfig bandsConf    PROGMEM = {130, 6, 3, 2, 20, 12};
+#else
+ const VUBandsConfig bandsConf    PROGMEM = { 255, 6, 2, 2, 30, 6 };
+#endif
 
 /* STRINGS  */
 const char         numtxtFmt[]    PROGMEM = "%d";

@@ -2352,7 +2352,13 @@ void Audio::_computeVUlevel(int16_t sample[2]) {
 }
 
 uint16_t Audio::get_VUlevel(uint16_t dimension){
-  if(!config.store.vumeter || config.vuThreshold==0) return 0;
+  if(dimension > 255) dimension = 255;                      // guard, return value is 2x 8-bit, dimension must be < 256
+  if(!config.store.vumeter || config.vuThreshold==0) {
+    return (((uint8_t)dimension<<8) | (uint8_t)dimension);  // fix -> return minimum value
+  }
+  config.vuThreshold = 200;
+  if(vuLeft > config.vuThreshold)  vuLeft = config.vuThreshold;
+  if(vuRight > config.vuThreshold) vuRight = config.vuThreshold;
   uint8_t L = map(vuLeft, config.vuThreshold, 0, 0, dimension);
   uint8_t R = map(vuRight, config.vuThreshold, 0, 0, dimension);
   return (L << 8) | R;

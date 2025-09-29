@@ -270,7 +270,7 @@ private:
     bool setBitrate(int br);
     bool playChunk();
     bool playSample(int16_t sample[2]) ;
-    void playI2Sremains();
+//    void playI2Sremains();
     void Gain(int16_t *sample);
     void computeLimit();
     bool fill_InputBuf();
