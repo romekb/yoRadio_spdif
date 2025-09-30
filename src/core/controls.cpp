@@ -235,7 +235,7 @@ void irNumber(uint8_t num) {
 }
 
 void irLoop() {
-  if (irrecv.decode(&irResults)) {
+  if (irrecv.decode(&irResults, NULL, 0, 120)) {      // 120 is 120us filter for noisy IR reception
     if(irResults.value<256) return;
     if (netserver.irRecordEnable) {
       Serial.print(resultToHumanReadableBasic(&irResults));

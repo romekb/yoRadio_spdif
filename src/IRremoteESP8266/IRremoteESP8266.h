@@ -101,7 +101,7 @@
 //      Kelvinator protocol, you would use:
 //        `-DDECODE_KELVINATOR=false`
 #ifndef _IR_ENABLE_DEFAULT_
-#define _IR_ENABLE_DEFAULT_ true  // Unless set externally, the default is on.
+#define _IR_ENABLE_DEFAULT_ false  // Unless set externally, the default is on.
 #endif  // _IR_ENABLE_DEFAULT_
 
 // Supported IR protocols
@@ -112,7 +112,7 @@
 
 // Semi-unique code for unknown messages
 #ifndef DECODE_HASH
-#define DECODE_HASH            _IR_ENABLE_DEFAULT_
+#define DECODE_HASH            true
 #endif  // DECODE_HASH
 
 #ifndef SEND_RAW
@@ -120,7 +120,7 @@
 #endif  // SEND_RAW
 
 #ifndef DECODE_NEC
-#define DECODE_NEC             _IR_ENABLE_DEFAULT_
+#define DECODE_NEC             true
 #endif  // DECODE_NEC
 #ifndef SEND_NEC
 #define SEND_NEC               _IR_ENABLE_DEFAULT_
@@ -134,56 +134,56 @@
 #endif  // SEND_SHERWOOD
 
 #ifndef DECODE_RC5
-#define DECODE_RC5             _IR_ENABLE_DEFAULT_
+#define DECODE_RC5             true
 #endif  // DECODE_RC5
 #ifndef SEND_RC5
 #define SEND_RC5               _IR_ENABLE_DEFAULT_
 #endif  // SEND_RC5
 
 #ifndef DECODE_RC6
-#define DECODE_RC6             _IR_ENABLE_DEFAULT_
+#define DECODE_RC6             true
 #endif  // DECODE_RC6
 #ifndef SEND_RC6
 #define SEND_RC6               _IR_ENABLE_DEFAULT_
 #endif  // SEND_RC6
 
 #ifndef DECODE_RCMM
-#define DECODE_RCMM            _IR_ENABLE_DEFAULT_
+#define DECODE_RCMM            true
 #endif  // DECODE_RCMM
 #ifndef SEND_RCMM
 #define SEND_RCMM              _IR_ENABLE_DEFAULT_
 #endif  // SEND_RCMM
 
 #ifndef DECODE_SONY
-#define DECODE_SONY            _IR_ENABLE_DEFAULT_
+#define DECODE_SONY            true
 #endif  // DECODE_SONY
 #ifndef SEND_SONY
 #define SEND_SONY              _IR_ENABLE_DEFAULT_
 #endif  // SEND_SONY
 
 #ifndef DECODE_PANASONIC
-#define DECODE_PANASONIC       _IR_ENABLE_DEFAULT_
+#define DECODE_PANASONIC       true
 #endif  // DECODE_PANASONIC
 #ifndef SEND_PANASONIC
 #define SEND_PANASONIC         _IR_ENABLE_DEFAULT_
 #endif  // SEND_PANASONIC
 
 #ifndef DECODE_JVC
-#define DECODE_JVC             _IR_ENABLE_DEFAULT_
+#define DECODE_JVC             true
 #endif  // DECODE_JVC
 #ifndef SEND_JVC
 #define SEND_JVC               _IR_ENABLE_DEFAULT_
 #endif  // SEND_JVC
 
 #ifndef DECODE_SAMSUNG
-#define DECODE_SAMSUNG         _IR_ENABLE_DEFAULT_
+#define DECODE_SAMSUNG         true
 #endif  // DECODE_SAMSUNG
 #ifndef SEND_SAMSUNG
 #define SEND_SAMSUNG           _IR_ENABLE_DEFAULT_
 #endif  // SEND_SAMSUNG
 
 #ifndef DECODE_SAMSUNG36
-#define DECODE_SAMSUNG36       _IR_ENABLE_DEFAULT_
+#define DECODE_SAMSUNG36       true
 #endif  // DECODE_SAMSUNG36
 #ifndef SEND_SAMSUNG36
 #define SEND_SAMSUNG36         _IR_ENABLE_DEFAULT_
@@ -204,21 +204,21 @@
 #endif  // SEND_WHYNTER
 
 #ifndef DECODE_AIWA_RC_T501
-#define DECODE_AIWA_RC_T501    _IR_ENABLE_DEFAULT_
+#define DECODE_AIWA_RC_T501    true
 #endif  // DECODE_AIWA_RC_T501
 #ifndef SEND_AIWA_RC_T501
 #define SEND_AIWA_RC_T501      _IR_ENABLE_DEFAULT_
 #endif  // SEND_AIWA_RC_T501
 
 #ifndef DECODE_LG
-#define DECODE_LG              _IR_ENABLE_DEFAULT_
+#define DECODE_LG              true
 #endif  // DECODE_LG
 #ifndef SEND_LG
 #define SEND_LG                _IR_ENABLE_DEFAULT_
 #endif  // SEND_LG
 
 #ifndef DECODE_SANYO
-#define DECODE_SANYO           _IR_ENABLE_DEFAULT_
+#define DECODE_SANYO           true
 #endif  // DECODE_SANYO
 #ifndef SEND_SANYO
 #define SEND_SANYO             _IR_ENABLE_DEFAULT_
@@ -246,7 +246,7 @@
 #endif  // SEND_SANYO_AC152
 
 #ifndef DECODE_MITSUBISHI
-#define DECODE_MITSUBISHI      _IR_ENABLE_DEFAULT_
+#define DECODE_MITSUBISHI      true
 #endif  // DECODE_MITSUBISHI
 #ifndef SEND_MITSUBISHI
 #define SEND_MITSUBISHI        _IR_ENABLE_DEFAULT_
@@ -260,14 +260,14 @@
 #endif  // SEND_MITSUBISHI2
 
 #ifndef DECODE_DISH
-#define DECODE_DISH            _IR_ENABLE_DEFAULT_
+#define DECODE_DISH            true
 #endif  // DECODE_DISH
 #ifndef SEND_DISH
 #define SEND_DISH              _IR_ENABLE_DEFAULT_
 #endif  // SEND_DISH
 
 #ifndef DECODE_SHARP
-#define DECODE_SHARP           _IR_ENABLE_DEFAULT_
+#define DECODE_SHARP           true
 #endif  // DECODE_SHARP
 #ifndef SEND_SHARP
 #define SEND_SHARP             _IR_ENABLE_DEFAULT_
@@ -281,7 +281,7 @@
 #endif  // SEND_SHARP_AC
 
 #ifndef DECODE_DENON
-#define DECODE_DENON           _IR_ENABLE_DEFAULT_
+#define DECODE_DENON           true
 #endif  // DECODE_DENON
 #ifndef SEND_DENON
 #define SEND_DENON             _IR_ENABLE_DEFAULT_
@@ -589,7 +589,7 @@
 #endif  // SEND_MWM
 
 #ifndef DECODE_PIONEER
-#define DECODE_PIONEER         _IR_ENABLE_DEFAULT_
+#define DECODE_PIONEER         true
 #endif  // DECODE_PIONEER
 #ifndef SEND_PIONEER
 #define SEND_PIONEER           _IR_ENABLE_DEFAULT_
@@ -631,7 +631,7 @@
 #endif  // SEND_TCL112AC
 
 #ifndef DECODE_LEGOPF
-#define DECODE_LEGOPF          _IR_ENABLE_DEFAULT_
+#define DECODE_LEGOPF          true
 #endif  // DECODE_LEGOPF
 #ifndef SEND_LEGOPF
 #define SEND_LEGOPF            _IR_ENABLE_DEFAULT_
@@ -694,7 +694,7 @@
 #endif  // SEND_DAIKIN152
 
 #ifndef DECODE_EPSON
-#define DECODE_EPSON           _IR_ENABLE_DEFAULT_
+#define DECODE_EPSON           true
 #endif  // DECODE_EPSON
 #ifndef SEND_EPSON
 #define SEND_EPSON             _IR_ENABLE_DEFAULT_
@@ -771,7 +771,7 @@
 #endif  // SEND_VOLTAS
 
 #ifndef DECODE_METZ
-#define DECODE_METZ            _IR_ENABLE_DEFAULT_
+#define DECODE_METZ            true
 #endif  // DECODE_METZ
 #ifndef SEND_METZ
 #define SEND_METZ              _IR_ENABLE_DEFAULT_
@@ -848,7 +848,7 @@
 #endif  // SEND_KELON
 
 #ifndef DECODE_BOSE
-#define DECODE_BOSE         _IR_ENABLE_DEFAULT_
+#define DECODE_BOSE         true
 #endif  // DECODE_BOSE
 #ifndef SEND_BOSE
 #define SEND_BOSE           _IR_ENABLE_DEFAULT_
