@@ -235,7 +235,7 @@ char * Config::ipToStr(IPAddress ip){
 }
 bool Config::prepareForPlaying(uint16_t stationId){
   setDspOn(1);
-  vuThreshold = 0;
+  //vuThreshold = 0;
   screensaverTicks=SCREENSAVERSTARTUPDELAY;
   screensaverPlayingTicks=SCREENSAVERSTARTUPDELAY;
   if(getMode()!=PM_SDCARD) {
@@ -686,7 +686,7 @@ uint8_t Config::setLastSSID(uint8_t val) {
 }
 
 void Config::setTitle(const char* title) {
-  vuThreshold = 0;
+  //vuThreshold = 0;
   memset(config.station.title, 0, BUFLEN);
   strlcpy(config.station.title, title, BUFLEN);
   u8fix(config.station.title);

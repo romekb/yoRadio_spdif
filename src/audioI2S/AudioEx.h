@@ -147,6 +147,7 @@ public:
     bool     havePSRAM() { return m_f_psram; };
 
 protected:
+    SemaphoreHandle_t mutex_buffer;
     size_t   m_buffSizePSRAM    = 300000;   // most webstreams limit the advance to 100...300Kbytes
     //size_t   m_buffSizeRAM      = 1600 * 5;
     size_t   m_buffSizeRAM      = 1600;
@@ -497,6 +498,8 @@ private:
     };
     volatile bool _connectionResult;
     TaskHandle_t _connectTaskHandle = nullptr;
+    SemaphoreHandle_t     mutex_playAudioData;
+    SemaphoreHandle_t     mutex_audioTask;
     
     const size_t    m_frameSizeWav  = 1024 * 8;
     const size_t    m_frameSizeMP3  = 1600;

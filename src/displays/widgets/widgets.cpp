@@ -1054,7 +1054,7 @@ void ClockWidget::_clearClock(){
 #endif
 #ifndef CLOCKFONT5x7
     // dsp.fillRect(_left(), _top()-_timeheight, _clockwidth, _clockheight+1, 0x8410);
-  dsp.fillRect(_left(), _top()-(_timeheight + 2), _clockwidth, _clockheight+1, config.theme.background);
+  dsp.fillRect(_left(), _top()-(_timeheight), _clockwidth, _clockheight+1, config.theme.background);
 // Serial.println("Törlés");
 #else
   dsp.fillRect(_left(), _top(), _clockwidth+1, _clockheight+1, config.theme.background);

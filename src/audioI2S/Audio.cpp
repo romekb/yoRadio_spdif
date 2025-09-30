@@ -36,6 +36,7 @@ fs::SDFATFS SD_SDFAT;
 #endif
 //---------------------------------------------------------------------------------------------------------------------
 AudioBuffer::AudioBuffer(size_t maxBlockSize) {
+    mutex_buffer = xSemaphoreCreateRecursiveMutex();
     // if maxBlockSize isn't set use defaultspace (1600 bytes) is enough for aac and mp3 player
     if(maxBlockSize) m_resBuffSizeRAM  = maxBlockSize;
     if(maxBlockSize) m_maxBlockSize = maxBlockSize;
@@ -45,6 +46,7 @@ AudioBuffer::~AudioBuffer() {
     if(m_buffer)
         free(m_buffer);
     m_buffer = NULL;
+    vSemaphoreDelete(mutex_buffer);
 }
 
 void AudioBuffer::setBufsize(int ram, int psram) {
@@ -99,6 +101,7 @@ size_t AudioBuffer::freeSpace() {
 }
 
 size_t AudioBuffer::writeSpace() {
+    xSemaphoreTakeRecursive(mutex_buffer, 3 * configTICK_RATE_HZ);
     if(m_readPtr >= m_writePtr) {
         m_writeSpace = (m_readPtr - m_writePtr - 1); // readPtr must not be overtaken
     } else {
@@ -109,33 +112,40 @@ size_t AudioBuffer::writeSpace() {
     }
     if(m_f_start)
         m_writeSpace = m_buffSize - 1;
+    xSemaphoreGiveRecursive(mutex_buffer);
     return m_writeSpace;
 }
 
 size_t AudioBuffer::bufferFilled() {
+    xSemaphoreTakeRecursive(mutex_buffer, 3 * configTICK_RATE_HZ);
     if(m_writePtr >= m_readPtr) {
         m_dataLength = (m_writePtr - m_readPtr);
     } else {
         m_dataLength = (m_endPtr - m_readPtr) + (m_writePtr - m_buffer);
     }
+    xSemaphoreGiveRecursive(mutex_buffer);
     return m_dataLength;
 }
 
 void AudioBuffer::bytesWritten(size_t bw) {
+    xSemaphoreTakeRecursive(mutex_buffer, 3 * configTICK_RATE_HZ);
     m_writePtr += bw;
     if(m_writePtr == m_endPtr) {
         m_writePtr = m_buffer;
     }
     if(bw && m_f_start)
         m_f_start = false;
+    xSemaphoreGiveRecursive(mutex_buffer);
 }
 
 void AudioBuffer::bytesWasRead(size_t br) {
+    xSemaphoreTakeRecursive(mutex_buffer, 3 * configTICK_RATE_HZ);
     m_readPtr += br;
     if(m_readPtr >= m_endPtr) {
         size_t tmp = m_readPtr - m_endPtr;
         m_readPtr = m_buffer + tmp;
     }
+    xSemaphoreGiveRecursive(mutex_buffer);
 }
 
 uint8_t* AudioBuffer::getWritePtr() {
@@ -144,9 +154,11 @@ uint8_t* AudioBuffer::getWritePtr() {
 
 uint8_t* AudioBuffer::getReadPtr() {
     size_t len = m_endPtr - m_readPtr;
+    xSemaphoreTakeRecursive(mutex_buffer, 3 * configTICK_RATE_HZ);
     if(len < m_maxBlockSize) { // be sure the last frame is completed
         memcpy(m_endPtr, m_buffer, m_maxBlockSize - len);  // cpy from m_buffer to m_endPtr with len
     }
+    xSemaphoreGiveRecursive(mutex_buffer);
     return m_readPtr;
 }
 
@@ -156,6 +168,8 @@ void AudioBuffer::resetBuffer() {
     m_endPtr = m_buffer + m_buffSize;
     m_f_start = true;
     // memset(m_buffer, 0, m_buffSize); //Clear Inputbuffer
+    vSemaphoreDelete(mutex_buffer);
+    mutex_buffer = xSemaphoreCreateRecursiveMutex(); // free semaphore is it set
 }
 
 uint32_t AudioBuffer::getWritePos() {
@@ -235,6 +249,9 @@ Audio::Audio(bool internalDAC /* = false */, uint8_t channelEnabled /* = I2S_DAC
     //    I2S_DAC_CHANNEL_LEFT_EN  = 2,     Enable I2S built-in DAC left  channel, maps to DAC channel 2 on GPIO26
     //    I2S_DAC_CHANNEL_BOTH_EN  = 0x3,   Enable both of the I2S built-in DAC channels.
     //    I2S_DAC_CHANNEL_MAX      = 0x4,   I2S built-in DAC mode max index
+    mutex_playAudioData = xSemaphoreCreateMutex();
+    mutex_audioTask     = xSemaphoreCreateMutex();
+
 #ifdef AUDIO_LOG
     m_f_Log = true;
 #endif
@@ -290,42 +307,14 @@ esp_err_t Audio::I2Sstop(uint8_t i2s_num) {
     return i2s_stop((i2s_port_t) i2s_num);
 }
 //---------------------------------------------------------------------------------------------------------------------
-esp_err_t Audio::i2s_mclk_pin_select(const uint8_t pin) {
-    // IDF >= 4.4 use setPinout(BCLK, LRC, DOUT, DIN, MCK) only, i2s_mclk_pin_select() is no longer needed
-
-    if(pin != 0 && pin != 1 && pin != 3) {
-        log_e("Only support GPIO0/GPIO1/GPIO3, gpio_num:%d", pin);
-        return ESP_ERR_INVALID_ARG;
-    }
-
-    #ifdef CONFIG_IDF_TARGET_ESP32
-        switch(pin){
-            case 0:
-                PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO0_U, FUNC_GPIO0_CLK_OUT1);
-                WRITE_PERI_REG(PIN_CTRL, 0xFFF0);
-                break;
-            case 1:
-                PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0TXD_U, FUNC_U0TXD_CLK_OUT3);
-                WRITE_PERI_REG(PIN_CTRL, 0xF0F0);
-                break;
-            case 3:
-                PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0RXD_U, FUNC_U0RXD_CLK_OUT2);
-                WRITE_PERI_REG(PIN_CTRL, 0xFF00);
-                break;
-            default:
-                break;
-        }
-    #endif
-
-    return ESP_OK;
-}
-//---------------------------------------------------------------------------------------------------------------------
 Audio::~Audio() {
     //I2Sstop(m_i2s_num);
     //InBuff.~AudioBuffer(); #215 the AudioBuffer is automatically destroyed by the destructor
     setDefaults();
     if(m_playlistBuff) {free(m_playlistBuff); m_playlistBuff = NULL;}
     i2s_driver_uninstall((i2s_port_t)m_i2s_num); // #215 free I2S buffer
+    vSemaphoreDelete(mutex_playAudioData);
+    vSemaphoreDelete(mutex_audioTask);
 }
 //---------------------------------------------------------------------------------------------------------------------
 void Audio::setDefaults() {
@@ -427,6 +416,8 @@ bool Audio::connecttohost(const char* host, const char* user, const char* pwd) {
         if(audio_error) audio_error("Hostaddress is too long");
         return false;
     }
+
+    xSemaphoreTakeRecursive(mutex_playAudioData, 0.3 * configTICK_RATE_HZ);
 
     int idx = indexOf(host, "http");
     char* l_host = (char*)malloc(lenHost + 10);
@@ -565,6 +556,7 @@ bool Audio::connecttohost(const char* host, const char* user, const char* pwd) {
 
         setDatamode(HTTP_RESPONSE_HEADER);   // Handle header
         m_streamType = ST_WEBSTREAM;
+        if(audio_showstreamtitle) audio_showstreamtitle("");
     }
     else{
         AUDIO_INFO("Request %s failed!", l_host);
@@ -579,6 +571,7 @@ bool Audio::connecttohost(const char* host, const char* user, const char* pwd) {
     if(extension) {free(extension); extension = NULL;}
     if(l_host   ) {free(l_host);    l_host    = NULL;}
     if(h_host   ) {free(h_host);    h_host    = NULL;}
+    xSemaphoreGiveRecursive(mutex_playAudioData);
     return res;
 }
 //---------------------------------------------------------------------------------------------------------------------
@@ -736,7 +729,10 @@ bool Audio::connecttoSD(const char* path, uint32_t resumeFilePos) {
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::connecttoFS(fs::FS &fs, const char* path, uint32_t resumeFilePos) {
 
+    if(!path) return false;
     if(strlen(path)>255) return false;
+
+    xSemaphoreTakeRecursive(mutex_playAudioData, 0.3 * configTICK_RATE_HZ);
 
     m_resumeFilePos = resumeFilePos;
     char audioName[256];
@@ -762,6 +758,7 @@ bool Audio::connecttoFS(fs::FS &fs, const char* path, uint32_t resumeFilePos) {
     }
     if(!audiofile) {
         if(audio_info) {vTaskDelay(2); audio_info("Failed to open file for reading");}
+        xSemaphoreGiveRecursive(mutex_playAudioData);
         return false;
     }
     setDatamode(AUDIO_LOCALFILE);
@@ -821,11 +818,13 @@ bool Audio::connecttoFS(fs::FS &fs, const char* path, uint32_t resumeFilePos) {
     else {
       audiofile.close();
     }
+    xSemaphoreGiveRecursive(mutex_playAudioData);
     return ret;
 }
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::connecttospeech(const char* speech, const char* lang){
 
+    xSemaphoreTakeRecursive(mutex_playAudioData, 0.3 * configTICK_RATE_HZ);
     setDefaults();
     char host[] = "translate.google.com.vn";
     char path[] = "/translate_tts";
@@ -834,7 +833,7 @@ bool Audio::connecttospeech(const char* speech, const char* lang){
     uint16_t speechBuffLen = speechLen + 300;
     memcpy(m_lastHost, speech, 256);
     char* speechBuff = (char*)malloc(speechBuffLen);
-    if(!speechBuff) {log_e("out of memory"); return false;}
+    if(!speechBuff) {log_e("out of memory"); xSemaphoreGiveRecursive(mutex_playAudioData); return false;}
     memcpy(speechBuff, speech, speechLen);
     speechBuff[speechLen] = '\0';
     urlencode(speechBuff, speechBuffLen);
@@ -859,6 +858,7 @@ bool Audio::connecttospeech(const char* speech, const char* lang){
     _client = static_cast<WiFiClient*>(&client);
     if(!_client->connect(host, 80)) {
         log_e("Connection failed");
+        xSemaphoreGiveRecursive(mutex_playAudioData);
         return false;
     }
     _client->print(resp);
@@ -868,7 +868,7 @@ bool Audio::connecttospeech(const char* speech, const char* lang){
     m_f_ssl = false;
     m_f_tts = true;
     setDatamode(HTTP_RESPONSE_HEADER);
-
+    xSemaphoreGiveRecursive(mutex_playAudioData);
     return true;
 }
 //---------------------------------------------------------------------------------------------------------------------
@@ -2187,6 +2187,7 @@ uint32_t Audio::stopSong() {
 }
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::pauseResume() {
+    xSemaphoreTake(mutex_audioTask, 0.3 * configTICK_RATE_HZ);
     bool retVal = false;
     if(getDatamode() == AUDIO_LOCALFILE || m_streamType == ST_WEBSTREAM) {
         m_f_running = !m_f_running;
@@ -2196,11 +2197,13 @@ bool Audio::pauseResume() {
             i2s_zero_dma_buffer((i2s_port_t) m_i2s_num);
         }
     }
+    xSemaphoreGive(mutex_audioTask);
     return retVal;
 }
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::playChunk() {
     // If we've got data, try and pump it out..
+    xSemaphoreTake(mutex_audioTask, 0.3 * configTICK_RATE_HZ);
     int16_t sample[2];
     if(getBitsPerSample() == 8) {
         if(getChannels() == 1) {
@@ -2242,6 +2245,7 @@ bool Audio::playChunk() {
             }
         }
         m_curSample = 0;
+        xSemaphoreGive(mutex_audioTask);
         return true;
     }
     if(getBitsPerSample() == 16) {
@@ -2251,6 +2255,7 @@ bool Audio::playChunk() {
                 sample[RIGHTCHANNEL] = m_outBuff[m_curSample];
                 if(!playSample(sample)) {
                     log_e("can't send");
+                    xSemaphoreGive(mutex_audioTask);
                     return false;
                 } // Can't send
                 m_validSamples--;
@@ -2275,11 +2280,13 @@ bool Audio::playChunk() {
             }
         }
         m_curSample = 0;
+        xSemaphoreGive(mutex_audioTask);
         return true;
     }
     log_e("BitsPer Sample must be 8 or 16!");
     m_validSamples = 0;
     stopSong();
+    xSemaphoreGive(mutex_audioTask);
     return false;
 }
 
@@ -2354,9 +2361,9 @@ void Audio::_computeVUlevel(int16_t sample[2]) {
 uint16_t Audio::get_VUlevel(uint16_t dimension){
   if(dimension > 255) dimension = 255;                      // guard, return value is 2x 8-bit, dimension must be < 256
   if(!config.store.vumeter || config.vuThreshold==0) {
-    return (((uint8_t)dimension<<8) | (uint8_t)dimension);  // fix -> return minimum value
+    return ((dimension<<8) | (dimension & 0xFF));           // fix -> return minimum value
   }
-  config.vuThreshold = 200;
+//  config.vuThreshold = 200;
   if(vuLeft > config.vuThreshold)  vuLeft = config.vuThreshold;
   if(vuRight > config.vuThreshold) vuRight = config.vuThreshold;
   uint8_t L = map(vuLeft, config.vuThreshold, 0, 0, dimension);
@@ -3859,59 +3866,142 @@ void Audio::showstreamtitle(const char* ml) {
     // StreamTitle='Oliver Frank - Mega Hitmix';StreamUrl='www.radio-welle-woerthersee.at';
     // or adw_ad='true';durationMilliseconds='10135';adId='34254';insertionType='preroll';
 
-    int16_t idx1, idx2;
+    int16_t  idx1, idx2, idx4, idx5, idx6, idx7, titleLen = 0, artistLen = 0;
     uint16_t i = 0, hash = 0;
 
-    idx1 = indexOf(ml, "StreamTitle=", 0);
-    if(idx1 >= 0){                                                              // Streamtitle found
-        idx2 = indexOf(ml, ";", idx1);
-        char *sTit;
-        if(idx2 >= 0){sTit = strndup(ml + idx1, idx2 + 1); sTit[idx2] = '\0';}
-        else          sTit =  strdup(ml);
+    idx1 = indexOf(ml, "StreamTitle=", 0);        // Streamtitle found
+    if(idx1 < 0) idx1 = indexOf(ml, "Title:", 0); // Title found (e.g. https://stream-hls.bauermedia.pt/comercial.aac/playlist.m3u8)
 
-        while(i < strlen(sTit)){hash += sTit[i] * i+1; i++;}
+    if(idx1 >= 0) {
+        if(indexOf(ml, "xml version=", 7) > 0) {
+            /* e.g. xmlStreamTitle
+                  StreamTitle='<?xml version="1.0" encoding="utf-8"?><RadioInfo><Table><DB_ALBUM_ID>37364</DB_ALBUM_ID>
+                  <DB_ALBUM_IMAGE>00000037364.jpg</DB_ALBUM_IMAGE><DB_ALBUM_NAME>Boyfriend</DB_ALBUM_NAME>
+                  <DB_ALBUM_TYPE>Single</DB_ALBUM_TYPE><DB_DALET_ARTIST_NAME>DOVE CAMERON</DB_DALET_ARTIST_NAME>
+                  <DB_DALET_ITEM_CODE>CD4161</DB_DALET_ITEM_CODE><DB_DALET_TITLE_NAME>BOYFRIEND</DB_DALET_TITLE_NAME>
+                  <DB_FK_SITE_ID>2</DB_FK_SITE_ID><DB_IS_MUSIC>1</DB_IS_MUSIC><DB_LEAD_ARTIST_ID>26303</DB_LEAD_ARTIST_ID>
+                  <DB_LEAD_ARTIST_NAME>Dove Cameron</DB_LEAD_ARTIST_NAME><DB_RADIO_IMAGE>cidadefm.jpg</DB_RADIO_IMAGE>
+                  <DB_RADIO_NAME>Cidade</DB_RADIO_NAME><DB_SONG_ID>120126</DB_SONG_ID><DB_SONG_LYRIC>60981</DB_SONG_LYRIC>
+                  <DB_SONG_NAME>Boyfriend</DB_SONG_NAME></Table><AnimadorInfo><TITLE>Cidade</TITLE>
+                  <START_TIME_UTC>2022-11-15T22:00:00+00:00</START_TIME_UTC><END_TIME_UTC>2022-11-16T06:59:59+00:00
+                  </END_TIME_UTC><SHOW_NAME>Cidade</SHOW_NAME><SHOW_HOURS>22h às 07h</SHOW_HOURS><SHOW_PANEL>0</SHOW_PANEL>
+                  </AnimadorInfo></RadioInfo>';StreamUrl='';
+            */
 
-        if(m_streamTitleHash != hash){
-            m_streamTitleHash = hash;
-            if(audio_info) audio_info(sTit);
-            uint8_t pos = 12;                                                   // remove "StreamTitle="
-            if(sTit[pos] == '\'') pos++;                                        // remove leading  \'
-            if(sTit[strlen(sTit) - 1] == '\'') sTit[strlen(sTit) -1] = '\0';    // remove trailing \'
-            if(sTit[pos]==0xEF && sTit[pos+1] == 0xBB && sTit[pos+2] == 0xBF) pos+=3; // remove ZERO WIDTH NO-BREAK SPACE
-            if(audio_showstreamtitle) audio_showstreamtitle(sTit + pos);
+            idx4 = indexOf(ml, "<DB_DALET_TITLE_NAME>");
+            idx5 = indexOf(ml, "</DB_DALET_TITLE_NAME>");
+
+            idx6 = indexOf(ml, "<DB_LEAD_ARTIST_NAME>");
+            idx7 = indexOf(ml, "</DB_LEAD_ARTIST_NAME>");
+
+            if(idx4 == -1 || idx5 == -1) return;
+            idx4 += 21; // <DB_DALET_TITLE_NAME>
+            titleLen = idx5 - idx4;
+
+            if(idx6 != -1 && idx7 != -1) {
+                idx6 += 21; // <DB_LEAD_ARTIST_NAME>
+                artistLen = idx7 - idx6;
+            }
+
+            char* title = NULL;
+            title = (char*)malloc(titleLen + artistLen + 4);
+            memcpy(title, ml + idx4, titleLen);
+            title[titleLen] = '\0';
+
+            char* artist = NULL;
+            if(artistLen) {
+                memcpy(title + titleLen, " - ", 3);
+                memcpy(title + titleLen + 3, ml + idx6, artistLen);
+                title[titleLen + 3 + artistLen] = '\0';
+            }
+
+            if(title) {
+                while(i < strlen(title)) {
+                    hash += title[i] * i + 1;
+                    i++;
+                }
+                if(m_streamTitleHash != hash) {
+                    m_streamTitleHash = hash;
+                    if(audio_showstreamtitle) audio_showstreamtitle(title);
+                }
+                free(title);
+                title = NULL;
+            }
+            if(artist) {
+                free(artist);
+                artist = NULL;
+            }
+            return;
         }
-        if(sTit) {free(sTit); sTit = NULL;}
+
+        idx2 = indexOf(ml, ";", idx1);
+        char* sTit;
+        if(idx2 >= 0) {
+            sTit = strndup(ml + idx1, idx2 + 1);
+            sTit[idx2] = '\0';
+        }
+        else sTit = strdup(ml);
+
+        while(i < strlen(sTit)) {
+            hash += sTit[i] * i + 1;
+            i++;
+        }
+
+        if(m_streamTitleHash != hash) {
+            m_streamTitleHash = hash;
+            AUDIO_INFO("%s", sTit);
+            uint8_t pos = 12;                                                 // remove "StreamTitle="
+            if(sTit[pos] == '\'') pos++;                                      // remove leading  \'
+            if(sTit[strlen(sTit) - 1] == '\'') sTit[strlen(sTit) - 1] = '\0'; // remove trailing \'
+            if(sTit[pos]==0xEF && sTit[pos+1] == 0xBB && sTit[pos+2] == 0xBF) pos+=3; // remove ZERO WIDTH NO-BREAK SPACE
+             if(audio_showstreamtitle) audio_showstreamtitle(sTit + pos);
+        }
+        if(sTit) {
+            free(sTit);
+            sTit = NULL;
+        }
     }
-    m_streamTitleHash = 0;
+
     idx1 = indexOf(ml, "StreamUrl=", 0);
     idx2 = indexOf(ml, ";", idx1);
-    if(idx1 >= 0 && idx2 > idx1){                                               // StreamURL found
+    if(idx1 >= 0 && idx2 > idx1) { // StreamURL found
         uint16_t len = idx2 - idx1;
-        char *sUrl;
-        sUrl = strndup(ml + idx1, len + 1); sUrl[len] = '\0';
+        char*    sUrl;
+        sUrl = strndup(ml + idx1, len + 1);
+        sUrl[len] = '\0';
 
-        while(i < strlen(sUrl)){hash += sUrl[i] * i+1; i++;}
-        if(m_streamTitleHash != hash){
-            m_streamTitleHash = hash;
-            if(audio_info) audio_info(sUrl);
+        while(i < strlen(sUrl)) {
+            hash += sUrl[i] * i + 1;
+            i++;
         }
-        if(sUrl) {free(sUrl); sUrl = NULL;}
+        if(m_streamTitleHash != hash) {
+            m_streamTitleHash = hash;
+            AUDIO_INFO("%s", sUrl);
+        }
+        if(sUrl) {
+            free(sUrl);
+            sUrl = NULL;
+        }
     }
 
     idx1 = indexOf(ml, "adw_ad=", 0);
-    if(idx1 >= 0){                                                              // Advertisement found
+    if(idx1 >= 0) { // Advertisement found
         idx1 = indexOf(ml, "durationMilliseconds=", 0);
         idx2 = indexOf(ml, ";", idx1);
-        if(idx1 >= 0 && idx2 > idx1){
+        if(idx1 >= 0 && idx2 > idx1) {
             uint16_t len = idx2 - idx1;
-            char *sAdv;
-            sAdv = strndup(ml + idx1, len + 1); sAdv[len] = '\0';
-            if(audio_info) audio_info(sAdv);
-            uint8_t pos = 21;                                                   // remove "StreamTitle="
-            if(sAdv[pos] == '\'') pos++;                                        // remove leading  \'
-            if(sAdv[strlen(sAdv) - 1] == '\'') sAdv[strlen(sAdv) -1] = '\0';    // remove trailing \'
+            char*    sAdv;
+            sAdv = strndup(ml + idx1, len + 1);
+            sAdv[len] = '\0';
+            AUDIO_INFO("%s", sAdv);
+            uint8_t pos = 21;                                                 // remove "StreamTitle="
+            if(sAdv[pos] == '\'') pos++;                                      // remove leading  \'
+            if(sAdv[strlen(sAdv) - 1] == '\'') sAdv[strlen(sAdv) - 1] = '\0'; // remove trailing \'
             if(audio_commercial) audio_commercial(sAdv + pos);
-            if(sAdv){free(sAdv); sAdv = NULL;}
+            if(sAdv) {
+                free(sAdv);
+                sAdv = NULL;
+            }
         }
     }
 }
