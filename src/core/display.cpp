@@ -447,6 +447,7 @@ void Display::_layoutChange(bool played){
 }
 
 void Display::loop() {
+  static uint32_t progressTicks;
   if(_bootStep==0) {
     _pager->begin();
     _bootScreen();
@@ -463,7 +464,7 @@ void Display::loop() {
     pm.on_display_queue(request, pm_result);
     if(pm_result)
       switch (request.type){
-        case NEWMODE: _swichMode((displayMode_e)request.payload); break;
+        case NEWMODE: _swichMode((displayMode_e)request.payload); progressTicks = millis()-1000; _volume(); break;
         case CLOSEPLAYLIST: player.sendCommand({PR_PLAY, request.payload}); break;
         case CLOCK: 
           if(_mode==PLAYER || _mode==SCREENSAVER) _time(request.payload==1); 
@@ -476,7 +477,7 @@ void Display::loop() {
         case NEWSTATION: _station(); break;
         case NEXTSTATION: _drawNextStationNum(request.payload); break;
         case DRAWPLAYLIST: _drawPlaylist(); break;
-        case DRAWVOL: _volume(); break;
+        case DRAWVOL: _volume(); progressTicks = millis(); break;
         case DBITRATE: {
             char buf[20]; 
             snprintf(buf, 20, bitrateFmt, config.station.bitrate); 
@@ -544,6 +545,21 @@ void Display::loop() {
         if (uxQueueMessagesWaiting(displayQueue))
           return;
       }
+  }
+
+  if(_volbar && millis()-progressTicks >= 1000 && config.getMode()==PM_SDCARD && player.status() == PLAYING) {
+    progressTicks = millis();
+    int32_t curr = player.getFilePos()-player.sd_min;
+    int32_t step = (player.sd_max - player.sd_min) / 254;
+    if(step) {
+      curr /= step;
+      if(curr < 0) curr = 0;
+      if(curr > 254) curr = 254;
+      #ifdef COLOR_PROGRESSBAR
+       _volbar->setColor(config.color565(COLOR_PROGRESSBAR));
+      #endif
+      _volbar->setValue(curr);
+    }
   }
 
   dsp.loop();
@@ -651,16 +667,12 @@ void Display::_volume() {
       vol = 254;
     if (vol < 0)
       vol = 0;
+    _volbar->setColor(config.theme.volbarin);
     _volbar->setValue(vol);
+    #ifndef HIDE_VOL
+      if(_voltxt) _voltxt->setText(config.store.volume, voltxtFmt);
+    #endif
   }
-  #ifndef HIDE_VOL
-   //if (_voltxt) {                               // ha az alapképernyő van
-   // char buf[8];                                // Módosítás "hanglépték"
-   // snprintf(buf, sizeof(buf), "\023\025%d%d%%", config.store.volume);
-   // _voltxt->setText(buf);
-     if(_voltxt) _voltxt->setText(config.store.volume, voltxtFmt);
-  //}
-  #endif
   if(_mode==VOL) {
   #ifndef NO_VOLUME_SCREEN                                // NO Volume screen !
     timekeeper.waitAndReturnPlayer(3);

@@ -331,6 +331,14 @@ void SliderWidget::setValue(uint32_t val) {
   if (_active && !_locked) _drawslider();
 }
 
+void SliderWidget::setColor(uint16_t color) {
+  if(color != _fgcolor) {
+    _fgcolor = color;
+    _oucolor = color;
+    _draw();
+  }
+}
+
 void SliderWidget::_drawslider() {
   uint16_t valwidth = map(_value, 0, _max, 0, _width - _outlined * 2);
   if (_oldvalwidth == valwidth) return;

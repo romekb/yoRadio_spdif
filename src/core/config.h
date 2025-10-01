@@ -219,6 +219,7 @@ class Config {
     void indexPlaylist();
     void initSDPlaylist();
     void changeMode(int newmode=-1);
+    uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
     uint16_t playlistLength();
     uint16_t lastStation(){
       return getMode()==PM_WEB?store.lastStation:store.lastSdStation;
@@ -298,7 +299,7 @@ class Config {
     FS* _SDplaylistFS;
     void setDefaults();
     static void doSleep();
-    uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
+//    uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
     void _setupVersion();
     void _initHW();
     bool _isFSempty();
