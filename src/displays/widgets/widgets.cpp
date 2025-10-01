@@ -329,12 +329,11 @@ void SliderWidget::init(FillConfig conf, uint16_t fgcolor, uint16_t bgcolor, uin
 void SliderWidget::setValue(uint32_t val) {
   _value = val;
   if (_active && !_locked) _drawslider();
-
 }
 
 void SliderWidget::_drawslider() {
   uint16_t valwidth = map(_value, 0, _max, 0, _width - _outlined * 2);
-  //if (_oldvalwidth == valwidth) return;
+  if (_oldvalwidth == valwidth) return;
   dsp.fillRect(_config.left + _outlined + min(valwidth, _oldvalwidth), _config.top + _outlined, abs(_oldvalwidth - valwidth), _height - _outlined * 2, _oldvalwidth > valwidth ? _bgcolor : _fgcolor);
   _oldvalwidth = valwidth;
 }
@@ -346,6 +345,7 @@ void SliderWidget::_draw() {
   if (_outlined) dsp.drawRect(_config.left, _config.top, _width, _height, _oucolor);
   uint16_t valwidth = map(_value, 0, _max, 0, _width - _outlined * 2);
   dsp.fillRect(_config.left + _outlined, _config.top + _outlined, valwidth, _height - _outlined * 2, _fgcolor);
+  _oldvalwidth = valwidth;
 }
 
 void SliderWidget::_clear() {
