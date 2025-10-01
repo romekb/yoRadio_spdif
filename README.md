@@ -19,6 +19,7 @@ Co się zmieniło:
 - Zainstalowana wyszukiwarka stacji radiowych - lupka w interfejscie www.
 - Dodano możliwość zmiany jasności wyświetlacza z pilota IR i touchscreena. Jak odtwarzanie jest zatrzymane to jasność regulują przyciski głoścości / lewo-prawo na touchscreenie.
 - Więcej kontroli przez touchscreen. Klik u góry po lewej lub prawej - poprzednia/nastepna stacja, góra-środek - przełączanie WEB/SD, klik na dole po lewej/prawej - regulacja głośności z repetycją.
+- dodano opcje TS_MIRROR_X i TS_MIRROR_Y dla ustalenia prawidłowej orientacji touchscreena.
 
 Wyjście SPDIF może działać zamiennie ze zwykłym przetwornikiem cyfrowo-analogowym I2S lub wewnętrznym przetwornikiem cyfrowo-analogowym. Nie można używać SPDIF wraz z VS1053. 
 Jedynym sposobem w tej sytuacji jest całkowite wyłączenie VS1053. 
@@ -58,6 +59,7 @@ What's changed:
 - installed radio stations search engine
 - added brightness control from IR remote / touchscreen. In STOP condition brightness can be controlled via volume keys / touchscreen left/right slide.
 - more touchscreen controls. Click at top left or right - prevous/next station, top-middle - switch WEB/SD, click on bottom left/right - volume control with repeat.
+- added TS_MIRROR_X and TS_MIRROR_Y options for propper touchscreen orientation setup.
   
 The SPDIF output can coexist with normal I2S DAC, or internal DAC. You can't use SPDIF with VS1053. Only way in this situation is completly disable VS1053.
 You can switch ("on the fly") current output type via "Settings" in WWW interface. For this I use the "Touch debug" switch. 

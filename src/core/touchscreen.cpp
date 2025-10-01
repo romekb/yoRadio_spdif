@@ -114,6 +114,12 @@ void TouchScreen::loop(){
     touchX = p.x;
     touchY = p.y;
   #endif
+  #ifdef TS_MIRROR_X
+    touchX = _width - touchX;
+  #endif
+  #ifdef TS_MIRROR_Y
+    touchY = _height - touchY;
+  #endif
   if (!wastouched) { /*     START TOUCH     */
       _oldTouchX = touchX;
       _oldTouchY = touchY;
@@ -161,7 +167,7 @@ void TouchScreen::loop(){
       Serial.println(touchY);
     }
     if(istouched && direct == TDS_REQUEST && (display.mode()==PLAYER || display.mode()==VOL) && 
-       millis()>_repeatDelay+500 && _oldTouchY>_height*2/3) {           // volume control with repeat  
+       millis()>_repeatDelay+500 && _oldTouchY<_height/3) {           // volume control with repeat  
           if(_oldTouchX < _width/3)   {onBtnClick(EVT_BTNLEFT);  touchLongPress = millis(); }  // Left-bottom = vol_down
           if(_oldTouchX > _width*2/3) {onBtnClick(EVT_BTNRIGHT); touchLongPress = millis(); }  // Right-bottom = vol_up
           _repeatDelay = millis() - (_repeatDelay ? 300:0);     // first delay 500ms, then repeat every 200ms
@@ -172,11 +178,11 @@ void TouchScreen::loop(){
         uint32_t pressTicks = millis()-touchLongPress;
         if( pressTicks < BTN_PRESS_TICKS*2){
           if(pressTicks > 50) {
-            if(display.mode()==PLAYER && _oldTouchY<_height/3) {
-              if(_oldTouchX < _width/3)        { onBtnClick(EVT_BTNUP);   goto _exit; } // Left-top - prevous
-              else if(_oldTouchX > _width*2/3) { onBtnClick(EVT_BTNDOWN); goto _exit; } // Right-top - next
-              else { onBtnClick(EVT_BTNMODE); goto _exit; }                             // Middle-top - Radio/SD
-            } else if((display.mode()==PLAYER || display.mode()==VOL) && _oldTouchY>_height*2/3) {  
+            if(display.mode()==PLAYER && _oldTouchY>_height*2/3) {
+              if(_oldTouchX < _width/3)        { player.prev(); goto _exit; }       // Left-top - prevous
+              else if(_oldTouchX > _width*2/3) { player.next(); goto _exit; }       // Right-top - next
+              else { onBtnClick(EVT_BTNMODE); goto _exit; }                         // Middle-top - Radio/SD
+            } else if((display.mode()==PLAYER || display.mode()==VOL) && _oldTouchY<_height/3) {  
               if((_oldTouchX < _width/3) || (_oldTouchX > _width*2/3)) goto _exit;  // Right-bottom && Left-bottom
             }
             onBtnClick(EVT_BTNCENTER);    // Other area - Play/Pause

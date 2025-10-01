@@ -334,7 +334,7 @@ void SliderWidget::setValue(uint32_t val) {
 
 void SliderWidget::_drawslider() {
   uint16_t valwidth = map(_value, 0, _max, 0, _width - _outlined * 2);
-  if (_oldvalwidth == valwidth) return;
+  //if (_oldvalwidth == valwidth) return;
   dsp.fillRect(_config.left + _outlined + min(valwidth, _oldvalwidth), _config.top + _outlined, abs(_oldvalwidth - valwidth), _height - _outlined * 2, _oldvalwidth > valwidth ? _bgcolor : _fgcolor);
   _oldvalwidth = valwidth;
 }
