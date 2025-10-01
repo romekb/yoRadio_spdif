@@ -65,7 +65,7 @@ void TouchScreen::init(uint16_t w, uint16_t h){
 tsDirection_e TouchScreen::_tsDirection(uint16_t x, uint16_t y) {
   int16_t dX = x - _oldTouchX;
   int16_t dY = y - _oldTouchY;
-  if (abs(dX) > 20 || abs(dY) > 20) {
+  if (abs(dX) > 30 || abs(dY) > 30) {
     if (abs(dX) > abs(dY)) {
       if (dX > 0) {
         return TSD_RIGHT;
@@ -155,22 +155,37 @@ void TouchScreen::loop(){
       }
     }
     if(0) { // (config.store.dbgtouch) {
-      Serial.print(", x = ");
-      Serial.print(p.x);
+      Serial.print("x = ");
+      Serial.print(touchX);
       Serial.print(", y = ");
-      Serial.println(p.y);
+      Serial.println(touchY);
+    }
+    if(istouched && direct == TDS_REQUEST && (display.mode()==PLAYER || display.mode()==VOL) && 
+       millis()>_repeatDelay+500 && _oldTouchY>_height*2/3) {           // volume control with repeat  
+          if(_oldTouchX < _width/3)   {onBtnClick(EVT_BTNLEFT);  touchLongPress = millis(); }  // Left-bottom = vol_down
+          if(_oldTouchX > _width*2/3) {onBtnClick(EVT_BTNRIGHT); touchLongPress = millis(); }  // Right-bottom = vol_up
+          _repeatDelay = millis() - (_repeatDelay ? 300:0);     // first delay 500ms, then repeat every 200ms
     }
   }else{
     if (wastouched) {/*     END TOUCH     */
       if (direct == TDS_REQUEST) {
         uint32_t pressTicks = millis()-touchLongPress;
         if( pressTicks < BTN_PRESS_TICKS*2){
-          if(pressTicks > 50) onBtnClick(EVT_BTNCENTER);
-        }else{
-          display.putRequest(NEWMODE, display.mode() == PLAYER ? STATIONS : PLAYER);
-        }
+          if(pressTicks > 50) {
+            if(display.mode()==PLAYER && _oldTouchY<_height/3) {
+              if(_oldTouchX < _width/3)        { onBtnClick(EVT_BTNUP);   goto _exit; } // Left-top - prevous
+              else if(_oldTouchX > _width*2/3) { onBtnClick(EVT_BTNDOWN); goto _exit; } // Right-top - next
+              else { onBtnClick(EVT_BTNMODE); goto _exit; }                             // Middle-top - Radio/SD
+            } else if((display.mode()==PLAYER || display.mode()==VOL) && _oldTouchY>_height*2/3) {  
+              if((_oldTouchX < _width/3) || (_oldTouchX > _width*2/3)) goto _exit;  // Right-bottom && Left-bottom
+            }
+            onBtnClick(EVT_BTNCENTER);    // Other area - Play/Pause
+          }
+        } else { display.putRequest(NEWMODE, display.mode() == PLAYER ? STATIONS : PLAYER); }
       }
+_exit:      
       direct = TSD_STAY;
+      _repeatDelay = 0;
     }
   }
   wastouched = istouched;

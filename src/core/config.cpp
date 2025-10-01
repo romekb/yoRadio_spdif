@@ -153,6 +153,10 @@ void Config::changeMode(int newmode){
     ESP.restart();
   }
   if(!sdman.ready && newmode!=PM_WEB) {
+    if(pir) {                                 // stop play before init SD card
+      player.sendCommand({PR_STOP, 0});
+      while(player.isRunning()) player.loop();
+    }
     if(!sdman.start()){
       Serial.println("##[ERROR]#\tSD Not Found");
       netserver.requestOnChange(GETPLAYERMODE, 0);
