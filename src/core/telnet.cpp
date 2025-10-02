@@ -253,7 +253,7 @@ void Telnet::on_input(const char* str, uint8_t clientId) {
     int volume;
     if (sscanf(str, "vol(%d)", &volume) == 1 || sscanf(str, "cli.vol(\"%d\")", &volume) == 1 || sscanf(str, "vol %d", &volume) == 1) {
       if (volume < 0) volume = 0;
-      if (volume > 254) volume = 254;
+      if (volume > 100) volume = 100;
       player.setVol(volume);
       return;
     }

@@ -301,6 +301,17 @@ void Player::next() {
   sendCommand({PR_PLAY, config.lastStation()});
 }
 
+void Player::SDSeekTo(int16_t value) {
+  if(value < -100) value = -100;
+  if(value > 100)  value = 100;
+  int32_t step = (sd_max - sd_min) / 100;
+  int32_t curr = getFilePos() + step*value;
+  if(curr > sd_max - 1000) curr = sd_max - 1000;
+  if(curr < sd_min) curr = sd_min;
+  config.setSDpos(curr);
+}
+
+
 void Player::toggle() {
   if (_status == PLAYING) {
     sendCommand({PR_STOP, 0});

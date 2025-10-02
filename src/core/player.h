@@ -61,6 +61,7 @@ class Player: public Audio {
     plStatus_e status() { return _status; }
     void prev();
     void next();
+    void SDSeekTo(int16_t value);
     void toggle();
     void stepVol(bool up);
     void setVol(uint8_t volume);

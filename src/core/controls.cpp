@@ -176,7 +176,7 @@ void encodersLoop(yoEncoder *enc, bool first){
     if(first){
       int nv = config.store.volume+encoderDelta;
       if(nv<0) nv=0;
-      if(nv>254) nv=254;
+      if(nv>100) nv=100;
       player.setVol((uint8_t)nv);  
     }else{
       if(encoderDelta > 0) player.next(); else player.prev();
@@ -474,10 +474,8 @@ void controlsEvent(bool toRight, int8_t volDelta, bool allowBrightness) {
     #endif
    if (volDelta != 0) {
       int nv = config.store.volume + volDelta * config.store.volsteps;
-      if (nv < 0)
-        nv = 0;
-      if (nv > 100)            // Módosítva. "hanglépték"
-        nv = 100; 
+      if (nv < 0)   nv = 0;
+      if (nv > 100) nv = 100; 
       player.setVol((uint8_t)nv);
     } else {
       player.stepVol(toRight);

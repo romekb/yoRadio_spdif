@@ -661,13 +661,12 @@ void Display::_time(bool redraw) {
 }
 
 void Display::_volume() {
-  if (_volbar) {                                 // Módosítás "hanglépték"
-    int vol = (config.store.volume * 254) / 100; // A 0-100 értéket felskálázza 0-254 re.
-    if (vol > 254)
-      vol = 254;
-    if (vol < 0)
-      vol = 0;
-    _volbar->setColor(config.theme.volbarin);
+  if (_volbar) {                                
+    uint16_t vol = (config.store.volume * 254) / 100;
+    if (vol > 254) vol = 254;
+    #ifdef COLOR_PROGRESSBAR
+     _volbar->setColor(config.theme.volbarin);
+    #endif
     _volbar->setValue(vol);
     #ifndef HIDE_VOL
       if(_voltxt) _voltxt->setText(config.store.volume, voltxtFmt);

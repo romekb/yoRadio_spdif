@@ -20,7 +20,7 @@
   #define TS_Y_MAX              3800
 #endif
 #ifndef TS_STEPS
-  #define TS_STEPS              40
+  #define TS_STEPS              100
 #endif
 
 #if TS_MODEL==TS_MODEL_XPT2046
@@ -93,15 +93,6 @@ void TouchScreen::flip(){
 #endif
 }
 
-void SDSeekTo(int direction) {
-  int32_t curr = player.getFilePos();
-  int32_t step = (player.sd_max - player.sd_min) / 40;
-  curr += direction * step;
-  if(curr > player.sd_max - 1000) curr = player.sd_max - 1000;
-  if(curr < player.sd_min) curr = player.sd_min;
-  config.setSDpos(curr);
-}
-
 void TouchScreen::loop(){
   uint16_t touchX, touchY;
   static bool wastouched = true;
@@ -144,11 +135,13 @@ void TouchScreen::loop(){
             touchLongPress=millis();
             if(display.mode()==PLAYER || display.mode()==VOL){
               int16_t xDelta = map(abs(touchVol - touchX), 0, _width, 0, TS_STEPS);
-              //display.putRequest(NEWMODE, VOL);
-              if (xDelta>1) {
+              #ifndef NO_VOLUME_SCREEN
+                display.putRequest(NEWMODE, VOL);
+              #endif
+              if (xDelta>2) {
                 if(config.getMode()==PM_SDCARD && player.status() == PLAYING) {
-                  if(touchVol - touchX < 0) xDelta = -xDelta;
-                  SDSeekTo(-xDelta);
+                  if(touchX - touchVol < 0) xDelta = -xDelta;
+                  player.SDSeekTo(xDelta);
                 } else controlsEvent((touchVol - touchX)<0, 0, true);
                 touchVol = touchX;
               }
@@ -161,7 +154,7 @@ void TouchScreen::loop(){
             if(display.mode()==PLAYER || display.mode()==STATIONS){
               int16_t yDelta = map(abs(touchStation - touchY), 0, _height, 0, TS_STEPS);
               display.putRequest(NEWMODE, STATIONS);
-              if (yDelta>1) {
+              if (yDelta>2) {
                 controlsEvent((touchStation - touchY)<0);
                 touchStation = touchY;
               }

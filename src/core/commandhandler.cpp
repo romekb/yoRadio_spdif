@@ -46,7 +46,7 @@ bool CommandHandler::exec(const char *command, const char *value, uint8_t cid) {
   }
   if (strEquals(command, "vol")){
     int v = atoi(value);
-    config.store.volume = v < 0 ? 0 : (v > 254 ? 254 : v);
+    config.store.volume = v < 0 ? 0 : (v > 100 ? 100 : v);
     player.setVol(v);
     return true;
   }

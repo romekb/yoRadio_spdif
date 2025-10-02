@@ -460,10 +460,10 @@ void Config::setSDpos(uint32_t val){
   if (getMode()==PM_SDCARD){
     sdResumePos = 0;
     if(!player.isRunning()){
-      player.setResumeFilePos(val-player.sd_min);
+      player.setResumeFilePos(val+player.sd_min);
       player.sendCommand({PR_PLAY, config.store.lastSdStation});
     }else{
-      player.setFilePos(val-player.sd_min);
+      player.setFilePos(val+player.sd_min);
     }
   }
 }
