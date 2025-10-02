@@ -1,4 +1,5 @@
-Zmodyfikowana wersja projektu yoRadio (eRadio) z: https://github.com/e2002/yoradio
+Zmodyfikowana wersja projektu yoRadio (eRadio) z: https://github.com/e2002/yoradio <br>
+English version of Readme bellow.
 
 <img src="yoRadio_mis.jpg" width="280" height="200">  <img src="settings.jpg" width="284" height="200">
 
