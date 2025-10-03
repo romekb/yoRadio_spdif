@@ -329,13 +329,20 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
   #define LIGHT_SENSOR  255   // Light sensor
 #endif
 #ifndef AUTOBACKLIGHT
-  #ifndef AUTOBACKLIGHT_MAX
-    #define AUTOBACKLIGHT_MAX          2500
+  #ifndef AUTOBACKLIGHT_DARK
+    #ifdef AUTOBACKLIGHT_MAX
+      #define AUTOBACKLIGHT_DARK  AUTOBACKLIGHT_MAX
+    #else
+      #define AUTOBACKLIGHT_DARK        3500
+    #endif
+  #endif
+  #ifndef AUTOBACKLIGHT_BRI
+    #define AUTOBACKLIGHT_BRI           100
   #endif
   #ifndef AUTOBACKLIGHT_MIN
     #define AUTOBACKLIGHT_MIN          12
   #endif
-  #define AUTOBACKLIGHT(x) ({uint16_t _lh=(x>AUTOBACKLIGHT_MAX?AUTOBACKLIGHT_MAX:x); map(_lh, AUTOBACKLIGHT_MAX, 0, AUTOBACKLIGHT_MIN, 100);})  // autobacklight function
+  #define AUTOBACKLIGHT(x) ({uint16_t _lh=(x>AUTOBACKLIGHT_DARK?AUTOBACKLIGHT_DARK:x); if(_lh<AUTOBACKLIGHT_BRI) _lh=AUTOBACKLIGHT_BRI; map(_lh, AUTOBACKLIGHT_DARK, AUTOBACKLIGHT_BRI, AUTOBACKLIGHT_MIN, 100);})  // autobacklight function
 #endif
 #ifndef DSP_INVERT_TITLE
   #define DSP_INVERT_TITLE  true   // Invert title colors for displays ?

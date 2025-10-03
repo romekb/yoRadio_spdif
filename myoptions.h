@@ -38,10 +38,14 @@
 #define IR_PIN              34
 #define IR_TIMEOUT          20
 #define CLOCK_TTS_ENABLED   false     // Enabled (true) or disabled (false)
-#define NAMEDAYS_FILE       PL // HU, PL, NL
+#define NAMEDAYS_FILE       PL        // HU, PL, NL
 #define NO_VOLUME_SCREEN
 #define VU_PEAK
 //#define WEATHER_FMT_SHORT
 //#define BOOMBOX_STYLE
+//#define LIGHT_SENSOR        35        // lower pin voltage = higher brightness
+//#define AUTOBACKLIGHT_DARK  4000      // max ADC value - at dark condition (0 - 4095)
+//#define AUTOBACKLIGHT_BRI   100       // min ADC value - at bright condition (0 - 4095)
+//#define AUTOBACKLIGHT_MIN   15        // min brightness [%] (0 - 100)
 
 #endif

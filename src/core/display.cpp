@@ -14,6 +14,11 @@
 #include "../displays/widgets/widgets.h"
 #include "../displays/widgets/pages.h"
 #include "../displays/tools/l10n.h"
+#if LIGHT_SENSOR!=255
+ #include <driver/adc.h>
+ #include <esp_private/sar_periph_ctrl.h>
+ int8_t adcChan = -1;
+#endif
 
 Display display;
 #ifdef USE_NEXTION
@@ -103,7 +108,15 @@ void Display::init() {
   nextion.begin();
 #endif
 #if LIGHT_SENSOR!=255
-  analogSetAttenuation(ADC_0db);
+  //analogSetAttenuation(ADC_0db);
+  adcChan = digitalPinToAnalogChannel(LIGHT_SENSOR);
+  if(adcChan >= 0) {
+    #if((LIGHT_SENSOR==36) || (LIGHT_SENSOR==39))
+      sar_periph_ctrl_adc_oneshot_power_acquire();
+    #endif
+    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_channel_atten((adc1_channel_t)adcChan, ADC_ATTEN_DB_12);   // 0 - 3.3V
+  }
 #endif
   _bootStep = 0;
   dsp.initDisplay();
@@ -631,7 +644,8 @@ void Display::_time(bool redraw) {
   
 #if LIGHT_SENSOR!=255
   if(config.store.dspon) {
-    config.store.brightness = AUTOBACKLIGHT(analogRead(LIGHT_SENSOR));
+    if(adcChan >= 0) config.store.brightness = AUTOBACKLIGHT(adc1_get_raw((adc1_channel_t)adcChan));
+    //config.store.brightness = AUTOBACKLIGHT(analogRead(LIGHT_SENSOR));
     config.setBrightness();
   }
 #endif
