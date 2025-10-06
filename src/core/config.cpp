@@ -702,7 +702,8 @@ void Config::setTitle(const char* title) {
 void Config::setStation(const char* station) {
   memset(config.station.name, 0, BUFLEN);
   strlcpy(config.station.name, station, BUFLEN);
-  u8fix(config.station.title);
+//  u8fix(config.station.title);
+  u8fix(config.station.name);
 }
 
 void Config::indexPlaylist() {

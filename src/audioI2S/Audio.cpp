@@ -321,12 +321,13 @@ void Audio::setDefaults() {
     stopSong();
     initInBuff(); // initialize InputBuffer if not already done
     InBuff.resetBuffer();
+    delay(5);
     MP3Decoder_FreeBuffers();
     FLACDecoder_FreeBuffers();
     AACDecoder_FreeBuffers();
     OPUSDecoder_FreeBuffers();
     VORBISDecoder_FreeBuffers();
-    if(m_playlistBuff)   {free(m_playlistBuff);     m_playlistBuff = NULL;} // free if stream is not m3u8
+    if(m_playlistBuff) {free(m_playlistBuff); m_playlistBuff = NULL;} // free if stream is not m3u8
     vector_clear_and_shrink(m_playlistURL);
     vector_clear_and_shrink(m_playlistContent);
     m_hashQueue.clear(); m_hashQueue.shrink_to_fit(); // uint32_t vector
@@ -4294,6 +4295,7 @@ void Audio::compute_audioCurrentTime(int bd) {
             // if VBR: m_avr_bitrate is average of the first values of m_bitrate
             sum_bitrate += getBitRate();
             m_avr_bitrate = sum_bitrate / (loop_counter - 20);
+            if(m_avr_bitrate == 0) m_avr_bitrate = 1;
             if(loop_counter == 199 && m_resumeFilePos){
                 m_audioCurrentTime = ((getFilePos() - m_audioDataStart - inBufferFilled()) / m_avr_bitrate) * 8; // #293
             }
@@ -4302,11 +4304,13 @@ void Audio::compute_audioCurrentTime(int bd) {
     else {
         if(loop_counter == 2){
             m_avr_bitrate = getBitRate();
+            if(m_avr_bitrate == 0) m_avr_bitrate = 1;
             if(m_resumeFilePos){  // if connecttoFS() is called with resumeFilePos != 0
                 m_audioCurrentTime = ((getFilePos() - m_audioDataStart - inBufferFilled()) / m_avr_bitrate) * 8; // #293
             }
         }
     }
+    if(m_avr_bitrate == 0) m_avr_bitrate = 1;
     m_audioCurrentTime += ((float)bd / m_avr_bitrate) * 8;
 }
 //---------------------------------------------------------------------------------------------------------------------

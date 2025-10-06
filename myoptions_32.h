@@ -29,9 +29,9 @@
 #define SPDIF_OUT           22
 
 // RTC
-#define RTC_MODULE			    DS3231
-#define RTC_SDA			        32
-#define RTC_SCL			        25
+//#define RTC_MODULE			    DS3231
+//#define RTC_SDA			        32
+//#define RTC_SCL			        25
 
 // Touchscreen
 #define TS_MODEL			      TS_MODEL_XPT2046
@@ -49,7 +49,7 @@
 #define CLOCKFONT_MONO      true
 //#define WEATHER_FMT_SHORT
 //#define BOOMBOX_STYLE        
-#define LIGHT_SENSOR        39        // lower pin voltage = higher brightness
+//#define LIGHT_SENSOR        39        // lower pin voltage = higher brightness
 #define AUTOBACKLIGHT_DARK  4000      // max ADC value - at dark condition (0 - 4095)
 #define AUTOBACKLIGHT_BRI   100       // min ADC value - at bright condition (0 - 4095)
 #define AUTOBACKLIGHT_MIN   15        // min brightness [%] (0 - 100)

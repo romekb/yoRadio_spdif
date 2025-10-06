@@ -4,6 +4,9 @@
 // It does not provide complete and maximum granular control but tries
 // to offer most common functionality across all supported devices.
 
+#include "IRremoteESP8266.h"
+#if DECODE_AC
+
 #include "IRac.h"
 #ifndef UNIT_TEST
 #include <Arduino.h>
@@ -19,7 +22,6 @@
     using ::roundf;
 #endif
 #include "IRsend.h"
-#include "IRremoteESP8266.h"
 #include "IRtext.h"
 #include "IRutils.h"
 #include "ir_Airton.h"
@@ -5061,3 +5063,5 @@ namespace IRAcUtils {
     return true;
   }
 }  // namespace IRAcUtils
+
+#endif // #if DECODE_AC

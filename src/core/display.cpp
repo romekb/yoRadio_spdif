@@ -17,7 +17,7 @@
 #if LIGHT_SENSOR!=255
  #include <driver/adc.h>
  #include <esp_private/sar_periph_ctrl.h>
- int8_t adcChan = -1;
+ int8_t _adcChan = -1;
 #endif
 
 Display display;
@@ -109,13 +109,13 @@ void Display::init() {
 #endif
 #if LIGHT_SENSOR!=255
   //analogSetAttenuation(ADC_0db);
-  adcChan = digitalPinToAnalogChannel(LIGHT_SENSOR);
-  if(adcChan >= 0) {
+  _adcChan = digitalPinToAnalogChannel(LIGHT_SENSOR);
+  if(_adcChan >= 0) {
     #if((LIGHT_SENSOR==36) || (LIGHT_SENSOR==39))
       sar_periph_ctrl_adc_oneshot_power_acquire();
     #endif
     adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten((adc1_channel_t)adcChan, ADC_ATTEN_DB_12);   // 0 - 3.3V
+    adc1_config_channel_atten((adc1_channel_t)_adcChan, ADC_ATTEN_DB_12);   // 0 - 3.3V
   }
 #endif
   _bootStep = 0;
@@ -641,10 +641,9 @@ void Display::_title() {
 }
 
 void Display::_time(bool redraw) {
-  
 #if LIGHT_SENSOR!=255
   if(config.store.dspon) {
-    if(adcChan >= 0) config.store.brightness = AUTOBACKLIGHT(adc1_get_raw((adc1_channel_t)adcChan));
+    if(_adcChan >= 0) config.store.brightness = AUTOBACKLIGHT(adc1_get_raw((adc1_channel_t)_adcChan));
     //config.store.brightness = AUTOBACKLIGHT(analogRead(LIGHT_SENSOR));
     config.setBrightness();
   }
@@ -665,7 +664,6 @@ void Display::_time(bool redraw) {
     if(strcmp(_clock->gNameDay(), bday) != 0) {
       strlcpy(bday, _clock->gNameDay(), sizeof(bday));
       _nameday->setText(bday);
-//      Serial.println("ND UPDATE");
     }
   #endif
   _clock->draw(redraw);

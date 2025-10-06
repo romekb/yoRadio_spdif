@@ -71,20 +71,20 @@ const char* const dowf[]    PROGMEM = { sunf, monf, tuef, wedf, thuf, frif, satf
 const char* const mnths[]   PROGMEM = { jan, feb, mar, apr, may, jun, jul, aug, sep, octt, nov, decc };
 const char* const wind[]    PROGMEM = { wn_N, wn_NNE, wn_NE, wn_ENE, wn_E, wn_ESE, wn_SE, wn_SSE, wn_S, wn_SSW, wn_SW, wn_WSW, wn_W, wn_WNW, wn_NW, wn_NNW, wn_N };
 
-const char    const_PlReady[]    PROGMEM = "[ready]";
-const char  const_PlStopped[]    PROGMEM = "[stopped]";
-const char  const_PlConnect[]    PROGMEM = "[connecting]";
-const char  const_DlgVolume[]    PROGMEM = "VOLUME";
-const char    const_DlgLost[]    PROGMEM = "* LOST *";
-const char  const_DlgUpdate[]    PROGMEM = "* UPDATING *";
+const char    const_PlReady[]    PROGMEM = "[gotowy]";
+const char  const_PlStopped[]    PROGMEM = "[stop]";
+const char  const_PlConnect[]    PROGMEM = "[łączenie]";
+const char  const_DlgVolume[]    PROGMEM = "GŁOŚNOŚĆ";
+const char    const_DlgLost[]    PROGMEM = "* ROZŁĄCZONY *";
+const char  const_DlgUpdate[]    PROGMEM = "* AKTUALIZACJA *";
 const char const_DlgNextion[]    PROGMEM = "* NEXTION *";
 const char const_getWeather[]    PROGMEM = "";
-const char  const_waitForSD[]    PROGMEM = "INDEX SD";
+const char  const_waitForSD[]    PROGMEM = "CZYTAM KARTĘ";
 
-const char        apNameTxt[]    PROGMEM = "AP NAME";
-const char        apPassTxt[]    PROGMEM = "PASSWORD";
-const char       bootstrFmt[]    PROGMEM = "Connecting %s";
-const char        apSettFmt[]    PROGMEM = "SETTINGS PAGE ON: HTTP://%s/";
+const char        apNameTxt[]    PROGMEM = "NAZWA AP";
+const char        apPassTxt[]    PROGMEM = "HASŁO";
+const char       bootstrFmt[]    PROGMEM = "Łączenie z %s";
+const char        apSettFmt[]    PROGMEM = "STRONA KONFIGURACYJNA: HTTP://%s/";
 
 
 

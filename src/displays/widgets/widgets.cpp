@@ -444,13 +444,11 @@ void VuWidget::_draw() {
       peakL = (peakL > peak_decay_step) ? peakL - peak_decay_step : 0;
     }
 #else
-   // Serial.printf("peakL : %d, measL : %d, peak_decay_step : %d , dimension : %d \n", peakL, measL, peak_decay_step, dimension);
     if (measL < peakL) {
       peakL = measL;
       peakL_time = now;
     } else if (now - peakL_time > peak_hold_ms && peakL >= 0) {
       peakL = (peakL < dimension) ? peakL + peak_decay_step : 0;
-     // Serial.printf("ki peakL : %d, measL : %d, peak_decay_step : %d \n", peakL, measL, peak_decay_step);
     }
 #endif
 
@@ -650,7 +648,6 @@ void VuWidget::_clear() {
   // dsp.fillRect(_config.left, _config.top, _bands.width * 2 + _bands.space, _bands.height, _bgcolor);
   dsp.fillRect(0, _config.top - 4, 479, 24, _bgcolor);
   _labelsDrawn = false; // L és R meg keljen rajzolni. Módosítás.
-  // Serial.println("widget.cpp -> VuWidget::_clear()");
 }
 #else // DSP_LCD
 VuWidget::~VuWidget() {}
@@ -907,62 +904,54 @@ void ClockWidget::_printClock(bool force){
       // gfx. buffer területre ír, dsp. közvetlenül a kijelzőre.
       //  gfx.drawFastVLine(_linesleft, _top()-_timeheight, _timeheight, config.theme.div);
       //  gfx.drawFastHLine(_linesleft, _top()-(_timeheight)/2 + 25, CHARWIDTH * _superfont * 2 + _space, config.theme.div);
-      if (!config.isScreensaver) {
-        // dsp.setTextSize(_superfont);
-        // dsp.setCursor(_linesleft + _space + 1, _top() - CHARHEIGHT * _superfont);
-        // dsp.setTextColor(config.theme.dow, config.theme.background);
-        // gfx.print(utf8To(LANG::dow[network.timeinfo.tm_wday], false)); // A nap neve
-        // sprintf(_tmp, "%2d %s %d", network.timeinfo.tm_mday,LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year+1900);
-        #if L10N_LANGUAGE == RU
-                  sprintf(_tmp, "%2d %s %d", network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
-        #elif L10N_LANGUAGE == EN
-                  sprintf(_tmp, "%2d %s %d", network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
-        #elif L10N_LANGUAGE == NL
-                  sprintf(_tmp, "%s %2d %s %d", LANG::dowf[network.timeinfo.tm_wday], network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
-        #elif L10N_LANGUAGE == HU
-                  sprintf(_tmp, "%d. %s %2d. %s", network.timeinfo.tm_year + 1900, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_mday, LANG::dowf[network.timeinfo.tm_wday]);
-        #elif L10N_LANGUAGE == PL
-                  sprintf(_tmp, "%s, %02d.%s.%04d", LANG::dowf[network.timeinfo.tm_wday], network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
-        #elif L10N_LANGUAGE == EL
-                  sprintf(_tmp, "%2d %s %d", network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
-        #endif
-        #ifndef HIDE_DATE
-            // Sor törlése teljes szélességben
-            int dateY      = _config.top + 8;
-            int lineHeight = _dateheight * 8;   // kb. 8 pixel per TextSize
-            dsp.fillRect(0, dateY, dsp.width(), lineHeight, config.theme.background); //szürke 0x8410
-            strlcpy(_datebuf, utf8To(_tmp, false), sizeof(_datebuf));
-            uint16_t _datewidth = strlen(_datebuf) * CHARWIDTH*_dateheight;
-            dsp.setFont();
-            dsp.setTextSize(_dateheight);
-            #if DSP_MODEL==DSP_GC9A01A
-              dsp.setCursor((dsp.width()-_datewidth)/2, _top() + _space);
-            #else
-              dsp.setCursor(_left()+_clockwidth-_datewidth, _top() + _space);
-            #endif
-            uint16_t _dateleft = dsp.width() - _datewidth - _config.left;
-            dsp.setCursor(_dateleft, _config.top + 8);
-            dsp.setTextColor(config.theme.date, config.theme.background);
-           // Serial.printf("widget.cpp -> _left() %d \n", _left());
-            dsp.print(_datebuf);
-           // Serial.printf("widget.cpp -> _datebuf %s \n", _datebuf);
-        #endif // HIDE_DATE
-        // Mai névnap letöltése - csak ha engedélyezve van.
-        #ifdef NAMEDAYS_FILE
-          getNamedayUpper(_namedayBuf, sizeof(_namedayBuf));
-//          _namedaywidth = strlen(_namedayBuf) * CHARWIDTH * 2;
-          _namedayleft = 8;
-//          getNamedayUpper(_namedayBuf, sizeof(_namedayBuf));
-          if (!config.isScreensaver && strcmp(_oldNamedayBuf, _namedayBuf) != 0) {
-        /*
-            strlcpy(_oldNamedayBuf, _namedayBuf, sizeof(_oldNamedayBuf));
-            _namedaywidth = strlen(_namedayBuf) * CHARWIDTH * 2; // szélesség frissítése
-        */
-            _printNameday();
-          }
-      #endif //NAMEDAYS_FILE
+        if (!config.isScreensaver) {
+          // dsp.setTextSize(_superfont);
+          // dsp.setCursor(_linesleft + _space + 1, _top() - CHARHEIGHT * _superfont);
+          // dsp.setTextColor(config.theme.dow, config.theme.background);
+          // gfx.print(utf8To(LANG::dow[network.timeinfo.tm_wday], false)); // A nap neve
+          // sprintf(_tmp, "%2d %s %d", network.timeinfo.tm_mday,LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year+1900);
+          #if L10N_LANGUAGE == RU
+                    sprintf(_tmp, "%2d %s %d", network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
+          #elif L10N_LANGUAGE == EN
+                    sprintf(_tmp, "%2d %s %d", network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
+          #elif L10N_LANGUAGE == NL
+                    sprintf(_tmp, "%s %2d %s %d", LANG::dowf[network.timeinfo.tm_wday], network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
+          #elif L10N_LANGUAGE == HU
+                    sprintf(_tmp, "%d. %s %2d. %s", network.timeinfo.tm_year + 1900, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_mday, LANG::dowf[network.timeinfo.tm_wday]);
+          #elif L10N_LANGUAGE == PL
+                    sprintf(_tmp, "%s, %02d.%s.%04d", LANG::dowf[network.timeinfo.tm_wday], network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
+          #elif L10N_LANGUAGE == EL
+                    sprintf(_tmp, "%2d %s %d", network.timeinfo.tm_mday, LANG::mnths[network.timeinfo.tm_mon], network.timeinfo.tm_year + 1900);
+          #endif
+          #ifndef HIDE_DATE
+              // Sor törlése teljes szélességben
+              int dateY      = _config.top + 8;
+              int lineHeight = _dateheight * 8;   // kb. 8 pixel per TextSize
+              dsp.fillRect(0, dateY, dsp.width(), lineHeight, config.theme.background); //szürke 0x8410
+              strlcpy(_datebuf, utf8To(_tmp, false), sizeof(_datebuf));
+              uint16_t _datewidth = strlen(_datebuf) * CHARWIDTH*_dateheight;
+              dsp.setFont();
+              dsp.setTextSize(_dateheight);
+              #if DSP_MODEL==DSP_GC9A01A
+                dsp.setCursor((dsp.width()-_datewidth)/2, _top() + _space);
+              #else
+                dsp.setCursor(_left()+_clockwidth-_datewidth, _top() + _space);
+              #endif
+              uint16_t _dateleft = dsp.width() - _datewidth - _config.left;
+              dsp.setCursor(_dateleft, _config.top + 8);
+              dsp.setTextColor(config.theme.date, config.theme.background);
+              dsp.print(_datebuf);
+          #endif // HIDE_DATE
+          // Mai névnap letöltése - csak ha engedélyezve van.
+          #ifdef NAMEDAYS_FILE
+            getNamedayUpper(_namedayBuf, sizeof(_namedayBuf));
+            _namedayleft = 8;
+            if (!config.isScreensaver && strcmp(_oldNamedayBuf, _namedayBuf) != 0) {
+              _printNameday();
+            }
+        #endif //NAMEDAYS_FILE
+        }
       }
-    }
     }
   }
   if(_fullclock || _superfont>0){
@@ -978,21 +967,6 @@ void ClockWidget::_printClock(bool force){
       gfx.setCursor(_linesleft+_space+1, _top() - 22); //-_timeheight);
     }
     gfx.setTextColor(config.theme.seconds, config.theme.background);
-
-    // gfx.setFont(Clock_GFXfontPtr_Sec);
-/*
-    gfx.setTextSize(0);          // *** Másodperc kiírása ***
-    gfx.setFont(&VT_DIGI_34x19); // Saját font
-    if (CLOCKFONT_MONO) {
-      gfx.setTextColor(config.theme.clockbg, config.theme.background);
-    } else {
-      gfx.setTextColor(config.theme.background, config.theme.background);
-    }
-    gfx.setCursor(_left() + _timewidth + _space + 3, _top() - _timeheight + 50);
-    gfx.print("88");
-    gfx.setTextColor(config.theme.seconds, config.theme.background);
-    gfx.setCursor(_left() + _timewidth + _space + 3, _top() - _timeheight + 50);
-*/    
     sprintf(_tmp, "%02d", network.timeinfo.tm_sec);
     gfx.print(_tmp);
   }
@@ -1026,32 +1000,12 @@ void ClockWidget::getNamedayUpper(char *dest, size_t len) { // commongfx.h - ban
 }
 
 void ClockWidget::_printNameday() {
-  // Névnap nevének területének törlése a kijelzőről.
-  //if (_oldnamedayleft > 0) {
-  //  int clearWidth = max(_oldnamedaywidth, _namedaywidth); // A régi és az új név közül a szélesebb szélessége.
-  //  dsp.fillRect(_oldnamedayleft, _config.top - 14, clearWidth, CHARHEIGHT * 2, config.theme.background);
-  //}
-  // Névnapi terület törlése letiltás esetén
-  //  if (_oldnamedayleft > 0 && _oldnamedaywidth > 0) {
-  //    dsp.fillRect(_oldnamedayleft, clockTop - 14, _oldnamedaywidth, CHARHEIGHT * 2, config.theme.background);
-  // }
   // Rajzold le a nyelvfüggő "Névnap:" szót fehér színnel.
   dsp.setTextColor(config.theme.date, config.theme.background);
   dsp.setCursor(_namedayleft, _config.top - 24); // egy sorral feljebb
   dsp.setTextSize(1);
   if (!config.isScreensaver)
     dsp.print(utf8To(nameday_label, false)); // <<< Itt már a headerből jön
-
-  // Csak a neveket rajzolja arany színnel
-  //dsp.setTextColor(config.theme.nameday, config.theme.background); // szürke 0x8410
-  //dsp.setCursor(_namedayleft, _config.top - 13);
-  //dsp.setTextSize(2);
-  //if (!config.isScreensaver)
-  //  dsp.print(_namedayBuf);
-
-  //strlcpy(_oldNamedayBuf, _namedayBuf, sizeof(_namedayBuf));
-  //_oldnamedaywidth = _namedaywidth;
-  //_oldnamedayleft = _namedayleft;
 }
 #endif //NAMEDAYS_FILE
 
@@ -1061,9 +1015,7 @@ void ClockWidget::_clearClock(){
   else
 #endif
 #ifndef CLOCKFONT5x7
-    // dsp.fillRect(_left(), _top()-_timeheight, _clockwidth, _clockheight+1, 0x8410);
   dsp.fillRect(_left(), _top()-(_timeheight), _clockwidth, _clockheight+1, config.theme.background);
-// Serial.println("Törlés");
 #else
   dsp.fillRect(_left(), _top(), _clockwidth+1, _clockheight+1, config.theme.background);
 #endif
@@ -1153,14 +1105,12 @@ void BitrateWidget::_charSize(uint8_t textsize, uint8_t& width, uint16_t& height
 }
 
 void BitrateWidget::_draw(){  //Módosítás
+  if(!_active) return;
   _clear();
-  if(!_active || _format == BF_UNKNOWN || _bitrate==0) return;
-// dsp.drawRect(_config.left, _config.top, _dimension, _dimension, _fgcolor);
-// dsp.fillRect(_config.left, _config.top + _dimension / 2, _dimension, _dimension / 2, _fgcolor);
+  if(_format == BF_UNKNOWN || _bitrate==0) return;
 #ifdef NAMEDAYS_FILE
   dsp.drawRect(_config.left, _config.top, _dimension * 2, (_dimension / 2) - 1, _fgcolor);
   dsp.fillRect(_config.left + _dimension, _config.top, _dimension, (_dimension / 2) - 1, _fgcolor);
-  Serial.println("BitrateWidget") ;
 #else
   dsp.drawRect(_config.left, _config.top, _dimension, _dimension, _fgcolor);                              // Eredeti.
   dsp.fillRect(_config.left, _config.top + _dimension / 2 + 1, _dimension, _dimension / 2 - 1, _fgcolor); // Eredeti
@@ -1169,7 +1119,6 @@ void BitrateWidget::_draw(){  //Módosítás
   dsp.setTextSize(_config.textsize);
   dsp.setTextColor(_fgcolor, _bgcolor);
   snprintf(_buf, 6, "%d", _bitrate);
-// dsp.setCursor(_config.left + _dimension / 2 - _charWidth * strlen(_buf) / 2 + 1, _config.top + _dimension / 4 - _textheight / 2 + 1);
 #ifdef NAMEDAYS_FILE
   dsp.setCursor(_config.left + _dimension / 2 - _charWidth * strlen(_buf) / 2, _config.top + _dimension / 4 - _textheight / 2 + 1);
 #else
@@ -1195,14 +1144,12 @@ void BitrateWidget::_draw(){  //Módosítás
 }
 
 void BitrateWidget::_clear() {
-  // dsp.fillRect(_config.left, _config.top, _dimension, _dimension, _bgcolor);
 #ifdef NAMEDAYS_FILE
   dsp.fillRect(_config.left, _config.top, _dimension * 2, _dimension / 2, _bgcolor);
 #else
   dsp.fillRect(_config.left, _config.top, _dimension, _dimension, _bgcolor);
 #endif
   VuWidget::setLabelsDrawn(false); // Módosítás! (false) esetén újrarajzolja az L R címkét.
-  // Serial.println("widget.cpp -> Bitratewidget _clear()");
 }
 
 

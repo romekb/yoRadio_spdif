@@ -171,11 +171,26 @@ void TouchScreen::loop(){
       Serial.print(", y = ");
       Serial.println(touchY);
     }
+    // volume control with repeat  
     if(istouched && direct == TDS_REQUEST && (display.mode()==PLAYER || display.mode()==VOL) && 
-       millis()>_repeatDelay+500 && _oldTouchY<_height/3) {           // volume control with repeat  
-          if(_oldTouchX < _width/3)   {onBtnClick(EVT_BTNLEFT);  touchLongPress = millis(); }  // Left-bottom = vol_down
-          if(_oldTouchX > _width*2/3) {onBtnClick(EVT_BTNRIGHT); touchLongPress = millis(); }  // Right-bottom = vol_up
+       millis()>_repeatDelay+500 && _oldTouchY<_height/3) {
+          if(_oldTouchX < _width/3)     {onBtnClick(EVT_BTNLEFT);  touchLongPress = millis(); }  // Left-bottom = vol_down
+          if(_oldTouchX > (_width*2)/3) {onBtnClick(EVT_BTNRIGHT); touchLongPress = millis(); }  // Right-bottom = vol_up
           _repeatDelay = millis() - (_repeatDelay ? 300:0);     // first delay 500ms, then repeat every 200ms
+    }
+    // up/down (1/10) in playlist/stations mode
+    if(istouched && direct==TDS_REQUEST && display.mode()==STATIONS && millis()>_repeatDelay+500 && _oldTouchX>(_width*2)/3) {      
+        if(_oldTouchY < _height/2) { 
+          if(_repeatDelay) display.currentPlItem -= 9;            // if not first touch, list-10
+          controlsEvent(false); 
+          touchLongPress = millis(); 
+        }
+        else if(_oldTouchY > _height/2) { 
+          if(_repeatDelay) display.currentPlItem += 9;            // if not first touch, list+10
+          controlsEvent(true);  
+          touchLongPress = millis(); 
+        }
+        _repeatDelay = millis() - (_repeatDelay ? 200:0);         // first delay 500ms, then repeat +- 10 every 300ms
     }
   }else{
     if (wastouched) {/*     END TOUCH     */
@@ -183,12 +198,14 @@ void TouchScreen::loop(){
         uint32_t pressTicks = millis()-touchLongPress;
         if( pressTicks < BTN_PRESS_TICKS*2){
           if(pressTicks > 50) {
-            if(display.mode()==PLAYER && _oldTouchY>_height*2/3) {
-              if(_oldTouchX < _width/3)        { player.prev(); goto _exit; }       // Left-top - prevous
-              else if(_oldTouchX > _width*2/3) { player.next(); goto _exit; }       // Right-top - next
+            if(display.mode()==PLAYER && _oldTouchY>(_height*2)/3) {
+              if(_oldTouchX < _width/3)          { player.prev(); goto _exit; }     // Left-top - prevous
+              else if(_oldTouchX > (_width*2)/3) { player.next(); goto _exit; }     // Right-top - next
               else { onBtnClick(EVT_BTNMODE); goto _exit; }                         // Middle-top - Radio/SD
             } else if((display.mode()==PLAYER || display.mode()==VOL) && _oldTouchY<_height/3) {  
-              if((_oldTouchX < _width/3) || (_oldTouchX > _width*2/3)) goto _exit;  // Right-bottom && Left-bottom
+              if((_oldTouchX < _width/3) || _oldTouchX > (_width*2)/3) goto _exit;  // Right-bottom && Left-bottom
+            } else if(display.mode()==STATIONS && _oldTouchX > (_width*2)/3) {      // stations mode, right side of TFT
+              goto _exit;
             }
             onBtnClick(EVT_BTNCENTER);    // Other area - Play/Pause
           }

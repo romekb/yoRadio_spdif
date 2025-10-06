@@ -6,6 +6,7 @@ public:
   bool exec(const char *command, const char *value, uint8_t cid=0);
 
 private:
+  void _SwitchSPDIF();
   static bool strEquals(const char *a, const char *b) {
     return strcmp(a, b) == 0;
   }

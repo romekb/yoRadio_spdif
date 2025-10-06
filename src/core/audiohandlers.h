@@ -67,7 +67,8 @@ void audio_showstreamtitle(const char *info) {
   #ifdef DEBUG_TITLES
     config.setTitle(DEBUG_TITLES);
   #else
-    config.setTitle(p?info:config.station.name);
+//    config.setTitle(p?info:config.station.name);
+    config.setTitle(p?info:"");
   #endif
 }
 
