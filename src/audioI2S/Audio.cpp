@@ -433,12 +433,13 @@ bool Audio::connecttohost(const char* host, const char* user, const char* pwd) {
     int16_t pos_slash;                                        // position of "/" in hostname
     int16_t pos_colon;                                        // position of ":" in hostname
     int16_t pos_ampersand;                                    // position of "&" in hostname
+    int16_t pos_hash;                                         // position of "#" in hostname
     uint16_t port = 80;                                       // port number
 
     // In the URL there may be an extension, like noisefm.ru:8000/play.m3u&t=.m3u
     pos_slash     = indexOf(h_host, "/", 0);
     pos_colon     = indexOf(h_host, ":", 0);
-        if(isalpha(h_host[pos_colon + 1])) pos_colon = -1; // no portnumber follows
+    if(isalpha(h_host[pos_colon + 1])) pos_colon = -1; // no portnumber follows
     pos_ampersand = indexOf(h_host, "&", 0);
 
     char *hostwoext = NULL;                                  // "skonto.ls.lv:8002" in "skonto.ls.lv:8002/mp3"
@@ -451,6 +452,8 @@ bool Audio::connecttohost(const char* host, const char* user, const char* pwd) {
         uint16_t extLen =  urlencode_expected_len(h_host + pos_slash);
         extension = (char *)malloc(extLen + 20);
         memcpy(extension, h_host + pos_slash, extLen);
+        pos_hash = indexOf(extension, "#", 0);              // eliminate "#" and rest after it from extension
+        if(pos_hash > 1) extension[pos_hash] = '\0';
         urlencode(extension, extLen, true);
     }
     else{  // url has no extension
@@ -482,7 +485,7 @@ bool Audio::connecttohost(const char* host, const char* user, const char* pwd) {
 
     //  AUDIO_INFO("Connect to \"%s\" on port %d, extension \"%s\"", hostwoext, port, extension);
 
-    char rqh[strlen(h_host) + strlen(authorization) + 200]; // http request header
+    char rqh[strlen(h_host) + strlen(authorization) + 220]; // http request header
     rqh[0] = '\0';
 
     strcat(rqh, "GET ");
