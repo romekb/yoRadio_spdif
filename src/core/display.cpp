@@ -365,6 +365,11 @@ void Display::_swichMode(displayMode_e newmode) {
     _meta->setAlign(metaConf.widget.align);
     _meta->setText(config.station.name);
     _nums->setText("");
+    // force update time & weather after out from screensaver
+    if(RTC_MODULE==RTC_MODULE_UNDEFINED && config.isScreensaver && player.status() == STOPPED) {
+      timekeeper.forceTimeSync = true;
+      timekeeper.forceWeather = true;
+    }
     config.isScreensaver = false;
     _pager->setPage( pages[PG_PLAYER]);
     config.setDspOn(config.store.dspon, false);
@@ -642,10 +647,8 @@ void Display::_title() {
 
 void Display::_time(bool redraw) {
 #if LIGHT_SENSOR!=255
-  if(config.store.dspon) {
-    if(_adcChan >= 0) config.store.brightness = AUTOBACKLIGHT(adc1_get_raw((adc1_channel_t)_adcChan));
-    //config.store.brightness = AUTOBACKLIGHT(analogRead(LIGHT_SENSOR));
-    config.setBrightness();
+  if(config.store.dspon && _adcChan >= 0) {
+    config.setBrightness(AUTOBACKLIGHT(adc1_get_raw((adc1_channel_t)_adcChan)));
   }
 #endif
   if(config.isScreensaver && network.timeinfo.tm_sec % 60 == 0){

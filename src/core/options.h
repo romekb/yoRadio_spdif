@@ -342,7 +342,7 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
   #ifndef AUTOBACKLIGHT_MIN
     #define AUTOBACKLIGHT_MIN          12
   #endif
-  #define AUTOBACKLIGHT(x) ({uint16_t _lh=(x>AUTOBACKLIGHT_DARK?AUTOBACKLIGHT_DARK:x); if(_lh<AUTOBACKLIGHT_BRI) _lh=AUTOBACKLIGHT_BRI; map(_lh, AUTOBACKLIGHT_DARK, AUTOBACKLIGHT_BRI, AUTOBACKLIGHT_MIN, 100);})  // autobacklight function
+  #define AUTOBACKLIGHT(x) ({uint16_t _lh=(x>AUTOBACKLIGHT_DARK?AUTOBACKLIGHT_DARK:x); if(_lh<AUTOBACKLIGHT_BRI) _lh=AUTOBACKLIGHT_BRI; map(_lh, AUTOBACKLIGHT_DARK, AUTOBACKLIGHT_BRI, AUTOBACKLIGHT_MIN, config.store.brightness);})  // autobacklight function
 #endif
 #ifndef DSP_INVERT_TITLE
   #define DSP_INVERT_TITLE  true   // Invert title colors for displays ?

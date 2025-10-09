@@ -325,7 +325,7 @@ void Config::_initHW(){
   #endif
   #if BRIGHTNESS_PIN!=255
     pinMode(BRIGHTNESS_PIN, OUTPUT);
-    setBrightness(false);
+    setBrightness(store.brightness, false);
   #endif
 }
 
@@ -498,7 +498,7 @@ void Config::resetSystem(const char *val, uint8_t clientId){
     display.invert();
     saveValue(&store.dspon, true, false);
     store.brightness = 100;
-    setBrightness(false);
+    setBrightness(store.brightness, false);
     saveValue(&store.contrast, (uint8_t)55, false);
     display.setContrast();
     saveValue(&store.numplaylist, false);
@@ -943,14 +943,16 @@ bool Config::initNetwork() {
   return true;
 }
 
-void Config::setBrightness(bool dosave){
+void Config::setBrightness(uint8_t value, bool dosave){
 #if BRIGHTNESS_PIN!=255
   if(!store.dspon && dosave) {
     display.wakeup();
   }
-  analogWrite(BRIGHTNESS_PIN, map(store.brightness, 0, 100, 0, 255));
+  if(value > 100) value = 100;
+  analogWrite(BRIGHTNESS_PIN, map(value, 0, 100, 0, 255));
   if(!store.dspon) store.dspon = true;
   if(dosave){
+    store.brightness = value;
     saveValue(&store.brightness, store.brightness, false, true);
     saveValue(&store.dspon, store.dspon, true, true);
   }
@@ -958,10 +960,11 @@ void Config::setBrightness(bool dosave){
 #ifdef USE_NEXTION
   nextion.wake();
   char cmd[15];
-  snprintf(cmd, 15, "dims=%d", store.brightness);
+  snprintf(cmd, 15, "dims=%d", value);
   nextion.putcmd(cmd);
   if(!store.dspon) store.dspon = true;
   if(dosave){
+    store.brightness = value;
     saveValue(&store.brightness, store.brightness, false, true);
     saveValue(&store.dspon, store.dspon, true, true);
   }

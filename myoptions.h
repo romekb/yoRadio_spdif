@@ -36,11 +36,12 @@
 // SD/IR/Misc
 #define SDC_CS			        5
 #define IR_PIN              34
-#define IR_TIMEOUT          20
+#define IR_TIMEOUT          15
 #define CLOCK_TTS_ENABLED   false     // Enabled (true) or disabled (false)
 #define NAMEDAYS_FILE       PL        // HU, PL, NL
 #define NO_VOLUME_SCREEN
 #define VU_PEAK
+#define IR_TS_BRIGHTNESS_CONTROL
 //#define WEATHER_FMT_SHORT
 //#define BOOMBOX_STYLE
 //#define LIGHT_SENSOR        35        // lower pin voltage = higher brightness

@@ -46,12 +46,13 @@
 #define VU_PEAK
 #define CLOCK_TTS_ENABLED   false     // Enabled (true) or disabled (false)
 #define NAMEDAYS_FILE       PL        // HU, PL, NL
-#define CLOCKFONT_MONO      true
+#define IR_TS_BRIGHTNESS_CONTROL
+//#define CLOCKFONT_MONO      true
 //#define WEATHER_FMT_SHORT
 //#define BOOMBOX_STYLE        
 //#define LIGHT_SENSOR        39        // lower pin voltage = higher brightness
 #define AUTOBACKLIGHT_DARK  4000      // max ADC value - at dark condition (0 - 4095)
 #define AUTOBACKLIGHT_BRI   100       // min ADC value - at bright condition (0 - 4095)
-#define AUTOBACKLIGHT_MIN   15        // min brightness [%] (0 - 100)
+#define AUTOBACKLIGHT_MIN   20        // min brightness [%] (0 - 100)
 
 #endif

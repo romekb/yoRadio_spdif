@@ -52,7 +52,7 @@ bool CommandHandler::exec(const char *command, const char *value, uint8_t cid) {
     return true;
   }
   if (strEquals(command, "dspon"))     { config.setDspOn(atoi(value)!=0); return true; }
-  if (strEquals(command, "dim"))       { int d=atoi(value); config.store.brightness = (uint8_t)(d < 0 ? 0 : (d > 100 ? 100 : d)); config.setBrightness(true); return true; }
+  if (strEquals(command, "dim"))       { int d=atoi(value); config.store.brightness = (uint8_t)(d < 0 ? 0 : (d > 100 ? 100 : d)); config.setBrightness(config.store.brightness, true); return true; }
   if (strEquals(command, "clearspiffs")){ config.spiffsCleanup(); config.saveValue(&config.store.play_mode, static_cast<uint8_t>(PM_WEB)); return true; }
   /*********************************************/
   /****************** WEBSOCKET ****************/
@@ -72,7 +72,7 @@ bool CommandHandler::exec(const char *command, const char *value, uint8_t cid) {
   if (strEquals(command, "fliptouch"))    { config.saveValue(&config.store.fliptouch, static_cast<bool>(atoi(value))); flipTS(); return true; }
   if (strEquals(command, "dbgtouch"))     { config.saveValue(&config.store.dbgtouch, static_cast<bool>(atoi(value))); _SwitchSPDIF(); return true; }
   if (strEquals(command, "flipscreen"))   { config.saveValue(&config.store.flipscreen, static_cast<bool>(atoi(value))); display.flip(); display.putRequest(NEWMODE, CLEAR); display.putRequest(NEWMODE, PLAYER); return true; }
-  if (strEquals(command, "brightness"))   { if (!config.store.dspon) netserver.requestOnChange(DSPON, 0); config.store.brightness = static_cast<uint8_t>(atoi(value)); config.setBrightness(true); return true; }
+  if (strEquals(command, "brightness"))   { if (!config.store.dspon) netserver.requestOnChange(DSPON, 0); config.store.brightness = static_cast<uint8_t>(atoi(value)); config.setBrightness(config.store.brightness, true); return true; }
   if (strEquals(command, "screenon"))     { config.setDspOn(static_cast<bool>(atoi(value))); return true; }
   if (strEquals(command, "contrast"))     { config.saveValue(&config.store.contrast, static_cast<uint8_t>(atoi(value))); display.setContrast(); return true; }
   if (strEquals(command, "screensaverenabled")){ config.enableScreensaver(static_cast<bool>(atoi(value))); return true; }

@@ -374,8 +374,7 @@ void Telnet::on_input(const char* str, uint8_t clientId) {
     if (sscanf(str, "dim(%d)", &tzh) == 1 || sscanf(str, "cli.dim(\"%d\")", &tzh) == 1 || sscanf(str, "dim %d", &tzh) == 1) {
       if (tzh < 0) tzh = 0;
       if (tzh > 100) tzh = 100;
-      config.store.brightness = (uint8_t)tzh;
-      config.setBrightness(true);
+      config.setBrightness(tzh, true);
       return;
     }
     if (sscanf(str, "sleep(%d,%d)", &tzh, &tzm) == 2 || sscanf(str, "cli.sleep(\"%d\",\"%d\")", &tzh, &tzm) == 2 || sscanf(str, "sleep %d %d", &tzh, &tzm) == 2) {

@@ -457,14 +457,13 @@ void controlsEvent(bool toRight, int8_t volDelta, bool allowBrightness) {
     display.putRequest(NEWMODE, PLAYER);
   }
   if (display.mode() != STATIONS) {
-  #if BRIGHTNESS_PIN!=255    
+  #if (BRIGHTNESS_PIN!=255) && defined(IR_TS_BRIGHTNESS_CONTROL)    
     if (player.status() == STOPPED && allowBrightness) {
       int br = config.store.brightness;                 // brightness change from remote/touchscreen
       if(toRight) br += 5; else br -= 5;
       if(br > 100) br = 100;
       if(br < 5) br = 5;
-      config.store.brightness = br;
-      config.setBrightness(true);                       // set & save new brightness
+      config.setBrightness(br, true);                   // set & save new brightness
       config.screensaverTicks=SCREENSAVERSTARTUPDELAY;  // reset screensaver timeout
       return;
     }
