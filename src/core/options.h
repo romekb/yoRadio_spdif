@@ -340,7 +340,7 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
     #define AUTOBACKLIGHT_BRI           100
   #endif
   #ifndef AUTOBACKLIGHT_MIN
-    #define AUTOBACKLIGHT_MIN          12
+    #define AUTOBACKLIGHT_MIN          15
   #endif
   #define AUTOBACKLIGHT(x) ({uint16_t _lh=(x>AUTOBACKLIGHT_DARK?AUTOBACKLIGHT_DARK:x); if(_lh<AUTOBACKLIGHT_BRI) _lh=AUTOBACKLIGHT_BRI; map(_lh, AUTOBACKLIGHT_DARK, AUTOBACKLIGHT_BRI, AUTOBACKLIGHT_MIN, config.store.brightness);})  // autobacklight function
 #endif
@@ -371,15 +371,10 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #ifndef SD_MAX_LEVELS
   #define SD_MAX_LEVELS      3      //  search depth for files on the SD card
 #endif
-/*
-*** ST7735 display submodel ***
-  INITR_BLACKTAB        // 1.8' https://aliexpress.ru/item/1005002822797745.html
-      See this note If INITR_BLACKTAB have a noisy line on one side of the screen https://github.com/e2002/yoradio#note-if-initr_blacktab-dsp-have-a-noisy-line-on-one-side-of-the-screen-then-in-adafruit_st7735cpp
-  INITR_144GREENTAB     // 1.44' https://aliexpress.ru/item/1005002822797745.html
-  INITR_MINI160x80      // 0.96' 160x80 ST7735S   https://????
-  INITR_GREENTAB
-  INITR_REDTAB
- */
+#ifndef POWER_SAVE   
+  #define POWER_SAVE         2      // max power saving
+#endif
+
 #ifndef DTYPE
   #define DTYPE INITR_BLACKTAB
 #endif

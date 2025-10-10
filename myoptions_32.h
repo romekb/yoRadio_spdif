@@ -47,6 +47,7 @@
 #define CLOCK_TTS_ENABLED   false     // Enabled (true) or disabled (false)
 #define NAMEDAYS_FILE       PL        // HU, PL, NL
 #define IR_TS_BRIGHTNESS_CONTROL
+#define POWER_SAVE          2         // 0=off, 1=on sleep, 2=always
 //#define CLOCKFONT_MONO      true
 //#define WEATHER_FMT_SHORT
 //#define BOOMBOX_STYLE        

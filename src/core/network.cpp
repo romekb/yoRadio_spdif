@@ -153,7 +153,7 @@ void MyNetwork::begin() {
 }
 
 void MyNetwork::setWifiParams(){
-  WiFi.setSleep(false);
+  WiFi.setSleep(POWER_SAVE==2 ? true:false); // Enable modem sleep if PS=2
   WiFi.onEvent(WiFiReconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
   WiFi.onEvent(WiFiLostConnection, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
   //config.setTimeConf(); //??

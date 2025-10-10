@@ -985,7 +985,13 @@ void Config::setDspOn(bool dspon, bool saveval){
   analogWrite(BRIGHTNESS_PIN, 0);
 #endif
     display.deepsleep();
+#if POWER_SAVE==1    
+    WiFi.setSleep(true); // Enable modem sleep
+#endif
   }else{
+#if POWER_SAVE==1    
+    WiFi.setSleep(false); // Wakeup
+#endif
     display.wakeup();
 #if BRIGHTNESS_PIN!=255
   analogWrite(BRIGHTNESS_PIN, map(store.brightness, 0, 100, 0, 255));

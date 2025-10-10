@@ -33,6 +33,11 @@
 #define TS_CS			          33
 #define TS_MIRROR_X
 
+// RTC
+//#define RTC_MODULE			    DS1307
+//#define RTC_SDA			        19
+//#define RTC_SCL			        18
+
 // SD/IR/Misc
 #define SDC_CS			        5
 #define IR_PIN              34
@@ -42,6 +47,7 @@
 #define NO_VOLUME_SCREEN
 #define VU_PEAK
 #define IR_TS_BRIGHTNESS_CONTROL
+#define POWER_SAVE          2         // 0=off, 1=on sleep, 2=always
 //#define WEATHER_FMT_SHORT
 //#define BOOMBOX_STYLE
 //#define LIGHT_SENSOR        35        // lower pin voltage = higher brightness

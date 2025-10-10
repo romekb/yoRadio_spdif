@@ -20,7 +20,7 @@ SPIClass  SDSPI(HSPI);
 #endif
 
 #ifndef SDSPISPEED
-  #define SDSPISPEED 10000000
+  #define SDSPISPEED 20000000
 #endif
 
 SDManager sdman(FSImplPtr(new VFSImpl()));
