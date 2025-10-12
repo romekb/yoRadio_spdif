@@ -1,11 +1,8 @@
 #ifndef dsp_full_loc
 #define dsp_full_loc
 #include <pgmspace.h>
-/*************************************************************************************
-    HOWTO:
-    Copy this file to yoRadio/locale/displayL10n_custom.h
-    and modify it
-*************************************************************************************/
+#include "../myoptions.h"
+
 const char mon[] PROGMEM = "mo";
 const char tue[] PROGMEM = "tu";
 const char wed[] PROGMEM = "we";
@@ -71,10 +68,15 @@ const char        apNameTxt[]    PROGMEM = "AP NAME";
 const char        apPassTxt[]    PROGMEM = "PASSWORD";
 const char       bootstrFmt[]    PROGMEM = "Trying to %s";
 const char        apSettFmt[]    PROGMEM = "SETTINGS PAGE ON: HTTP://%s/";
+
+#ifdef WEATHER_FMT_SHORT // Módosítás
+const char weatherFmt[] PROGMEM = "%.1f\011C  \007  %d hPa  \007  %d%% RH";
+#else
 #if EXT_WEATHER
 const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 feels like: %.1f\011C \007 pressure: %d hPa \007 humidity: %d%% \007 wind: %.1f m/s [%s]";
 #else
 const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 pressure: %d hPa \007 humidity: %d%%";
+#endif
 #endif
 const char     weatherUnits[]    PROGMEM = "metric";   /* standard, metric, imperial */
 const char      weatherLang[]    PROGMEM = "en";       /* https://openweathermap.org/current#multi */
