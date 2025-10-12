@@ -485,8 +485,8 @@ void VuWidget::_draw() {
   uint8_t segSpacing = _bands.vspace;
   uint8_t segCount = _bands.perheight;
   // Arányos zónák (kb. 60% zöld, 25% sárga, 15% piros)
-  int green_end = (_bands.width * 65) / 100;  // 70%-nál vége a zöldnek
-  int yellow_end = (_bands.width * 85) / 100; // 85%-nál vége a sárgának, onnantól piros
+  int green_end = (_bands.width * 60) / 100;  // 60%-yellow
+  int yellow_end = (_bands.width * 80) / 100; // 80%-red
 
   uint8_t h = (dimension / _bands.perheight) - _bands.vspace;
   for (int i = 0; i < dimension; i++) {
@@ -665,12 +665,11 @@ void VuWidget::_clear() {}
  ************************/
 #if !defined(DSP_LCD)
   #if TIME_SIZE<19 //19->NOKIA
-  const GFXfont* Clock_GFXfontPtr = nullptr;
-  #define CLOCKFONT5x7
+    const GFXfont* Clock_GFXfontPtr = nullptr;
+    #define CLOCKFONT5x7
   #else
-//  const GFXfont* Clock_GFXfontPtr = &Clock_GFXfont;
-  const GFXfont* Clock_GFXfontPtr = &Clock_GFXfont;
-  //const GFXfont *Clock_GFXfontPtr_Sec = &VT_DIGI_34x19;  // Módosítás saját betű másodperchez.
+    const GFXfont* Clock_GFXfontPtr = &Clock_GFXfont;
+    const GFXfont* Clock_GFXfontPtr_Sec = &Clock_GFXfont_sec;  // Módosítás saját betű másodperchez.
   #endif
 #endif //!defined(DSP_LCD)
 
@@ -847,7 +846,8 @@ void ClockWidget::_getTimeBounds() {
   uint16_t rightside = CHARWIDTH * fs * 2; // seconds
   if(_fullclock){
     rightside += _space*2+1; //2space+vline
-    _clockwidth = _timewidth+rightside;
+//    _clockwidth = _timewidth+rightside;
+    _clockwidth = _timewidth+rightside+4;
   } else {
     if(_superfont==0)
       _clockwidth = _timewidth;
@@ -955,18 +955,17 @@ void ClockWidget::_printClock(bool force){
     }
   }
   if(_fullclock || _superfont>0){
-    gfx.setFont();
-    gfx.setTextSize(_superfont);
-    if(!_fullclock){
-      #ifndef CLOCKFONT5x7
-      gfx.setCursor(_left()+_timewidth+_space, _top()-_timeheight+_space);
-      #else
-      gfx.setCursor(_left()+_timewidth+_space, _top());
-      #endif
-    }else{
-      gfx.setCursor(_linesleft+_space+1, _top() - 22); //-_timeheight);
+    gfx.setTextSize(0);          // *** Másodperc kiírása ***
+    gfx.setFont(Clock_GFXfontPtr_Sec);
+    if (CLOCKFONT_MONO) {
+      gfx.setTextColor(config.theme.clockbg, config.theme.background);
+    } else {
+      gfx.setTextColor(config.theme.background, config.theme.background);
     }
+    gfx.setCursor(_left() + _timewidth + _space + 1, _top());
+    gfx.print("88");
     gfx.setTextColor(config.theme.seconds, config.theme.background);
+    gfx.setCursor(_left() + _timewidth + _space + 1, _top());
     sprintf(_tmp, "%02d", network.timeinfo.tm_sec);
     gfx.print(_tmp);
   }
@@ -1002,7 +1001,7 @@ void ClockWidget::getNamedayUpper(char *dest, size_t len) { // commongfx.h - ban
 void ClockWidget::_printNameday() {
   // Rajzold le a nyelvfüggő "Névnap:" szót fehér színnel.
   dsp.setTextColor(config.theme.date, config.theme.background);
-  dsp.setCursor(_namedayleft, _config.top - 24); // egy sorral feljebb
+  dsp.setCursor(_namedayleft, _config.top - 22); // egy sorral feljebb
   dsp.setTextSize(1);
   if (!config.isScreensaver)
     dsp.print(utf8To(nameday_label, false)); // <<< Itt már a headerből jön

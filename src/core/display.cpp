@@ -249,7 +249,7 @@ void Display::_buildPager(){
   pages[PG_DIALOG]->addWidget(_nums);
   
   #if !defined(DSP_LCD) && DSP_MODEL!=DSP_NOKIA5110
-    pages[PG_DIALOG]->addPage(_footer);
+    //pages[PG_DIALOG]->addPage(_footer);
   #endif
   #if !defined(DSP_LCD)
   if(_plbackground) {
@@ -365,11 +365,21 @@ void Display::_swichMode(displayMode_e newmode) {
     _meta->setAlign(metaConf.widget.align);
     _meta->setText(config.station.name);
     _nums->setText("");
+#ifdef WAKEUP_REBOOT
+    if(config.isScreensaver && config.store.screensaverBlank && player.status() == STOPPED) {
+    #if defined(LCD_I2C) || defined(DSP_OLED) || BRIGHTNESS_PIN!=255      
+      dsp.clearDsp(true);
+      deepsleep();
+    #endif
+      ESP.restart();
+    }
+#else    
     // force update time & weather after out from screensaver
-    if(RTC_MODULE==RTC_MODULE_UNDEFINED && config.isScreensaver && player.status() == STOPPED) {
+    if(config.isRTCFound() && config.isScreensaver && player.status() == STOPPED) {
       timekeeper.forceTimeSync = true;
       timekeeper.forceWeather = true;
     }
+#endif    
     config.isScreensaver = false;
     _pager->setPage( pages[PG_PLAYER]);
     config.setDspOn(config.store.dspon, false);
@@ -399,7 +409,7 @@ void Display::_swichMode(displayMode_e newmode) {
     _nums->setText(config.store.volume, numtxtFmt);
   }
   if (newmode == LOST)      _showDialog(LANG::const_DlgLost);
-  if (newmode == UPDATING)  _showDialog(LANG::const_DlgUpdate);
+  if (newmode == UPDATING)  { config.setDspOn(config.store.dspon, false); _showDialog(LANG::const_DlgUpdate); }
   if (newmode == SLEEPING)  _showDialog("SLEEPING");
   if (newmode == SDCHANGE)  _showDialog(LANG::const_waitForSD);
   if (newmode == INFO || newmode == SETTINGS || newmode == TIMEZONE || newmode == WIFI) _showDialog(LANG::const_DlgNextion);
@@ -706,6 +716,13 @@ void  Display::setContrast(){
   #if DSP_MODEL==DSP_NOKIA5110
     dsp.setContrast(config.store.contrast);
   #endif
+}
+
+void Display::showPercent(uint8_t percent) {
+  if(percent == 255)
+    _nums->setText("!!!");
+  else
+    _nums->setText(percent, "%d");
 }
 
 bool Display::deepsleep(){

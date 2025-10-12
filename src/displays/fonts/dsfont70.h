@@ -9,10 +9,6 @@
 #endif
 */
 #include "VT_DIGI_34x19.h"
-#if CLOCKFONT_MONO
-  #include "VT_DIGI_68x38.h"        // Módosítás az óra nagyméretű fontjának betöltése.
-#else
-  #include "VT_DIGI_68x38.h"
-#endif
+#include "VT_DIGI_68x38.h"
 
 #endif

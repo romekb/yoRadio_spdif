@@ -460,6 +460,11 @@ void NetServer::resetQueue(){
   if(nsQueue!=NULL) xQueueReset(nsQueue);
 }
 
+void updateProgress(uint32_t progress, uint32_t size) {
+   uint32_t percent = progress * 100 / size;
+   display.showPercent(percent);
+}
+
 void handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
   static int freeSpace = 0;
   if(request->url()=="/upload"){
@@ -491,6 +496,7 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
       Serial.printf("Update Start: %s\n", filename.c_str());
       player.sendCommand({PR_STOP, 0});
       display.putRequest(NEWMODE, UPDATING);
+      Update.onProgress(updateProgress);
       if (!Update.begin(UPDATE_SIZE_UNKNOWN, target)) {
         Update.printError(Serial);
         request->send(200, "text/html", updateError());
@@ -505,8 +511,10 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
     if (final) {
       if (Update.end(true)) {
         Serial.printf("Update Success: %uB\n", index + len);
+        display.showPercent(100);
       } else {
         Update.printError(Serial);
+        display.showPercent(255);
         request->send(200, "text/html", updateError());
       }
     }

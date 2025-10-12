@@ -35,6 +35,7 @@ class Display {
     bool ready() { return _bootStep==2; }
     void resetQueue();
     void putRequest(displayRequestType_e type, int payload=0);
+    void showPercent(uint8_t percent);
     void flip();
     void invert();
     bool deepsleep();
@@ -94,6 +95,7 @@ class Display {
     void resetQueue(){}
     void centerText(const char* text, uint8_t y, uint16_t fg, uint16_t bg){}
     void rightText(const char* text, uint8_t y, uint16_t fg, uint16_t bg){}
+    void showPercent(uint8_t percent){}
     void flip(){}
     void invert(){}
     void setContrast(){}

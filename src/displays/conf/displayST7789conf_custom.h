@@ -11,9 +11,6 @@
 #define DSP_WIDTH       320
 #define TFT_FRAMEWDT    8
 #define MAX_WIDTH       DSP_WIDTH-TFT_FRAMEWDT*2
-//#define PLMITEMS        11
-//#define PLMITEMLENGHT   40
-//#define PLMITEMHEIGHT   22
 
 #if BITRATE_FULL
   #define TITLE_FIX 44
@@ -30,11 +27,10 @@ const ScrollConfig playlistConf   PROGMEM = {{ TFT_FRAMEWDT, 112, 2, WA_LEFT }, 
 const ScrollConfig apTitleConf    PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 3, WA_CENTER }, 140, false, MAX_WIDTH, 0, 4, 20 };
 const ScrollConfig apSettConf     PROGMEM = {{ TFT_FRAMEWDT, 240-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 4, 30 };
 const ScrollConfig weatherConf    PROGMEM = {{ 8, 93, 2, WA_LEFT }, 180, false, MAX_WIDTH, 600, 3, 30 };
-const ScrollConfig namedayConf    PROGMEM = {{ TFT_FRAMEWDT, 153, 2, WA_LEFT }, 80, true, 86, 0, 2, 30 };
+const ScrollConfig namedayConf    PROGMEM = {{ TFT_FRAMEWDT, 155, 2, WA_LEFT }, 80, true, 93, 0, 2, 30 };
 
 
 /* BACKGROUNDS  */                       /* {{ left, top, fontsize, align }, width, height, outlined } */
-//const FillConfig   metaBGConf     PROGMEM = {{ 0, 0, 0, WA_LEFT }, DSP_WIDTH, 38, false };
 const FillConfig   metaBGConf     PROGMEM = {{1, 35, 0, WA_CENTER}, DSP_WIDTH - 2, 1, true}; // Csík rajzolása a rádióadó neve alá.
 const FillConfig   metaBGConfInv  PROGMEM = {{ 0, 38, 0, WA_LEFT }, DSP_WIDTH, 1, false };
 const FillConfig   volbarConf     PROGMEM = {{ TFT_FRAMEWDT, 240-TFT_FRAMEWDT-5, 0, WA_LEFT }, MAX_WIDTH, 7, true };
@@ -52,14 +48,12 @@ const WidgetConfig apNameConf     PROGMEM = { TFT_FRAMEWDT, 66, 2, WA_CENTER };
 const WidgetConfig apName2Conf    PROGMEM = { TFT_FRAMEWDT, 90, 2, WA_CENTER };
 const WidgetConfig apPassConf     PROGMEM = { TFT_FRAMEWDT, 130, 2, WA_CENTER };
 const WidgetConfig apPass2Conf    PROGMEM = { TFT_FRAMEWDT, 154, 2, WA_CENTER };
-const WidgetConfig  clockConf     PROGMEM = { 4, 166, 0, WA_RIGHT };
-//const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT, 100, 1, WA_LEFT };
-const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT+17, 196, 1, WA_CENTER };
+const WidgetConfig  clockConf     PROGMEM = { TFT_FRAMEWDT, 164, 0, WA_RIGHT };
+const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT+17, 194, 1, WA_CENTER };
 
 const WidgetConfig bootWdtConf    PROGMEM = { 0, 162, 1, WA_CENTER };
 const ProgressConfig bootPrgConf  PROGMEM = { 90, 14, 4 };
-//const BitrateConfig fullbitrateConf PROGMEM = {{DSP_WIDTH-TFT_FRAMEWDT-34, 43, 2, WA_LEFT}, 42 };
-const BitrateConfig fullbitrateConf PROGMEM = {{8, 114, 2, WA_RIGHT}, 46 };
+const BitrateConfig fullbitrateConf PROGMEM = {{8, 116, 2, WA_RIGHT}, 46 };
 
 /* BANDS  { onebandwidth, onebandheight, bandsHspace, bandsVspace, numofbands, fadespeed } */
 #ifdef BOOMBOX_STYLE

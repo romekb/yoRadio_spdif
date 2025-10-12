@@ -132,6 +132,6 @@ const GFXglyph VT_DIGI_34x19Glyphs[] PROGMEM = {
   {  1188,   4,  34,  11,    4,  -34 }    // 0x3A ':'
 };
 
-const GFXfont VT_DIGI_34x19 PROGMEM = {
+const GFXfont Clock_GFXfont_sec PROGMEM = {
   (uint8_t  *)VT_DIGI_34x19Bitmaps,  
   (GFXglyph *)VT_DIGI_34x19Glyphs, 0x20, 0x3A,   110 };

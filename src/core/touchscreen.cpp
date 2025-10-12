@@ -207,6 +207,7 @@ void TouchScreen::loop(){
             } else if(display.mode()==STATIONS && _oldTouchX > (_width*2)/3) {      // stations mode, right side of TFT
               goto _exit;
             }
+            config.isScreensaver = false;
             onBtnClick(EVT_BTNCENTER);    // Other area - Play/Pause
           }
         } else { display.putRequest(NEWMODE, display.mode() == PLAYER ? STATIONS : PLAYER); }

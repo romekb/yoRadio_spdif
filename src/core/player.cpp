@@ -220,6 +220,7 @@ void Player::setOutputPins(bool isPlaying) {
 void Player::_play(uint16_t stationId) {
   log_i("%s called, stationId=%d", __func__, stationId);
   _hasError=false;
+  config.isScreensaver = false;
   setOutputPins(false);
   setDefaults();
   _status = STOPPED;
