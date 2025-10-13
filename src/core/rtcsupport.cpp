@@ -24,6 +24,8 @@ bool RTC::isRunning(){
 void RTC::getTime(struct tm* tinfo){
 	if(isRunning()){
 		DateTime nowTm = now();
+		if(nowTm.second()>59 || nowTm.minute()>59 || nowTm.hour()>23 || nowTm.day()==0 || 
+			 nowTm.day()>31 || nowTm.month()==0 || nowTm.month()>12) return;
 		tinfo->tm_sec  = nowTm.second();
 		tinfo->tm_min  = nowTm.minute();
 		tinfo->tm_hour = nowTm.hour();

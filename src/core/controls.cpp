@@ -265,8 +265,11 @@ void irLoop() {
           if (display.mode() == SCREENSAVER || display.mode() == SCREENBLANK) {
             if (player.status() == STOPPED && target != IR_PLAY) {    // wakeup only via PLAY key
               return;
-            } else display.putRequest(NEWMODE, PLAYER);
-            return;
+            } else {
+              display.allowReboot = true;
+              display.putRequest(NEWMODE, PLAYER);
+              return;
+            }
           }
           switch (target){
             case IR_PLAY: {

@@ -24,6 +24,7 @@ class Display {
     uint16_t currentPlItem;
     uint16_t numOfNextStation;
     displayMode_e _mode;
+    bool allowReboot=false;
   public:
     Display() {};
     ~Display();
@@ -83,6 +84,7 @@ class Display {
     uint16_t currentPlItem;
     uint16_t numOfNextStation;
     displayMode_e _mode;
+    bool allowReboot=false;
   public:
     Display() {};
     displayMode_e mode() { return _mode; }

@@ -2854,6 +2854,22 @@ void Audio::processLocalFile() {
     if(m_f_firstCall) {  // runs only one time per connection, prepare for start
         m_f_firstCall = false;
         f_stream = false;
+
+        if(m_codec == CODEC_MP3) {                  // read ID3v1 tag from MP3 file
+            audiofile.seek(m_file_size - 256);
+            if(audiofile.read(InBuff.getWritePtr(), 256) > 0) {
+                if(readID3V1Tag()) { 
+                    m_contentlength = m_file_size;
+                    m_audioDataSize = m_file_size;
+                    AUDIO_INFO("Content-Length: %lu", m_contentlength);
+                    if(audio_progress) audio_progress(m_audioDataStart, m_audioDataSize);
+                    m_controlCounter = 100; 
+                    eofHeader = true; 
+                }
+            }
+            audiofile.seek(m_audioDataStart);
+            InBuff.resetBuffer();
+        }
         return;
     }
 
@@ -5259,24 +5275,31 @@ size_t Audio::chunkedDataTransfer(uint8_t* bytes){
     return chunksize;
 }
 //----------------------------------------------------------------------------------------------------------------------
+
+void stripEndingSpaces(char *s, int len) {
+    len--;
+    while(--len >= 0 && s[len] == ' ') s[len] = '\0';
+}
+
 bool Audio::readID3V1Tag(){
     // this is an V1.x id3tag after an audio block, ID3 v1 tags are ASCII
     // Version 1.x is a fixed size at the end of the file (128 bytes) after a <TAG> keyword.
     if(m_codec != CODEC_MP3) return false;
-    if(InBuff.bufferFilled() == 128 && startsWith((const char*)InBuff.getReadPtr(), "TAG")){ // maybe a V1.x TAG
+    uint8_t *ptr = InBuff.getReadPtr() + 128;
+    if(startsWith((const char*)ptr, "TAG")){ // maybe a V1.x TAG
         char title[31];
-        memcpy(title,   InBuff.getReadPtr() + 3 +  0,  30);  title[30]  = '\0'; latinToUTF8(title, sizeof(title));
+        memcpy(title,   ptr + 3 +  0,  30);  title[30]  = '\0'; latinToUTF8(title, sizeof(title));
         char artist[31];
-        memcpy(artist,  InBuff.getReadPtr() + 3 + 30,  30); artist[30]  = '\0'; latinToUTF8(artist, sizeof(artist));
+        memcpy(artist,  ptr + 3 + 30,  30); artist[30]  = '\0'; latinToUTF8(artist, sizeof(artist));
         char album[31];
-        memcpy(album,   InBuff.getReadPtr() + 3 + 60,  30);  album[30]  = '\0'; latinToUTF8(album, sizeof(album));
+        memcpy(album,   ptr + 3 + 60,  30);  album[30]  = '\0'; latinToUTF8(album, sizeof(album));
         char year[5];
-        memcpy(year,    InBuff.getReadPtr() + 3 + 90,   4);  year[4]    = '\0'; latinToUTF8(year, sizeof(year));
+        memcpy(year,    ptr + 3 + 90,   4);  year[4]    = '\0'; latinToUTF8(year, sizeof(year));
         char comment[31];
-        memcpy(comment, InBuff.getReadPtr() + 3 + 94,  30); comment[30] = '\0'; latinToUTF8(comment, sizeof(comment));
-        uint8_t zeroByte = *(InBuff.getReadPtr() + 125);
-        uint8_t track    = *(InBuff.getReadPtr() + 126);
-        uint8_t genre    = *(InBuff.getReadPtr() + 127);
+        memcpy(comment, ptr + 3 + 94,  30); comment[30] = '\0'; latinToUTF8(comment, sizeof(comment));
+        uint8_t zeroByte = *(ptr + 125);
+        uint8_t track    = *(ptr + 126);
+        uint8_t genre    = *(ptr + 127);
         if(zeroByte) {AUDIO_INFO("ID3 version: 1");} //[2]
         else         {AUDIO_INFO("ID3 Version 1.1");}
         if(strlen(title))  {sprintf(chbuf, "Title: %s",        title);   if(audio_id3data) audio_id3data(chbuf);}
@@ -5286,25 +5309,46 @@ bool Audio::readID3V1Tag(){
         if(strlen(comment)){sprintf(chbuf, "Comment: %s",      comment); if(audio_id3data) audio_id3data(chbuf);}
         if(zeroByte == 0)  {sprintf(chbuf, "Track Number: %d", track);   if(audio_id3data) audio_id3data(chbuf);}
         if(genre < 192)    {sprintf(chbuf, "Genre: %d",        genre);   if(audio_id3data) audio_id3data(chbuf);} //[1]
+        if(audio_showstreamtitle) {
+            stripEndingSpaces(title, sizeof(title));
+            stripEndingSpaces(artist, sizeof(artist));
+            stripEndingSpaces(album, sizeof(album));
+            memset(chbuf, 0, sizeof(chbuf));
+            strcpy(chbuf, title);
+            if(strlen(artist)) {strcat(chbuf, " - "); strcat(chbuf, artist); }
+            if(strlen(album))  {strcat(chbuf, ", "); strcat(chbuf, album); }
+            if(strlen(chbuf)) audio_showstreamtitle(chbuf);
+        }
         return true;
     }
-    if(InBuff.bufferFilled() == 227 && startsWith((const char*)InBuff.getReadPtr(), "TAG+")){ // ID3V1EnhancedTAG
+    ptr = InBuff.getReadPtr() + 29;
+    if(startsWith((const char*)ptr, "TAG+")){ // ID3V1EnhancedTAG
         AUDIO_INFO("ID3 version: 1 - Enhanced TAG");
         char title[61];
-        memcpy(title,   InBuff.getReadPtr() + 4 +   0,  60);  title[60] = '\0'; latinToUTF8(title, sizeof(title));
+        memcpy(title,   ptr + 4 +   0,  60);  title[60] = '\0'; latinToUTF8(title, sizeof(title));
         char artist[61];
-        memcpy(artist,  InBuff.getReadPtr() + 4 +  60,  60); artist[60] = '\0'; latinToUTF8(artist, sizeof(artist));
+        memcpy(artist,  ptr + 4 +  60,  60); artist[60] = '\0'; latinToUTF8(artist, sizeof(artist));
         char album[61];
-        memcpy(album,   InBuff.getReadPtr() + 4 + 120,  60);  album[60] = '\0'; latinToUTF8(album, sizeof(album));
+        memcpy(album,   ptr + 4 + 120,  60);  album[60] = '\0'; latinToUTF8(album, sizeof(album));
         // one byte "speed" 0=unset, 1=slow, 2= medium, 3=fast, 4=hardcore
         char genre[31];
-        memcpy(genre,   InBuff.getReadPtr() + 5 + 180,  30);  genre[30] = '\0'; latinToUTF8(genre, sizeof(genre));
+        memcpy(genre,   ptr + 5 + 180,  30);  genre[30] = '\0'; latinToUTF8(genre, sizeof(genre));
         // six bytes "start-time", the start of the music as mmm:ss
         // six bytes "end-time",   the end of the music as mmm:ss
         if(strlen(title))  {sprintf(chbuf, "Title: %s",  title);  if(audio_id3data) audio_id3data(chbuf);}
         if(strlen(artist)) {sprintf(chbuf, "Artist: %s", artist); if(audio_id3data) audio_id3data(chbuf);}
         if(strlen(album))  {sprintf(chbuf, "Album: %s",  album);  if(audio_id3data) audio_id3data(chbuf);}
         if(strlen(genre))  {sprintf(chbuf, "Genre: %s",  genre);  if(audio_id3data) audio_id3data(chbuf);}
+        if(audio_showstreamtitle) {
+            stripEndingSpaces(title, sizeof(title));
+            stripEndingSpaces(artist, sizeof(artist));
+            stripEndingSpaces(album, sizeof(album));
+            memset(chbuf, 0, sizeof(chbuf));
+            strcpy(chbuf, title);
+            if(strlen(artist)) {strcat(chbuf, " - "); strcat(chbuf, artist); }
+            if(strlen(album))  {strcat(chbuf, ", "); strcat(chbuf, album); }
+            if(strlen(chbuf)) audio_showstreamtitle(chbuf);
+        }
         return true;
     }
     return false;

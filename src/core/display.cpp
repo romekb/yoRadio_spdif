@@ -366,13 +366,17 @@ void Display::_swichMode(displayMode_e newmode) {
     _meta->setText(config.station.name);
     _nums->setText("");
 #ifdef WAKEUP_REBOOT
-    if(config.isScreensaver && config.store.screensaverBlank && player.status() == STOPPED) {
-    #if defined(LCD_I2C) || defined(DSP_OLED) || BRIGHTNESS_PIN!=255      
+    if(allowReboot && config.isScreensaver && config.store.screensaverBlank && player.status() == STOPPED) {
+    #ifndef DUMMYDISPLAY
+      dsp.wake();
       dsp.clearDsp(true);
-      deepsleep();
+      dsp.drawLogo(bootLogoTop);
+      config.setBrightness(100, false);   // fast visual feedback
+      delay(50);
     #endif
       ESP.restart();
     }
+    allowReboot = false;
 #else    
     // force update time & weather after out from screensaver
     if(config.isRTCFound() && config.isScreensaver && player.status() == STOPPED) {
@@ -658,7 +662,11 @@ void Display::_title() {
 void Display::_time(bool redraw) {
 #if LIGHT_SENSOR!=255
   if(config.store.dspon && _adcChan >= 0) {
-    config.setBrightness(AUTOBACKLIGHT(adc1_get_raw((adc1_channel_t)_adcChan)));
+    uint16_t adcraw = adc1_get_raw((adc1_channel_t)_adcChan);
+    #ifdef ADC_RAW_DEBUG
+    Serial.printf("ADC=%d\r\n", adcraw);
+    #endif
+    config.setBrightness(AUTOBACKLIGHT(adcraw));
   }
 #endif
   if(config.isScreensaver && network.timeinfo.tm_sec % 60 == 0){
@@ -722,7 +730,7 @@ void Display::showPercent(uint8_t percent) {
   if(percent == 255)
     _nums->setText("!!!");
   else
-    _nums->setText(percent, "%d");
+    _nums->setText(percent, "  %d  ");
 }
 
 bool Display::deepsleep(){

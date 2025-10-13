@@ -6,5 +6,5 @@
 #else
   #include "DS_DIGI15pt7b.h"
 #endif
-
+#define Clock_GFXfont Clock_GFXfont_sec
 #endif

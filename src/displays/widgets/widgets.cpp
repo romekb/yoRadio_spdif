@@ -420,6 +420,9 @@ void VuWidget::_draw() {
   static uint32_t peakL_time = 0, peakR_time = 0; // Csúcs időbélyeg
   const uint8_t   peak_decay_step = 3;            // A csúcs bomlása pixelben
   const uint16_t  peak_hold_ms = 200;             // Csúcs tartási idő
+  const uint16_t  peak_color = 0xFFFF;
+  const uint16_t  peak_bright = config.color565(COLOR_VU_PEAK);
+  int             peak_width = 1;
 #endif
   uint32_t now = millis();
 
@@ -527,10 +530,6 @@ void VuWidget::_draw() {
   _canvas->fillRect(_bands.width - measR, _bands.height + _bands.space, measR, _bands.height, _bgcolor);
 
 #ifdef VU_PEAK
-  // --- Csúcsok rajzolása ---
-  const uint16_t peak_color = 0xFFFF;
-  const uint16_t peak_bright = 0xF7FF;
-  int            peak_width = 1;
 
   // Bal csatorna
   if (peakL >= 2 && peakL < (int)_bands.width - peak_width) {
@@ -558,12 +557,8 @@ void VuWidget::_draw() {
   _canvas->fillRect(0, 0, _bands.width - (_bands.width - measL), _bands.width, _bgcolor);
   _canvas->fillRect(_bands.width * 2 + _bands.space - measR, 0, measR, _bands.width, _bgcolor);
 #ifdef VU_PEAK
-  // --- Csúcsok rajzolása ---
-  const uint16_t peak_color = 0xFFFF;
-  const uint16_t peak_bright = 0xF7FF;
-  int            peak_width = 1;
-  // Bal csatorna
 
+  // Bal csatorna
   if (peakL >= 2 && peakL < (int)_bands.width - peak_width) {
   //  Serial.printf("peakL : %d, measL : %d \n", peakL, measL);
     _canvas->fillRect(peakL - 1, 0, peak_width + 2, _bands.height, peak_bright);
@@ -846,8 +841,11 @@ void ClockWidget::_getTimeBounds() {
   uint16_t rightside = CHARWIDTH * fs * 2; // seconds
   if(_fullclock){
     rightside += _space*2+1; //2space+vline
-//    _clockwidth = _timewidth+rightside;
+    #ifdef CLOCKFONT_7SEG
+    _clockwidth = _timewidth+rightside-8;
+    #else
     _clockwidth = _timewidth+rightside+4;
+    #endif
   } else {
     if(_superfont==0)
       _clockwidth = _timewidth;

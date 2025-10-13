@@ -413,10 +413,13 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #ifndef COLOR_WEATHER
   #define COLOR_WEATHER           255, 150,   0
 #endif
+#ifndef COLOR_VU_PEAK
+ #define COLOR_VU_PEAK           175, 224, 255
+#endif
 #ifndef COLOR_VU_MAX
   #define COLOR_VU_MAX            231, 211,  90
 #endif
-#ifndef COLOR_VU_MID                                // Módosítás: új bejegyzés (VU_widget)
+#ifndef COLOR_VU_MID
   #define COLOR_VU_MID            255, 255, 0
 #endif
 #ifndef COLOR_VU_MIN

@@ -48,12 +48,16 @@
 #define NAMEDAYS_FILE       PL        // HU, PL, NL
 #define IR_TS_BRIGHTNESS_CONTROL
 #define POWER_SAVE          2         // 0=off, 1=on sleep, 2=always
-//#define CLOCKFONT_MONO      true
+#define WAKEUP_REBOOT                 // reboot on "power on" via IR remote or touchscreen longpress 
+//#define CLOCKFONT_7SEG
 //#define WEATHER_FMT_SHORT
-//#define BOOMBOX_STYLE        
+//#define BOOMBOX_STYLE 
+
+// Autobacklight setup
 //#define LIGHT_SENSOR        39        // lower pin voltage = higher brightness
 #define AUTOBACKLIGHT_DARK  4000      // max ADC value - at dark condition (0 - 4095)
 #define AUTOBACKLIGHT_BRI   100       // min ADC value - at bright condition (0 - 4095)
 #define AUTOBACKLIGHT_MIN   20        // min brightness [%] (0 - 100)
+#define ADC_RAW_DEBUG
 
 #endif
