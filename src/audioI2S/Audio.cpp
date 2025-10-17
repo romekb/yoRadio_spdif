@@ -227,6 +227,7 @@ void Audio::setOutput(bool spdf)
         spdif_init(44100);
         m_i2s_config.dma_buf_len = 192*2;
         m_i2s_config.dma_buf_count = psramInit()?16:4;
+        m_f_forceMono = false;
     }
 
     for(int i = 0; i <3; i++) {
@@ -4723,6 +4724,7 @@ void Audio::setTone(int8_t gainLowPass, int8_t gainBandPass, int8_t gainHighPass
 //---------------------------------------------------------------------------------------------------------------------
 void Audio::forceMono(bool m) { // #100 mono option
     m_f_forceMono = m; // false stereo, true mono
+    if(m_spdif_output) m_f_forceMono = false;       // spdif is always stereo
 }
 //---------------------------------------------------------------------------------------------------------------------
 void Audio::setBalance(int8_t bal){ // bal -16...16
