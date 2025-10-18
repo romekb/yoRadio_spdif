@@ -530,7 +530,6 @@ void VuWidget::_draw() {
   _canvas->fillRect(_bands.width - measR, _bands.height + _bands.space, measR, _bands.height, _bgcolor);
 
 #ifdef VU_PEAK
-
   // Bal csatorna
   if (peakL >= 2 && peakL < (int)_bands.width - peak_width) {
     _canvas->fillRect(peakL - 1, 0, peak_width + 2, _bands.height, peak_bright);
@@ -557,7 +556,6 @@ void VuWidget::_draw() {
   _canvas->fillRect(0, 0, _bands.width - (_bands.width - measL), _bands.width, _bgcolor);
   _canvas->fillRect(_bands.width * 2 + _bands.space - measR, 0, measR, _bands.width, _bgcolor);
 #ifdef VU_PEAK
-
   // Bal csatorna
   if (peakL >= 2 && peakL < (int)_bands.width - peak_width) {
   //  Serial.printf("peakL : %d, measL : %d \n", peakL, measL);
@@ -835,17 +833,18 @@ uint16_t ClockWidget::_top(){
   if(_fb->ready()) return _timeheight; else return _config.top;
 }
 
+void ClockWidget::setNamedayFont(uint8_t size) {
+  _namedayFont = size;
+}
+
 void ClockWidget::_getTimeBounds() {
   _timewidth = _textWidth(_timebuffer);
   uint8_t fs = _superfont>0?_superfont:TIME_SIZE;
   uint16_t rightside = CHARWIDTH * fs * 2; // seconds
   if(_fullclock){
     rightside += _space*2+1; //2space+vline
-    #ifdef CLOCKFONT_7SEG
-    _clockwidth = _timewidth+rightside-8;
-    #else
+//    _clockwidth = _timewidth+rightside;
     _clockwidth = _timewidth+rightside+4;
-    #endif
   } else {
     if(_superfont==0)
       _clockwidth = _timewidth;
@@ -943,7 +942,7 @@ void ClockWidget::_printClock(bool force){
           // Mai névnap letöltése - csak ha engedélyezve van.
           #ifdef NAMEDAYS_FILE
             getNamedayUpper(_namedayBuf, sizeof(_namedayBuf));
-            _namedayleft = 8;
+            //_namedayleft = 8;
             if (!config.isScreensaver && strcmp(_oldNamedayBuf, _namedayBuf) != 0) {
               _printNameday();
             }
@@ -999,8 +998,8 @@ void ClockWidget::getNamedayUpper(char *dest, size_t len) { // commongfx.h - ban
 void ClockWidget::_printNameday() {
   // Rajzold le a nyelvfüggő "Névnap:" szót fehér színnel.
   dsp.setTextColor(config.theme.date, config.theme.background);
-  dsp.setCursor(_namedayleft, _config.top - 22); // egy sorral feljebb
-  dsp.setTextSize(1);
+  dsp.setCursor(_config.left, _config.top - 16 - 6*_namedayFont);
+  dsp.setTextSize(_namedayFont - 1);
   if (!config.isScreensaver)
     dsp.print(utf8To(nameday_label, false)); // <<< Itt már a headerből jön
 }
@@ -1223,7 +1222,7 @@ void PlayListWidget::_printPLitem(uint8_t pos, const char* item){
     uint8_t plColor = (abs(pos - _plCurrentPos)-1)>4?4:abs(pos - _plCurrentPos)-1;
     dsp.setTextColor(config.theme.playlist[plColor], config.theme.background);
     dsp.setCursor(TFT_FRAMEWDT, _plYStart + pos * _plItemHeight);
-    dsp.fillRect(0, _plYStart + pos * _plItemHeight - 1, dsp.width(), _plItemHeight - 2, config.theme.background);
+    dsp.fillRect(0, _plYStart + pos * _plItemHeight - 4, dsp.width(), _plItemHeight - 2, config.theme.background);
     dsp.print(utf8To(item, true));
   }
 }

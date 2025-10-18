@@ -21,62 +21,54 @@
 #endif
 #define bootLogoTop     110
 
-//#define DATE_MONTH_NAME true      // true = hónap neve, false = szám
-//#define DATE_MONTH_LOWERCASE true // true = kisbetű, false = eredeti helyesírás
-
 /* SROLLS  */                            /* {{ left, top, fontsize, align }, buffsize, uppercase, width, scrolldelay, scrolldelta, scrolltime } */
-const ScrollConfig metaConf       PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 7, 40 };
-const ScrollConfig title1Conf   PROGMEM = {{TFT_FRAMEWDT, 62, 2, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 40};
-const ScrollConfig title2Conf   PROGMEM = {{TFT_FRAMEWDT, 86, 2, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 40};
-const ScrollConfig playlistConf   PROGMEM = {{ TFT_FRAMEWDT, 146, 3, WA_LEFT }, 140, true, MAX_WIDTH, 1000, 7, 40 };
-const ScrollConfig apTitleConf    PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_CENTER }, 140, false, MAX_WIDTH, 0, 7, 40 };
-const ScrollConfig apSettConf     PROGMEM = {{ TFT_FRAMEWDT, 320-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 7, 40 };
-const ScrollConfig weatherConf    PROGMEM = {{ TFT_FRAMEWDT, 116, 2, WA_CENTER }, 140, false, MAX_WIDTH, 5000, 4, 40 };
+const ScrollConfig metaConf      PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 7, 40 };
+const ScrollConfig title1Conf    PROGMEM = {{ TFT_FRAMEWDT, 55, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 40};
+const ScrollConfig title2Conf    PROGMEM = {{ TFT_FRAMEWDT, 85, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 40};
+const ScrollConfig playlistConf  PROGMEM = {{ TFT_FRAMEWDT, 146, 3, WA_LEFT }, 140, true, MAX_WIDTH, 1000, 7, 40 };
+const ScrollConfig apTitleConf   PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_CENTER }, 140, false, MAX_WIDTH, 0, 7, 40 };
+const ScrollConfig apSettConf    PROGMEM = {{ TFT_FRAMEWDT, 320-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 7, 40 };
+const ScrollConfig weatherConf   PROGMEM = {{ TFT_FRAMEWDT, 117, 3, WA_CENTER }, 140, false, MAX_WIDTH, 5000, 4, 40 };
+const ScrollConfig namedayConf   PROGMEM = {{ TFT_FRAMEWDT, 208, 3, WA_LEFT }, 80, true, 161, 0, 2, 30 };
 
 /* BACKGROUNDS  */                       /* {{ left, top, fontsize, align }, width, height, outlined } */
-const FillConfig metaBGConf PROGMEM = {{3, 45, 0, WA_CENTER}, DSP_WIDTH - 6, 1, true}; // Csík rajzolása a rádióadó neve alá.
-// const FillConfig   metaBGConf     PROGMEM = {{ 0, 0, 0, WA_LEFT }, DSP_WIDTH, 50, false }; // Original.
-const FillConfig   metaBGConfInv  PROGMEM = {{ 0, 50, 0, WA_LEFT }, DSP_WIDTH, 2, false };
-const FillConfig volbarConf    PROGMEM = {{TFT_FRAMEWDT, DSP_HEIGHT - TFT_FRAMEWDT - 8, 0, WA_LEFT}, MAX_WIDTH, 5, true};
-//const FillConfig   volbarConf     PROGMEM = {{ TFT_FRAMEWDT, DSP_HEIGHT-TFT_FRAMEWDT-8, 0, WA_LEFT }, MAX_WIDTH, 8, true }; Original
-const FillConfig  playlBGConf     PROGMEM = {{ 0, 138, 0, WA_LEFT }, DSP_WIDTH, 36, false };
-const FillConfig  heapbarConf     PROGMEM = {{ 0, DSP_HEIGHT-2, 0, WA_LEFT }, DSP_WIDTH, 2, false };
+const FillConfig metaBGConf      PROGMEM = {{3, 45, 0, WA_CENTER}, DSP_WIDTH - 6, 1, true};
+const FillConfig metaBGConfInv   PROGMEM = {{ 0, 50, 0, WA_LEFT }, DSP_WIDTH, 2, false };
+const FillConfig volbarConf      PROGMEM = {{TFT_FRAMEWDT, DSP_HEIGHT - TFT_FRAMEWDT - 8, 0, WA_LEFT}, MAX_WIDTH, 8, true};
+const FillConfig  playlBGConf    PROGMEM = {{ 0, 138, 0, WA_LEFT }, DSP_WIDTH, 36, false };
+const FillConfig  heapbarConf    PROGMEM = {{ 0, DSP_HEIGHT-2, 0, WA_LEFT }, DSP_WIDTH, 2, false };
 
 /* WIDGETS  */ /* { left, top, fontsize, align } */
 const WidgetConfig bootstrConf   PROGMEM = {0, 243, 2, WA_CENTER};
-const WidgetConfig bitrateConf   PROGMEM = {TFT_FRAMEWDT, 145, 2, WA_RIGHT};
+const WidgetConfig bitrateConf   PROGMEM = {TFT_FRAMEWDT, 150, 2, WA_RIGHT};
 const WidgetConfig voltxtConf    PROGMEM = {0, DSP_HEIGHT - 38, 2, WA_CENTER}; // Hangerő
 const WidgetConfig iptxtConf     PROGMEM = {TFT_FRAMEWDT, DSP_HEIGHT - 38, 2, WA_LEFT};
-const WidgetConfig rssiConf      PROGMEM = {TFT_FRAMEWDT, DSP_HEIGHT - 34, 2, WA_RIGHT};
+const WidgetConfig rssiConf      PROGMEM = {TFT_FRAMEWDT, DSP_HEIGHT - 48, 3, WA_RIGHT};
 const WidgetConfig numConf       PROGMEM = {0, 200, 70, WA_CENTER};
 const WidgetConfig apNameConf    PROGMEM = {TFT_FRAMEWDT, 88, 3, WA_CENTER};
 const WidgetConfig apName2Conf   PROGMEM = {TFT_FRAMEWDT, 120, 3, WA_CENTER};
 const WidgetConfig apPassConf    PROGMEM = {TFT_FRAMEWDT, 173, 3, WA_CENTER};
 const WidgetConfig apPass2Conf   PROGMEM = {TFT_FRAMEWDT, 205, 3, WA_CENTER};
-const WidgetConfig clockConf     PROGMEM = {10, 211, 60, WA_RIGHT}; // {jobb oldali távolság, top}
-//const WidgetConfig clockConf     PROGMEM = {30, 211, 80, WA_RIGHT};
-const WidgetConfig vuConf        PROGMEM = {35, 258, 1, WA_CENTER}; // center fektetett, "align" nincs használva
+const WidgetConfig clockConf     PROGMEM = {10, 218, 60, WA_RIGHT}; // {jobb oldali távolság, top}
+const WidgetConfig vuConf        PROGMEM = {35, 252, 1, WA_CENTER}; // center fektetett, "align" nincs használva
 const WidgetConfig bootWdtConf   PROGMEM = {0, 216, 1, WA_CENTER};
 const ProgressConfig bootPrgConf PROGMEM = {90, 14, 4};
 
 //{{ left, top, fontsize, align }dimension}
-const BitrateConfig fullbitrateConf PROGMEM = {{10, 141, 2, WA_RIGHT}, 60};
-// const BitrateConfig fullbitrateConf PROGMEM = {{DSP_WIDTH-TFT_FRAMEWDT-38, 59, 2, WA_LEFT}, 42 }; // Original
+const BitrateConfig fullbitrateConf PROGMEM = {{25, 148, 2, WA_RIGHT}, 60};
 
 /* BANDS { onebandwidth (width), onebandheight (height), bandsHspace (space), bandsVspace (vspace), numofbands (perheight), fadespeed (fadespeed)} */
 #ifdef BOOMBOX_STYLE
-const VUBandsConfig bandsConf PROGMEM = {200, 7, 4, 2, 20, 12}; // 29
+  const VUBandsConfig bandsConf PROGMEM = {200, 7, 4, 2, 20, 12}; // 29
 #else
-const VUBandsConfig bandsConf PROGMEM = {300, 7, 3, 2, 30, 6}; // saját  {400, 7, 3, 2, 8, 29}; 
+  const VUBandsConfig bandsConf PROGMEM = {400, 7, 4, 2, 30, 6}; //
 #endif
-// const VUBandsConfig bandsConf     PROGMEM = { 32, 130, 4, 2, 10, 3 }; // Original
 
 /* STRINGS  */
 const char numtxtFmt[] PROGMEM = "%d";
 const char rssiFmt[] PROGMEM = "WiFi %ddBm";
-// const char           rssiFmt[]    PROGMEM = "WiFi %d"; // Original
 const char iptxtFmt[] PROGMEM = "%s";
-const char voltxtFmt[] PROGMEM = "\023\025%d%%"; //Original "\023\025%d" Módosítás "hanglépték"
+const char voltxtFmt[] PROGMEM = "\023\025%d%%";
 const char bitrateFmt[] PROGMEM = "%d kBs";
 
 /* MOVES  */ /* { left, top, width } */

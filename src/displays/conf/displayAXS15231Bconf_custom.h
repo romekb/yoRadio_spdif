@@ -1,13 +1,13 @@
-
+//v0.9.676 Módosítva!
 /*************************************************************************************
-    ILI9488 480X320 displays configuration file.
-    Copy this file to yoRadio/src/displays/conf/displayILI9488conf_custom.h
+    AXS15231B 480X320 displays configuration file.
+    Copy this file to yoRadio/src/displays/conf/displayAXS15231Bconf_custom.h
     and modify it
     More info on https://github.com/e2002/yoradio/wiki/Widgets#widgets-description
 *************************************************************************************/
 
-#ifndef displayILI9488conf_h
-#define displayILI9488conf_h
+#ifndef displayAXS15231Bconf_h
+#define displayAXS15231Bconf_h
 
 #define DSP_WIDTH       480
 #define DSP_HEIGHT      320

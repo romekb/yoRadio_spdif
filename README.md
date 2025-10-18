@@ -7,7 +7,8 @@ https://www.youtube.com/watch?v=0B93uhm7WAI
 
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
 Działa z wyświetlaczem ST7789 320x240. Powinna działać z wyświetlaczami ILI9341 320x240. Innych nie obsługuje. 
-Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32S3.
+Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32-S3.
+UWAGA ! Na ESP32-S3 nie działa wyjście SPDIF. Poszukiwanie przyczyny w toku.
 
 Co się zmieniło:
 - Dodano obsługę wyjścia SPDIF. Może to być wyjście koncentryczne (COAX) lub optyczne (OPTICAL).
@@ -23,6 +24,7 @@ Co się zmieniło:
 - Dodano opcje TS_MIRROR_X i TS_MIRROR_Y dla ustalenia prawidłowej orientacji touchscreena.
 - W trybie odtwarzania z SD pasek głośności zmienia kolor i staje się w paskiem postępu ostwarzania utworu
 - Lewo/Prawo na touchscreenie podczas odtwarzania z karty SD działa jako przewijanie utworu.
+- Dodano obsługę wyświetlaczy AXS15231B z pojemnościowym zintegrowanym touchscteenem (moduł GUITION JC3248W535)
 
 Wyjście SPDIF może działać zamiennie ze zwykłym przetwornikiem cyfrowo-analogowym I2S lub wewnętrznym przetwornikiem cyfrowo-analogowym. Nie można używać SPDIF wraz z VS1053. 
 Jedynym sposobem w tej sytuacji jest całkowite wyłączenie VS1053. 
@@ -49,7 +51,8 @@ This is modified version of yoRadio (eRadio) project from: https://github.com/e2
 
 New version based on yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip.
 WORKING ONLY WITH ST7789 320x240 display ! Should work on ILI9341 320x240 displays.
-Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32S3 is supported.
+Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported.
+WARNING ! For now, the SPDIF output not working on ESP32-S3. Investigation in progress.
 
 What's changed:
 - added support for SPDIF output. This can be either COAX or OPTICAL.
@@ -65,6 +68,7 @@ What's changed:
 - added TS_MIRROR_X and TS_MIRROR_Y options for propper touchscreen orientation setup.
 - in SD playback mode, the volume bar changes color and acts as a file playback progress bar.
 - left/right on the touchscreen acts as a track scroller when playing from an SD card.
+- added support for AXS15231B display with integrated capacitive touchscteen (GUITION JC3248W535 module)
   
 The SPDIF output can coexist with normal I2S DAC, or internal DAC. You can't use SPDIF with VS1053. Only way in this situation is completly disable VS1053.
 You can switch ("on the fly") current output type via "Settings" in WWW interface. For this I use the "Touch debug" switch. 

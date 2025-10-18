@@ -325,7 +325,7 @@ void Config::_initHW(){
   #endif
   #if BRIGHTNESS_PIN!=255
     pinMode(BRIGHTNESS_PIN, OUTPUT);
-    setBrightness(store.brightness, false);
+    setBrightness(0); //store.brightness, false);
   #endif
 }
 

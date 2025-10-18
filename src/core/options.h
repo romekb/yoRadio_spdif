@@ -56,6 +56,8 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #define DSP_2002        26    // 20x2           https://aliexpress.com/item/32812259852.html
 #define DSP_2002I2C     27    // 20x2           https://aliexpress.com/item/32812259852.html
 #define DSP_ST7789_170  28    // 320x170  1.9'  https://aliexpress.com/item/1005008723378017.html
+#define DSP_AXS15231B   29    // 320x480  3.5'  https://spotpear.com/ESP32-S3-3.5-inch-LCD-Captive-TouchScreen-Display-480x320-Tablet-MP3-Video-Weather-Clock/forum-answer/317.html
+#define DSP_AXS15231B_270 30    // 270x480  4''  
 #define DSP_CUSTOM      101   // your display
 
 #ifndef DSP_MODEL
@@ -120,6 +122,9 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #endif
 #ifndef VS_HSPI
   #define VS_HSPI   false      // use HSPI for VS1053 (miso=12, mosi=13, clk=14) instead of VSPI (by default)
+#endif
+#ifndef VS_SSPI
+  #define VS_SSPI   false      // ESP32-S3: use SubSPI for VS1053 (miso=37, mosi=35, clk=36) instead of FSPI (by default)
 #endif
 
 /*        I2S DAC                 */
@@ -220,6 +225,7 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #define TS_MODEL_UNDEFINED      0
 #define TS_MODEL_XPT2046        1
 #define TS_MODEL_GT911          2
+#define TS_MODEL_AXS15231B      3
 
 #ifndef TS_MODEL
   #define TS_MODEL              TS_MODEL_UNDEFINED
@@ -340,7 +346,7 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
     #define AUTOBACKLIGHT_BRI           100
   #endif
   #ifndef AUTOBACKLIGHT_MIN
-    #define AUTOBACKLIGHT_MIN          15
+    #define AUTOBACKLIGHT_MIN          12
   #endif
   #define AUTOBACKLIGHT(x) ({uint16_t _lh=(x>AUTOBACKLIGHT_DARK?AUTOBACKLIGHT_DARK:x); if(_lh<AUTOBACKLIGHT_BRI) _lh=AUTOBACKLIGHT_BRI; map(_lh, AUTOBACKLIGHT_DARK, AUTOBACKLIGHT_BRI, AUTOBACKLIGHT_MIN, config.store.brightness);})  // autobacklight function
 #endif
@@ -369,12 +375,11 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
   #define SD_AUTOPLAY      true   // auto play from SD card when inserted
 #endif
 #ifndef SD_MAX_LEVELS
-  #define SD_MAX_LEVELS      3      //  search depth for files on the SD card
+  #define SD_MAX_LEVELS      4      //  search depth for files on the SD card
 #endif
 #ifndef POWER_SAVE   
-  #define POWER_SAVE         2      // max power saving
+  #define POWER_SAVE         0      // no power saving
 #endif
-
 #ifndef DTYPE
   #define DTYPE INITR_BLACKTAB
 #endif
@@ -419,7 +424,7 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #ifndef COLOR_VU_MAX
   #define COLOR_VU_MAX            231, 211,  90
 #endif
-#ifndef COLOR_VU_MID
+#ifndef COLOR_VU_MID                                // Módosítás: új bejegyzés (VU_widget)
   #define COLOR_VU_MID            255, 255, 0
 #endif
 #ifndef COLOR_VU_MIN
@@ -505,6 +510,18 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
   #define L10N_LANGUAGE EN
 #endif
 
+#ifdef VSPI
+  #define VOOPSENb VSPI
+#else
+  #define VOOPSENb 3
+#endif
+
+#ifdef HSPI
+  #define HOOPSENb HSPI
+#else
+  #define HOOPSENb 2
+#endif
+
 /* CLOCK:TTS */
 #ifndef CLOCK_TTS_ENABLED   // Módisítás új bejegyzés "Clock_tts"
  #define CLOCK_TTS_ENABLED false
@@ -558,7 +575,7 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
   #define apPassword  "12345987"
 #endif
 #ifndef BUFLEN
-  #define BUFLEN                    170
+  #define BUFLEN                    200
 #endif
 
 #endif

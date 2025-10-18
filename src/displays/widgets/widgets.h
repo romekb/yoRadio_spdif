@@ -215,6 +215,7 @@ class ClockWidget: public Widget {
     void clear(){ _clearClock(); }
     inline uint16_t dateSize(){ return _space+ _dateheight; }
     inline uint16_t clockWidth(){ return _clockwidth; }
+    void setNamedayFont(uint8_t size);
     #ifdef NAMEDAYS_FILE
      char *gNameDay(){ return _namedayBuf; }
     #endif
@@ -227,9 +228,8 @@ class ClockWidget: public Widget {
     char _tmp[33], _datebuf[33]; // Módosítva 33-ra
     uint8_t _superfont;
     uint16_t _clockleft, _clockwidth, _timewidth, _dotsleft, _linesleft;
-    uint8_t  _clockheight, _timeheight, _dateheight, _space;
-    char     _namedayBuf[30], _oldNamedayBuf[30];       // Módosítás
-    uint16_t _namedaywidth, _namedayleft, _oldnamedayleft, _oldnamedaywidth; //Módosítás
+    uint8_t  _clockheight, _timeheight, _dateheight, _space, _namedayFont;
+    char     _namedayBuf[30];
     uint16_t _forceflag = 0;
     bool dots = true;
     bool _fullclock;
@@ -282,7 +282,6 @@ class PlayListWidget: public Widget {
     int _plYStart;
     uint8_t _fillPlMenu(int from, uint8_t count);
     void _printPLitem(uint8_t pos, const char* item);
-    
 };
 
 

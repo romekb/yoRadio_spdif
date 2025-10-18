@@ -102,6 +102,14 @@
   #define DSP_OLED
   #include "displayST7920.h"
 
+#elif DSP_MODEL==DSP_AXS15231B      
+  #define TIME_SIZE           70
+  #include "displayAXS15231B.h"
+
+#elif DSP_MODEL==DSP_AXS15231B_270      
+  #define TIME_SIZE           52
+  #include "displayAXS15231B.h"
+
 #endif
 
 //extern DspCore dsp;

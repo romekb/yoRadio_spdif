@@ -34,10 +34,17 @@
   #include "../GT911_Touchscreen/TAMC_GT911.h"
   TAMC_GT911 ts = TAMC_GT911(TS_SDA, TS_SCL, TS_INT, TS_RST, 0, 0);
   typedef TP_Point TSPoint;
+#elif TS_MODEL==TS_MODEL_AXS15231B
+  #include "../AXS15231B/AXS15231B_Touch.h"
+  AXS15231B_Touch ts = AXS15231B_Touch(TS_SDA, TS_SCL, TS_INT, TS_RST, 0, 0);
+  typedef TP_Point TSPoint;
 #endif
+
 
 void TouchScreen::init(uint16_t w, uint16_t h){
   
+  _width  = w;
+  _height = h;
 #if TS_MODEL==TS_MODEL_XPT2046
   #ifdef TS_SPIPINS
     TSSPI.begin(TS_SPIPINS);
@@ -50,14 +57,13 @@ void TouchScreen::init(uint16_t w, uint16_t h){
     #endif
   #endif
   ts.setRotation(config.store.fliptouch?3:1);
-#endif
-#if TS_MODEL==TS_MODEL_GT911
+#elif TS_MODEL==TS_MODEL_GT911
   ts.begin();
   ts.setRotation(config.store.fliptouch?0:2);
-#endif
-  _width  = w;
-  _height = h;
-#if TS_MODEL==TS_MODEL_GT911
+  ts.setResolution(_width, _height);
+#elif TS_MODEL==TS_MODEL_AXS15231B
+  ts.begin();
+  ts.setRotation(config.store.fliptouch?1:3);
   ts.setResolution(_width, _height);
 #endif
 }
@@ -88,7 +94,7 @@ void TouchScreen::flip(){
 #if TS_MODEL==TS_MODEL_XPT2046
   ts.setRotation(config.store.fliptouch?3:1);
 #endif
-#if TS_MODEL==TS_MODEL_GT911
+#if (TS_MODEL==TS_MODEL_GT911) || (TS_MODEL==TS_MODEL_AXS15231B)
   ts.setRotation(config.store.fliptouch?0:2);
 #endif
 }
@@ -100,7 +106,7 @@ void TouchScreen::loop(){
   static tsDirection_e direct;
   static uint16_t touchVol, touchStation;
   if (!_checklpdelay(20, _touchdelay)) return;
-#if TS_MODEL==TS_MODEL_GT911
+#if (TS_MODEL==TS_MODEL_GT911) || (TS_MODEL==TS_MODEL_AXS15231B)
   ts.read();
 #endif
   bool istouched = _istouched();
@@ -109,7 +115,7 @@ void TouchScreen::loop(){
     TSPoint p = ts.getPoint();
     touchX = map(p.x, TS_X_MIN, TS_X_MAX, 0, _width);
     touchY = map(p.y, TS_Y_MIN, TS_Y_MAX, 0, _height);
-  #elif TS_MODEL==TS_MODEL_GT911
+  #elif (TS_MODEL==TS_MODEL_GT911) || (TS_MODEL==TS_MODEL_AXS15231B)
     TSPoint p = ts.points[0];
     touchX = p.x;
     touchY = p.y;
@@ -135,10 +141,13 @@ void TouchScreen::loop(){
             touchLongPress=millis();
             if(display.mode()==PLAYER || display.mode()==VOL){
               int16_t xDelta = map(abs(touchVol - touchX), 0, _width, 0, TS_STEPS);
-              #ifndef NO_VOLUME_SCREEN
-                display.putRequest(NEWMODE, VOL);
-              #endif
-              if (xDelta>2) {
+//              #ifndef NO_VOLUME_SCREEN
+//                display.putRequest(NEWMODE, VOL);
+//              #endif
+              if (xDelta>4) {
+                #ifndef NO_VOLUME_SCREEN
+                  display.putRequest(NEWMODE, VOL);
+                #endif
                 if(config.getMode()==PM_SDCARD && player.status() == PLAYING) {
                   if(touchX - touchVol < 0) xDelta = -xDelta;
                   player.SDSeekTo(xDelta);
@@ -153,8 +162,9 @@ void TouchScreen::loop(){
             touchLongPress=millis();
             if(display.mode()==PLAYER || display.mode()==STATIONS){
               int16_t yDelta = map(abs(touchStation - touchY), 0, _height, 0, TS_STEPS);
-              display.putRequest(NEWMODE, STATIONS);
-              if (yDelta>2) {
+//              display.putRequest(NEWMODE, STATIONS);
+              if (yDelta>4) {
+                display.putRequest(NEWMODE, STATIONS);
                 controlsEvent((touchStation - touchY)<0);
                 touchStation = touchY;
               }
@@ -165,11 +175,17 @@ void TouchScreen::loop(){
             break;
       }
     }
-    if(0) { // (config.store.dbgtouch) {
+    if(1) { // (config.store.dbgtouch) {
       Serial.print("x = ");
       Serial.print(touchX);
       Serial.print(", y = ");
+    #if TS_MODEL!=TS_MODEL_XPT2046
+      Serial.print(touchY);
+      Serial.print(", s = ");
+      Serial.println(p.size);
+    #else
       Serial.println(touchY);
+    #endif
     }
     // volume control with repeat  
     if(istouched && direct == TDS_REQUEST && (display.mode()==PLAYER || display.mode()==VOL) && 
@@ -234,7 +250,7 @@ bool TouchScreen::_checklpdelay(int m, uint32_t &tstamp) {
 bool TouchScreen::_istouched(){
 #if TS_MODEL==TS_MODEL_XPT2046
   return ts.touched();
-#elif TS_MODEL==TS_MODEL_GT911
+#elif (TS_MODEL==TS_MODEL_GT911) || (TS_MODEL==TS_MODEL_AXS15231B)
   return ts.isTouched;
 #endif
 }

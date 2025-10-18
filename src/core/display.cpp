@@ -79,8 +79,9 @@ DspCore dsp;
 
 Page *pages[] = { new Page(), new Page(), new Page(), new Page() };
 
-#if !((DSP_MODEL==DSP_ST7735 && DTYPE==INITR_BLACKTAB) || DSP_MODEL==DSP_ST7789 || DSP_MODEL==DSP_ST7796 || DSP_MODEL==DSP_ILI9488 \
- || DSP_MODEL==DSP_ILI9486 || DSP_MODEL==DSP_ILI9341 || DSP_MODEL==DSP_ILI9225 || DSP_MODEL==DSP_ST7789_170)
+#if !((DSP_MODEL==DSP_ST7735 && DTYPE==INITR_BLACKTAB) || DSP_MODEL==DSP_ST7789 || DSP_MODEL==DSP_ST7796 || \
+       DSP_MODEL==DSP_ILI9488 || DSP_MODEL==DSP_ILI9486 || DSP_MODEL==DSP_ILI9341 || DSP_MODEL==DSP_ILI9225 || \
+       DSP_MODEL==DSP_ST7789_170 || DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270)
   #undef  BITRATE_FULL
   #define BITRATE_FULL     false
 #endif
@@ -163,6 +164,7 @@ void Display::_bootScreen(){
   _pager->addPage(_boot);
   _pager->setPage(_boot, true);
   dsp.drawLogo(bootLogoTop);
+  config.setBrightness(100, false);   // after logo drawing
   _bootStep = 1;
 }
 
@@ -241,6 +243,9 @@ void Display::_buildPager(){
   #endif
   if(_vuwidget) pages[PG_PLAYER]->addWidget( _vuwidget);
   pages[PG_PLAYER]->addWidget(_clock);
+#ifdef NAMEDAYS_FILE
+  _clock->setNamedayFont(namedayConf.widget.textsize);
+#endif  
   pages[PG_SCREENSAVER]->addWidget(_clock);
   pages[PG_PLAYER]->addPage(_footer);
 
@@ -364,7 +369,7 @@ void Display::_swichMode(displayMode_e newmode) {
     #endif
     _meta->setAlign(metaConf.widget.align);
     _meta->setText(config.station.name);
-    _nums->setText("");
+    _nums->setText("");	
 #ifdef WAKEUP_REBOOT
     if(allowReboot && config.isScreensaver && config.store.screensaverBlank && player.status() == STOPPED) {
     #ifndef DUMMYDISPLAY
@@ -372,7 +377,7 @@ void Display::_swichMode(displayMode_e newmode) {
       dsp.clearDsp(true);
       dsp.drawLogo(bootLogoTop);
       config.setBrightness(100, false);   // fast visual feedback
-      delay(50);
+      delay(250);
     #endif
       ESP.restart();
     }

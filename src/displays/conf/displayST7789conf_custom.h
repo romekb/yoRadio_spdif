@@ -50,7 +50,6 @@ const WidgetConfig apPassConf     PROGMEM = { TFT_FRAMEWDT, 130, 2, WA_CENTER };
 const WidgetConfig apPass2Conf    PROGMEM = { TFT_FRAMEWDT, 154, 2, WA_CENTER };
 const WidgetConfig  clockConf     PROGMEM = { TFT_FRAMEWDT, 164, 0, WA_RIGHT };
 const WidgetConfig vuConf         PROGMEM = { TFT_FRAMEWDT+17, 194, 1, WA_CENTER };
-
 const WidgetConfig bootWdtConf    PROGMEM = { 0, 162, 1, WA_CENTER };
 const ProgressConfig bootPrgConf  PROGMEM = { 90, 14, 4 };
 const BitrateConfig fullbitrateConf PROGMEM = {{8, 116, 2, WA_RIGHT}, 46 };
