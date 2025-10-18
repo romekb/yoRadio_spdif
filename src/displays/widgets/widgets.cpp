@@ -943,10 +943,8 @@ void ClockWidget::_printClock(bool force){
           #ifdef NAMEDAYS_FILE
             getNamedayUpper(_namedayBuf, sizeof(_namedayBuf));
             //_namedayleft = 8;
-            if (!config.isScreensaver && strcmp(_oldNamedayBuf, _namedayBuf) != 0) {
-              _printNameday();
-            }
-        #endif //NAMEDAYS_FILE
+            if (!config.isScreensaver) _printNameday();
+          #endif //NAMEDAYS_FILE
         }
       }
     }

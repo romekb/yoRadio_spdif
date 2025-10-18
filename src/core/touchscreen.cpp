@@ -175,7 +175,7 @@ void TouchScreen::loop(){
             break;
       }
     }
-    if(1) { // (config.store.dbgtouch) {
+    if(0) { // (config.store.dbgtouch) {
       Serial.print("x = ");
       Serial.print(touchX);
       Serial.print(", y = ");
