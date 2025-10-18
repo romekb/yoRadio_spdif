@@ -12,6 +12,7 @@ typedef struct {
 } axs15231b_lcd_init_cmd_t;
 
 static const axs15231b_lcd_init_cmd_t init_seq[] = {
+    {0x22, (uint8_t[]){0x00}, 0, 0},
     {0xBB, (uint8_t[]){0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5A, 0xA5}, 8, 0},
     {0xA0, (uint8_t[]){0xC0, 0x10, 0x00, 0x02, 0x00, 0x00, 0x04, 0x3F, 0x20, 0x05, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}, 17, 0},
     {0xA2, (uint8_t[]){0x30, 0x3C, 0x24, 0x14, 0xD0, 0x20, 0xFF, 0xE0, 0x40, 0x19, 0x80, 0x80, 0x80, 0x20, 0xf9, 0x10, 0x02, 0xff, 0xff, 0xF0, 0x90, 0x01, 0x32, 0xA0, 0x91, 0xE0, 0x20, 0x7F, 0xFF, 0x00, 0x5A}, 31, 0},
@@ -100,14 +101,15 @@ void AXS15231B_TFT::begin(void) {
     ESP_ERROR_CHECK(ret);
     _initialized = 1;
 #if TFT_RST == -1
-    tftSendCmd(0x01,NULL,0);    // soft reset
+    tftSendCmd(TFT_SWRST, NULL, 0);    // soft reset
 #endif
-    delay(200);
+    delay(250);
     int initSize = sizeof(init_seq) / sizeof(axs15231b_lcd_init_cmd_t);
     for (int i = 0; i < initSize; i++) {
         tftSendCmd(init_seq[i].cmd, (uint8_t *)init_seq[i].data, init_seq[i].data_bytes);
         if(init_seq[i].delay_ms) delay(init_seq[i].delay_ms);
     }
+    dumySetAddrWindow();
     _initialized = 2;
 }
 //---------------------------------------------------------------------------------
@@ -178,7 +180,7 @@ void AXS15231B_TFT::tftClearScreen(uint16_t color) {
     if(color==0) {
         memset(frameBuffer, 0, _buflen*2);
         if(checkBusy()) return;
-        tftSendCmd(0x22, NULL, 0);
+        tftSendCmd(TFT_PIXELS_OFF, NULL, 0);
     } else {
         color = (color<<8) | (color>>8);
         for(int i=0; i<_buflen; ++i) frameBuffer[i] = color;
@@ -187,11 +189,10 @@ void AXS15231B_TFT::tftClearScreen(uint16_t color) {
 }
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::tftUpdate() {
-    if(_initialized > 1 && _needRefresh && millis() - _lastUpdateTime >= 25) {
+    if(_initialized > 1 && _needRefresh && millis() - _lastUpdateTime >= 50) {
         _busy = true;
         _needRefresh = false;
         _lastUpdateTime = millis();
-        dumySetAddrWindow();
         tftSendPixels(frameBuffer, _buflen);
         _busy = false;
     }
@@ -229,6 +230,7 @@ void AXS15231B_TFT::tftSendCmd(uint32_t cmd, uint8_t *dat, uint32_t len) {
 void AXS15231B_TFT::tftSendPixels(uint16_t *data, uint32_t len)
 {
     if(!_initialized) return;
+    esp_err_t ret;
     bool first_send = 1;
     uint16_t *p = (uint16_t *)data;
     TFT_CS_L;
@@ -251,7 +253,12 @@ void AXS15231B_TFT::tftSendPixels(uint16_t *data, uint32_t len)
         if (chunk_size > SEND_BUF_SIZE) chunk_size = SEND_BUF_SIZE;
         t.base.tx_buffer = p;
         t.base.length = chunk_size * 16;    // in bits
-        spi_device_polling_transmit(spi, (spi_transaction_t *)&t);
+        ret = spi_device_queue_trans(spi, (spi_transaction_t *)&t, pdMS_TO_TICKS(20));    // DMA write
+        ESP_ERROR_CHECK(ret);
+        yield();
+        spi_transaction_t *rtrans;
+        ret = spi_device_get_trans_result(spi, &rtrans, pdMS_TO_TICKS(20));   // wait for DMA complata - faster than pooling method
+        ESP_ERROR_CHECK(ret);
         len -= chunk_size;
         p += chunk_size;
     } while (len > 0);
@@ -261,8 +268,8 @@ void AXS15231B_TFT::tftSendPixels(uint16_t *data, uint32_t len)
 void AXS15231B_TFT::dumySetAddrWindow() {
     uint16_t ww = _dispWidth-1;
     uint16_t wh = _dispHeight-1;
-    lcd_cmd_t t[2] = {  {0x2b, {0, 0, (uint8_t)(ww>>8), (uint8_t)(ww & 0xFF)}, 0x04},
-                        {0x2a, {0, 0, (uint8_t)(wh>>8), (uint8_t)(wh & 0xFF)}, 0x04} };
+    lcd_cmd_t t[2] = {  {TFT_CASET, {0, 0, (uint8_t)(wh>>8), (uint8_t)(wh & 0xFF)}, 0x04},
+                        {TFT_RASET, {0, 0, (uint8_t)(ww>>8), (uint8_t)(ww & 0xFF)}, 0x04} };
     for (uint32_t i = 0; i < 2; i++) {
         tftSendCmd(t[i].cmd, t[i].data, t[i].len);
     }
