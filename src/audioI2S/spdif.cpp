@@ -7,6 +7,7 @@
 */
 
 #include "../core/options.h"
+#if SPDIF_OUT!=255
 #include "spdif.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcpp"
@@ -107,26 +108,33 @@ bool spdif_write(int16_t smp[2])
     lo = pgm_read_word(&spdif_bmclookup[(uint8_t)sample_left]);
     // Low word is inverted depending on first bit of high word
     lo ^= (~((int16_t)hi) >> 16);
-    *spdif_ptr++ = ((uint32_t)lo << 16) | hi;
-    // Fixed 4 bits auxillary-audio-databits, the first used as parity
-    // Depending on first bit of low word, invert the bits
     aux = 0xb333 ^ (((uint32_t)((int16_t)lo)) >> 17);
-    // Send 'B' preamble only for the first frame of data-block
+#if !defined(ARDUINO_ESP32S3_DEV)
+    *spdif_ptr++ = ((uint32_t)lo << 16) | hi;
     if (spdif_ptr == spdif_buf+1) {
+#else
+    if (spdif_ptr == spdif_buf+0) {
+#endif
         *spdif_ptr++ = VUCP_PREAMBLE_B | aux;
     } else {
         *spdif_ptr++ = VUCP_PREAMBLE_M | aux;
     }
-
+#if defined(ARDUINO_ESP32S3_DEV)
+    *spdif_ptr++ = ((uint32_t)lo << 16) | hi;
+#endif
     uint16_t sample_right = smp[1];
     // BMC encode right channel, similar as above
     hi = pgm_read_word(&spdif_bmclookup[(uint8_t)(sample_right >> 8)]);
     lo = pgm_read_word(&spdif_bmclookup[(uint8_t)sample_right]);
     lo ^= (~((int16_t)hi) >> 16);
-    *spdif_ptr++ = ((uint32_t)lo << 16) | hi;
     aux = 0xb333 ^ (((uint32_t)((int16_t)lo)) >> 17);
+#if defined(ARDUINO_ESP32S3_DEV)
     *spdif_ptr++ = VUCP_PREAMBLE_W | aux;
-
+    *spdif_ptr++ = ((uint32_t)lo << 16) | hi;
+#else
+    *spdif_ptr++ = ((uint32_t)lo << 16) | hi;
+    *spdif_ptr++ = VUCP_PREAMBLE_W | aux;
+#endif
 	if (spdif_ptr >= &spdif_buf[SPDIF_BUF_ARRAY_SIZE]) {
     	size_t i2s_write_len;
 	    esp_err_t err = i2s_write((i2s_port_t)I2S_NUM, spdif_buf, sizeof(spdif_buf), &i2s_write_len, portMAX_DELAY);
@@ -142,3 +150,8 @@ bool spdif_write(int16_t smp[2])
     }
     return true;
 }
+
+#else
+ void spdif_init(int rate) {}
+ bool spdif_write(int16_t smp[2]) {return true;}
+#endif

@@ -8,7 +8,6 @@ https://www.youtube.com/watch?v=0B93uhm7WAI
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
 Działa z wyświetlaczem ST7789 320x240. Powinna działać z wyświetlaczami ILI9341 320x240. Innych nie obsługuje. 
 Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32-S3.
-UWAGA ! Na ESP32-S3 nie działa wyjście SPDIF. Poszukiwanie przyczyny w toku.
 
 Co się zmieniło:
 - Dodano obsługę wyjścia SPDIF. Może to być wyjście koncentryczne (COAX) lub optyczne (OPTICAL).
@@ -52,7 +51,6 @@ This is modified version of yoRadio (eRadio) project from: https://github.com/e2
 New version based on yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip.
 WORKING ONLY WITH ST7789 320x240 display ! Should work on ILI9341 320x240 displays.
 Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported.
-WARNING ! For now, the SPDIF output not working on ESP32-S3. Investigation in progress.
 
 What's changed:
 - added support for SPDIF output. This can be either COAX or OPTICAL.
