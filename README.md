@@ -6,13 +6,13 @@ English version of Readme bellow.
 https://www.youtube.com/watch?v=0B93uhm7WAI
 
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
-Działa z wyświetlaczem ST7789 320x240. Powinna działać z wyświetlaczami ILI9341 320x240. Innych nie obsługuje. 
-Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32-S3.
+Działa z wyświetlaczem ST7789 320x240, ILI9341 320x240, oraz 480x320 ILI9488, ST7796 i AXS15231B (Guition) Inne nie były testowane.. 
+Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32-S3. PSRAM wymagany.
 
 Co się zmieniło:
 - Dodano obsługę wyjścia SPDIF. Może to być wyjście koncentryczne (COAX) lub optyczne (OPTICAL).
 - Dodano obsługę wielu języków: EN, RU, PL, HU, NL, EL.
-- Zmieniono układ wyświetlacza. Tylko dla wyświetlaczy ST7789 i ILI9341 o rozdzielczości 320x240
+- Zmieniono układ wyświetlacza. Dla wyświetlaczy o rozdzielczości 320x240 i 480x320
 - Dodano przewijanie dla wyświetlania imienin (PL, NL, HU)
 - Tylko przycisk „Play” na pilocie może wybudzić odtwarzacz z trybu uśpienia/wygaszacza ekranu.
 - Brak strony z ustawieniami głośności. Zmiana głośności jest sygnalizowana tylko za pomocą paska głośności i wartości na głównym ekranie odtwarzacza.
@@ -21,7 +21,8 @@ Co się zmieniło:
 - Dodano możliwość zmiany jasności wyświetlacza z pilota IR i touchscreena. Jak odtwarzanie jest zatrzymane to jasność regulują przyciski głoścości / lewo-prawo na touchscreenie.
 - Więcej kontroli przez touchscreen. Klik u góry po lewej lub prawej - poprzednia/nastepna stacja, góra-środek - przełączanie WEB/SD, klik na dole po lewej/prawej - regulacja głośności z repetycją.
 - Dodano opcje TS_MIRROR_X i TS_MIRROR_Y dla ustalenia prawidłowej orientacji touchscreena.
-- W trybie odtwarzania z SD pasek głośności zmienia kolor i staje się w paskiem postępu ostwarzania utworu
+- W trybie odtwarzania z SD pasek głośności zmienia kolor i staje się w paskiem postępu ostwarzania utworu.
+- Odczyt ID3 tagów (również v1) z plików MP3 na karcie SD
 - Lewo/Prawo na touchscreenie podczas odtwarzania z karty SD działa jako przewijanie utworu.
 - Dodano obsługę wyświetlaczy AXS15231B z pojemnościowym zintegrowanym touchscteenem (moduł GUITION JC3248W535)
 
@@ -49,13 +50,13 @@ Testy przeprowadzono na radiach internetowych, korzystając ze strumieni AAC i M
 This is modified version of yoRadio (eRadio) project from: https://github.com/e2002/yoradio
 
 New version based on yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip.
-WORKING ONLY WITH ST7789 320x240 display ! Should work on ILI9341 320x240 displays.
-Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported.
+Tested with ST7789 320x240 display and AXS15231B 480x320 from Guition module. Should work on ILI9341, ILI9488, ST7796 displays too.
+Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported. PSRAM is required especially for AXS15231B display.
 
 What's changed:
 - added support for SPDIF output. This can be either COAX or OPTICAL.
 - added support for multiple languages: EN,RU,PL,HU,NL,EL
-- changed display layout. Only for ST7789 and ILI9341 320x240 displays
+- changed display layout. Only for 320x240 and 480x320 displays
 - added scroll for displaying name days (PL,NL,HU)
 - only "Play" key on remote can wakeup player from sleep/screensaver mode.
 - no Volume page. Changing volume is indicated only via volume bar and value on main player screen.
@@ -65,6 +66,7 @@ What's changed:
 - more touchscreen controls. Click at top left or right - prevous/next station, top-middle - switch WEB/SD, click on bottom left/right - volume control with repeat.
 - added TS_MIRROR_X and TS_MIRROR_Y options for propper touchscreen orientation setup.
 - in SD playback mode, the volume bar changes color and acts as a file playback progress bar.
+- added ID3 tags (v1 tags too) reading from local MP3 dile on SD.
 - left/right on the touchscreen acts as a track scroller when playing from an SD card.
 - added support for AXS15231B display with integrated capacitive touchscteen (GUITION JC3248W535 module)
   
