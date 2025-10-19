@@ -110,6 +110,7 @@ void AXS15231B_TFT::begin(void) {
         if(init_seq[i].delay_ms) delay(init_seq[i].delay_ms);
     }
     dumySetAddrWindow();
+    _inSleep = false;
     _initialized = 2;
 }
 //---------------------------------------------------------------------------------
@@ -172,6 +173,7 @@ void AXS15231B_TFT::setInvert(bool invert) {
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::tftSleep(bool sleepin) {
     if(checkBusy()) return;
+    _inSleep = sleepin;
     tftSendCmd(sleepin ? TFT_SLPIN:TFT_SLPOUT, NULL, 0);
     delay(200);
 }
@@ -189,7 +191,7 @@ void AXS15231B_TFT::tftClearScreen(uint16_t color) {
 }
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::tftUpdate() {
-    if(_initialized > 1 && _needRefresh && millis() - _lastUpdateTime >= 50) {
+    if(!_inSleep && _initialized > 1 && _needRefresh && millis() - _lastUpdateTime >= 50) {
         _busy = true;
         _needRefresh = false;
         _lastUpdateTime = millis();

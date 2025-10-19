@@ -71,7 +71,7 @@ void TouchScreen::init(uint16_t w, uint16_t h){
 tsDirection_e TouchScreen::_tsDirection(uint16_t x, uint16_t y) {
   int16_t dX = x - _oldTouchX;
   int16_t dY = y - _oldTouchY;
-  if (abs(dX) > 30 || abs(dY) > 30) {
+  if (abs(dX) > _width/8 || abs(dY) > _height/6) {
     if (abs(dX) > abs(dY)) {
       if (dX > 0) {
         return TSD_RIGHT;
@@ -86,7 +86,7 @@ tsDirection_e TouchScreen::_tsDirection(uint16_t x, uint16_t y) {
       }
     }
   } else {
-    return TDS_REQUEST;
+    return TSD_REQUEST;
   }
 }
 
@@ -105,7 +105,7 @@ void TouchScreen::loop(){
   static uint32_t touchLongPress;
   static tsDirection_e direct;
   static uint16_t touchVol, touchStation;
-  if (!_checklpdelay(20, _touchdelay)) return;
+  if (!_checklpdelay((config.isScreensaver) ? 200:20, _touchdelay)) return;
 #if (TS_MODEL==TS_MODEL_GT911) || (TS_MODEL==TS_MODEL_AXS15231B)
   ts.read();
 #endif
@@ -126,12 +126,17 @@ void TouchScreen::loop(){
   #ifdef TS_MIRROR_Y
     touchY = _height - touchY;
   #endif
+#if(TS_MODEL==TS_MODEL_AXS15231B)       // ghost touch wakeup elimination
+  if(config.isScreensaver && config.store.screensaverBlank) {
+    if(touchX < (_width*4)/5 || touchY < (_height*4)/5) return;
+  }
+#endif
   if (!wastouched) { /*     START TOUCH     */
       _oldTouchX = touchX;
       _oldTouchY = touchY;
       touchVol = touchX;
       touchStation = touchY;
-      direct = TDS_REQUEST;
+      direct = TSD_REQUEST;
       touchLongPress=millis();
     } else { /*     SWIPE TOUCH     */
       direct = _tsDirection(touchX, touchY);
@@ -141,13 +146,10 @@ void TouchScreen::loop(){
             touchLongPress=millis();
             if(display.mode()==PLAYER || display.mode()==VOL){
               int16_t xDelta = map(abs(touchVol - touchX), 0, _width, 0, TS_STEPS);
-//              #ifndef NO_VOLUME_SCREEN
-//                display.putRequest(NEWMODE, VOL);
-//              #endif
-              if (xDelta>4) {
-                #ifndef NO_VOLUME_SCREEN
-                  display.putRequest(NEWMODE, VOL);
-                #endif
+              #ifndef NO_VOLUME_SCREEN
+                display.putRequest(NEWMODE, VOL);
+              #endif
+              if (xDelta>2) {
                 if(config.getMode()==PM_SDCARD && player.status() == PLAYING) {
                   if(touchX - touchVol < 0) xDelta = -xDelta;
                   player.SDSeekTo(xDelta);
@@ -162,9 +164,8 @@ void TouchScreen::loop(){
             touchLongPress=millis();
             if(display.mode()==PLAYER || display.mode()==STATIONS){
               int16_t yDelta = map(abs(touchStation - touchY), 0, _height, 0, TS_STEPS);
-//              display.putRequest(NEWMODE, STATIONS);
-              if (yDelta>4) {
-                display.putRequest(NEWMODE, STATIONS);
+              display.putRequest(NEWMODE, STATIONS);
+              if (yDelta>2) {
                 controlsEvent((touchStation - touchY)<0);
                 touchStation = touchY;
               }
@@ -179,23 +180,17 @@ void TouchScreen::loop(){
       Serial.print("x = ");
       Serial.print(touchX);
       Serial.print(", y = ");
-    #if TS_MODEL!=TS_MODEL_XPT2046
-      Serial.print(touchY);
-      Serial.print(", s = ");
-      Serial.println(p.size);
-    #else
       Serial.println(touchY);
-    #endif
     }
     // volume control with repeat  
-    if(istouched && direct == TDS_REQUEST && (display.mode()==PLAYER || display.mode()==VOL) && 
+    if(istouched && direct == TSD_REQUEST && (display.mode()==PLAYER || display.mode()==VOL) && 
        millis()>_repeatDelay+500 && _oldTouchY<_height/3) {
           if(_oldTouchX < _width/3)     {onBtnClick(EVT_BTNLEFT);  touchLongPress = millis(); }  // Left-bottom = vol_down
           if(_oldTouchX > (_width*2)/3) {onBtnClick(EVT_BTNRIGHT); touchLongPress = millis(); }  // Right-bottom = vol_up
           _repeatDelay = millis() - (_repeatDelay ? 300:0);     // first delay 500ms, then repeat every 200ms
     }
     // up/down (1/10) in playlist/stations mode
-    if(istouched && direct==TDS_REQUEST && display.mode()==STATIONS && millis()>_repeatDelay+500 && _oldTouchX>(_width*2)/3) {      
+    if(istouched && direct==TSD_REQUEST && display.mode()==STATIONS && millis()>_repeatDelay+500 && _oldTouchX>(_width*2)/3) {      
         if(_oldTouchY < _height/2) { 
           if(_repeatDelay) display.currentPlItem -= 9;            // if not first touch, list-10
           controlsEvent(false); 
@@ -210,7 +205,7 @@ void TouchScreen::loop(){
     }
   }else{
     if (wastouched) {/*     END TOUCH     */
-      if (direct == TDS_REQUEST) {
+      if (direct == TSD_REQUEST) {
         uint32_t pressTicks = millis()-touchLongPress;
         if( pressTicks < BTN_PRESS_TICKS*2){
           if(pressTicks > 50) {

@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include <Wire.h>
 // Максимальное количество одновременных касаний
-#define AXS_MAX_TOUCH_NUMBER 2  // Поддержка до 2 одновременных касаний для жестов
+#define AXS_MAX_TOUCH_NUMBER 1  // only single touch
 
 class TP_Point {
   public:

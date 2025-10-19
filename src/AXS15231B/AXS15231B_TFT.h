@@ -70,7 +70,7 @@ class AXS15231B_TFT : public Adafruit_GFX {
     uint16_t _gx, _gy, _gw, _gh;
     uint32_t _lastUpdateTime, _buflen;
     uint8_t  _initialized = 0;
-
+    bool     _inSleep = false;
 };
 
            

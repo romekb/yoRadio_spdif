@@ -37,7 +37,6 @@ AXS15231B_Touch::AXS15231B_Touch(int8_t _sda, int8_t _scl, int8_t _int, int8_t _
  */
 void AXS15231B_Touch::begin() {
   Wire.begin(pinSda, pinScl);
-  // TODO: инициализация INT/RST если нужно
 }
 
 /**
@@ -102,13 +101,10 @@ void AXS15231B_Touch::read() {
 bool AXS15231B_Touch::_getPoint(uint8_t pointnum, uint8_t *data) {
     uint16_t rawX = ((data[0] & 0x0F) << 8) | data[1];
     uint16_t rawY = ((data[2] & 0x0F) << 8) | data[3];
-    
-    if (rawX == 273 && rawY == 273) return false; // ???
-    if (rawX > 1000 || rawY > 1000) return false;
-
-    if (rawX > 320) rawX = 320;
-    if (rawY > 480) rawY = 480;
-
+    uint8_t event = data[0]>>4;
+    //Serial.printf("%02x %02x %02x\r\n", event, data[4], data[5]);
+    if(event != 0x04 && event != 0x08) return false;
+    if (rawX >= 320 || rawY >= 480) return false;
     uint16_t tmp=rawX;
     switch(rotation) {
       case 1: rawX=rawY; rawY=tmp; break;
@@ -116,6 +112,6 @@ bool AXS15231B_Touch::_getPoint(uint8_t pointnum, uint8_t *data) {
       case 3: rawX=width-rawY; rawY=height-tmp; break;
       default: break;
     }
-    points[pointnum] = TP_Point(pointnum, rawX, rawY, data[5]);
+    points[pointnum] = TP_Point(pointnum, rawX, rawY, 0);
     return true;
 }
