@@ -77,7 +77,11 @@ const char        apSettFmt[]    PROGMEM = "ΣΕΛΙΔΑ ΡΥΘΜΙΣΕΩΝ: HTT
 const char weatherFmt[] PROGMEM = "%.1f\011C  \007  %d hPa  \007  %d%% RH";
 #else
 #if EXT_WEATHER
-const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 αίσθηση θερμοκρασίας: %.1f\011C \007 πίεση: %d hPa \007 υγρασία: %d%% \007 άνεμος: %.1f m/s [%s]";
+  #ifdef WEATHER_WIND_UNITS_KPH
+    const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 αίσθηση θερμοκρασίας: %.1f\011C \007 πίεση: %d hPa \007 υγρασία: %d%% \007 άνεμος: %.1f kph [%s]";
+  #else
+    const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 αίσθηση θερμοκρασίας: %.1f\011C \007 πίεση: %d hPa \007 υγρασία: %d%% \007 άνεμος: %.1f m/s [%s]";
+  #endif
 #else
 const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Πίεση: %d hPa \007 Υγρασία: %d%%";
 #endif

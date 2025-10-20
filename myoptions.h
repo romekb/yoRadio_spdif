@@ -34,9 +34,9 @@
 #define TS_MIRROR_X
 
 // RTC
-//#define RTC_MODULE			    DS1307
-//#define RTC_SDA			        19
-//#define RTC_SCL			        18
+#define RTC_MODULE			    DS1307
+#define RTC_SDA			        0
+#define RTC_SCL			        27
 
 // SD/IR/Misc
 #define SDC_CS			        5
@@ -48,11 +48,17 @@
 #define VU_PEAK
 #define IR_TS_BRIGHTNESS_CONTROL
 #define POWER_SAVE          2         // 0=off, 1=on sleep, 2=always
+#define WAKEUP_REBOOT
+//#define CLOCKFONT_7SEG
 //#define WEATHER_FMT_SHORT
-//#define BOOMBOX_STYLE
+#define WEATHER_WIND_UNITS_KPH
+//#define BOOMBOX_STYLE 
+
+// Autobacklight setup
 //#define LIGHT_SENSOR        35        // lower pin voltage = higher brightness
-//#define AUTOBACKLIGHT_DARK  4000      // max ADC value - at dark condition (0 - 4095)
-//#define AUTOBACKLIGHT_BRI   100       // min ADC value - at bright condition (0 - 4095)
-//#define AUTOBACKLIGHT_MIN   15        // min brightness [%] (0 - 100)
+#define AUTOBACKLIGHT_DARK  4000      // max ADC value - at dark condition (0 - 4095)
+#define AUTOBACKLIGHT_BRI   100       // min ADC value - at bright condition (0 - 4095)
+#define AUTOBACKLIGHT_MIN   15        // min brightness [%] (0 - 100)
+//#define ADC_RAW_DEBUG
 
 #endif

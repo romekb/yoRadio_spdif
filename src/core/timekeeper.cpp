@@ -350,6 +350,9 @@ bool _getWeather() {
         sprintf(timekeeper.weatherBuf, LANG::weatherFmt, tempf, press, hum); //Módisítás LANG:: hozzáírva.
         #else
           #if EXT_WEATHER
+           #ifdef WEATHER_WIND_UNITS_KPH
+            wind_speed *= 3.6f;
+           #endif
             sprintf(timekeeper.weatherBuf, LANG::weatherFmt, desc, tempf, tempfl, press, hum, wind_speed, LANG::wind[(int)(wind_deg/22.5)]);
           #else
             sprintf(timekeeper.weatherBuf, LANG::weatherFmt, desc, tempf, press, hum);

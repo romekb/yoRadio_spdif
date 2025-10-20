@@ -86,15 +86,17 @@ const char        apPassTxt[]    PROGMEM = "HASŁO";
 const char       bootstrFmt[]    PROGMEM = "Łączenie z %s";
 const char        apSettFmt[]    PROGMEM = "STRONA KONFIGURACYJNA: HTTP://%s/";
 
-
-
 #ifdef WEATHER_FMT_SHORT
 const char weatherFmt[] PROGMEM = "%.1f\011C  \007  %d hPa  \007  %d%% RH";
 #else
 #if EXT_WEATHER
-const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Odcz: %.1f\011C \007 Ciśn: %dhPa \007 Wilg: %d%% \007 Wiatr: %.1fm/s, %s";
+  #ifdef WEATHER_WIND_UNITS_KPH
+    const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Odcz: %.1f\011C \007 Ciśn: %dhPa \007 Wilg: %d%% \007 Wiatr: %.1fkm/h, %s";
+  #else
+    const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Odcz: %.1f\011C \007 Ciśn: %dhPa \007 Wilg: %d%% \007 Wiatr: %.1fm/s, %s";
+  #endif
 #else
-const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 pressure: %d hPa \007 humidity: %s%%";
+const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Ciśnienie: %d hPa \007 Wilgotność: %d%%";
 #endif
 #endif
 

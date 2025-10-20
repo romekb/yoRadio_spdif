@@ -51,6 +51,7 @@
 #define WAKEUP_REBOOT                 // reboot on "power on" via IR remote or touchscreen longpress 
 //#define CLOCKFONT_7SEG
 //#define WEATHER_FMT_SHORT
+#define WEATHER_WIND_UNITS_KPH
 //#define BOOMBOX_STYLE 
 
 // Autobacklight setup

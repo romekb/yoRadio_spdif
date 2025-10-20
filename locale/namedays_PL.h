@@ -9,57 +9,58 @@ program będzie je zamieniał co 4 sekundy.
 
 const char* nameday_label = "Imieniny:";
 
-  // Tablica imienin - imiona oddzielone przecinkami na każdy dzień roku (rotacja co 4 sekundy) - źródło: kalbi.pl
-const char* namedays[] = {
+  // Tablica imienin - imiona oddzielone przecinkami na każdy dzień roku (rotacja co 4 sekundy) - źródło: kalendarzswiat.pl
+const char* namedays[] PROGMEM = {
   // Styczeń (31 dni)
-  "Mieczysław, Mieczysława, Mieszko", "Bazylego,Izydor,Makary ", "Daniel, Genowefa, Zdzisława", "Aniela, Eugeniusz, Rygobert", "Edwarda, Emiliana, Szymon", "Kacpra,Baltazara,Melchiora", "Julian, Kryspin, Lucjan", "Erhard, Seweryn, Wawrzyniec", "Adrian, Antoni, Piotr", "Agatona,Jana,Wilhelma",
-  "Honorata, Krzesimir, Mechtylda", "Arkadiusz, Bernard, Greta ", "Bogumiły,Weroniki", "Niny,Feliksa", "Arnolda,Pawła", "Marcelego,Włodzimierza", "Rozalindy,Antoniego", "Małgorzaty,Beatrycze", "Mariusza,Henryka", "Sebastiana,Fabiana",
-  "Agnieszki,Inez", "Wincentego,Anastazego", "Rajmunda,Ildefonsa", "Felicjana,Tymoteusza", "Tatiany,Miłosza,Pawła", "Pauli,Tutusa", "Witaliana,Jerzego", "Tomasza,Karola", "Anieli,Bolesławy,Franciszka", "Martyny,Macieja", "Ludwiki,Marceli,Jana",
+  "Mieczysława,Mieszka", "Izydora,Makarego", "Danuty,Genowefy", "Anieli,Eugeniusza", "Edwarda,Szymona", "Kacpra,Melchiora,Baltazara", "Juliana,Lucjana", "Seweryna,Teofila", "Weroniki,Juliana", "Jana,Wilhelma",
+  "Matyldy,Honoraty", "Benedykta,Arkadiusza", "Weroniki,Bogumiły", "Feliksa,Hilarego", "Pawła,Izydora", "Marcelego,Włodzimierza", "Antoniego,Rościsława", "Piotra,Małgorzaty", "Henryka,Mariusza", "Fabiana,Sebastiana",
+  "Agnieszki,Jarosława", "Anastazego", "Ildefonsa,Rajmunda", "Felicji,Tymoteusza", "Pawła,Miłosza", "Seweryna,Pauliny", "Jana,Przybysława", "Walerego,Radomira", "Zdzisława,Franciszka", "Macieja,Martyny", "Jana,Marceliny",
   // Luty (29 dni - rok przestępny)
-  "Brygidy,Sewera", "Kornela,Marii,Młosławy", "Błażeja,Oskara", "Józefa,Weroniki", "Agaty,Adelaide", "Doroty,Tytusa", "Ryszarda,Romualda", "Kaji,Hieronima", "Apollonii,Cyryla", "Jacka,Scholastyki",
-  "Marcjanny,Łazarza", "Eulalii,Modesta", "Grzegorza,Jordana", "Walentego,Cyryla", "Faustyna,Zygfryda", "Daniel, Danuta, Samuel ", "Donata,Aleksego", "Szymona,Bernadety", "Konrada,Patrycji", "Leona,Eleonory",
-  "Piotra,Roberta", "Margarit,Izabeli", "Romana,Polikarpa", "Macieja,Modesta", "Wiktora,Cezarego", "Nestora,Aleksandra", "Gabriela,Leandra", "Romana,Augustyna", "Hilarego,Oswałda",
+  "Brygidy,Ignacego", "Marii,Mirosława", "Błażeja,Hipolita", "Andrzeja,Weroniki", "Agaty,Adelajdy", "Doroty,Tytusa", "Ryszarda,Romualda", "Jana,Piotra", "Cyryla,Apolonii", "Jacka,Scholastyki",
+  "Łazarza,Marii", "Eulalii,Modesta", "Grzegorza,Katarzyny", "Walentego,Metodego", "Faustyna,Józefa", "Danuty,Juliany", "Donata,Łukasza", "Symeona,Konstancji", "Konrada,Arnolda", "Leona,Ludomiła",
+  "Eleonory,Feliksa", "Marty,Małgorzaty", "Romany,Damiana", "Macieja,Bogusza", "Wiktora,Cezarego", "Mirosława,Aleksandra", "Gabriela,Anastazji", "Teofila,Makarego", "Hilarego,Oswałda",
   // Marzec (31 dni)
-  "Albina,Dawida,Antonii", "Halszki,Heleny", "Kunegundy,Kamila", "Kazimierza,Adriana", "Adriana,Celiny", "Róży,Beaty", "Tomasza,Perpetuy,Felicyty", "Jana,Stefana", "Franciszki,Dominiki", "Macieja,Eugeniusza",
-  "Konstantego,Benedykta", "Grzegorza,Maksyma", "Geralda,Krystyny", "Matyldy,Leona", "Klemensa,Longina", "Herberta,Izabeli", "Patryka,Gertrudy", "Cyryla,Anzelma", "Józefa,Oblubieńca", "Franciszka,Klaudii",
-  "Benedykta,Fabia", "Oktawiana,Katarzyny", "Turybiusza,Wojciecha", "Gabriela,Aleksandra", "Ireneusz, Maria, Mariola", "Emanuela,Teodora", "Augusta,Ruperta", "Jana,Donata", "Eugeniusza,Helmuta", "Leonarda,Kwityna", "Beniamina,Balbiny",
+  "Antoniny,Radosława", "Heleny,Pawła", "Tycjana,Kunegundy", "Kazimierza,Łucji", "Fryderyka,Wacława", "Róży,Wiktora", "Pawła,Tomasza", "Beaty", "Katarzyny,Franciszki", "Cypriana,Marcelego",
+  "Konstantego,Benedykta", "Bernarda,Grzegorza", "Bożeny,Krystyny", "Leona,Matyldy", "Ludwiki,Klemensa", "Izabeli,Hilarego", "Zbigniewa,Patryka", "Cyryla,Edwarda", "Józefa,Bogdana", "Eufemii,Klaudii",
+  "Benedykta,Lubomira", "Bogusława,Katarzyny", "Feliksa,Pelagii", "Marka,Gabriela", "Marii,Wieńczysława", "Teodora,Emanuela", "Lidii,Ernesta", "Anieli,Sykstusa", "Wiktora,Eustachego", "Amelii,Jana", "Balbiny,Gwidona",
   // Kwiecień (30 dni)
-  "Hugona,Ireny", "Franciszka,Teodozji", "Ryszarda,Pankracego", "Izydora,Benedykta", "Wincentego,Ireny", "Wilhelma,Celestyna", "Jana,Rufina", "Julii,Waleriana", "Marty,Dymitra", "Magdaleny,Macieja",
-  "Stanisława,Leona", "Julii,Juliusza", "Hermenegildy,Idy", "Lamberta,Justyna", "Anastazji,Bazylego", "Bernadety,Magnusa", "Roberta,Rudolfa", "Apolloniusza,Bogusława", "Leona,Emmy", "Czesława,Sulpicjusza",
-  "Anzelma,Konrada", "Szotera,Kajetana", "Wojciecha,Jerzego", "Fidelisa,Aleksandra", "Marka,Erwina", "Kleta,Mariana", "Zygmunta,Piotra", "Piotra,Walerii", "Katarzyny,Roberta", "Piusa,Jakuba",
+  "Zbigniewa,Grażyny", "Franciszka,Władysława", "Ryszarda,Pankracego", "Wacława,Izydora", "Ireny,Wincentego", "Celestyna,Wilhelma", "Donata,Rufina", "Dionizego,Januarego", "Marii,Marcelego", "Michała,Makarego",
+  "Leona,Filipa", "Juliusza,Wiktora", "Przemysława,Hermenegildy", "Justyny,Waleriana", "Anastazji,Bazylego", "Julii,Benedykta", "Roberta,Patrycego", "Bogusławy,Bogumiły", "Adolfa,Tymona", "Czesława,Agnieszki",
+  "Feliksa,Anzelma", "Leona,Łukasza", "Jerzego,Wojciecha", "Grzegorza,Aleksandra", "Marka,Jarosława", "Marii,Marcelego", "Zyty,Teofila", "Pawła,Walerii", "Piotra,Pawła", "Mariana,Katarzyny",
   // Maj (31 dni)
-  "Józefa,Filipa", "Atanazego,Zygmunta", "Aleksandra,Moniki", "Moniki,Floriana", "Piusa,Ireny", "Benedykta,Franciszka", "Gizeli,Stanisława", "Stanisława,Benedykta", "Grzegorza,Beaty", "Antoniny,Izydora",
-  "Ignacego,Mamerta", "Pankracego,Nereusza", "Serwacego,Roberta", "Bonifacego,Korony", "Zofii,Izydora", "Jana,Andrzeja", "Paskala,Ubalda", "Eryka,Feliksa", "Piotra,Walentego", "Bernardyna,Bazylego",
-  "Konstancji,Wiktorii", "Heleny,Julii", "Dezyderiusza,Emilii", "Jana,Joanny", "Urbana,Magdaleny", "Filipa,Elżbiety", "Augusta,Augustyna", "Germana,Justa", "Magdaleny,Teodozji", "Ferdynanda,Emilii", "Petroneli,Anieli",
+  "Józefa,Filipa", "Anatola,Zygmunta", "Marii,Aleksandra", "Moniki,Floriana", "Ireny,Waldemara", "Jana,Judyty", "Ludmiły,Gizeli", "Stanisława,Dezyderii", "Bożydara,Grzegorza", "Izydora,Antoniny",
+  "Franciszka,Jakuba", "Dominika,Pankracego", "Roberta,Serwacego", "Bonifacego,Dobiesława", "Zofii,Jana", "Andrzeja,Wieńczysława", "Weroniki,Sławomira", "Feliksa,Aleksandry", "Piotra,Mikołaja", "Bernarda,Bazylego",
+  "Wiktora,Tymoteusza", "Julii,Heleny", "Iwony,Dezyderego", "Joanny,Zuzanny", "Urbana,Grzegorza", "Filipa,Pauliny", "Jana,Juliusza", "Augustyna,Jaromira", "Teodozji,Magdaleny", "Feliksa,Ferdynanda", "Anieli,Petroneli",
   // Czerwiec (30 dni)
-  "Justyna,Nikodema", "Marianny,Erazma", "Klotyldy,Eugenio", "Franciszka,Karakiolo", "Bonifacego,Waldemara", "Norberta,Klaudiusza", "Roberta,Norberta", "Medarda,Maksyma", "Prymusa,Kolumbana", "Bogumiła,Marii",
-  "Barnaby,Bartłomieja", "Jana,Terencjusza", "Antoniego,Padewskiego", "Elizusza,Bazylego", "Wita,Marii", "Benona,Aliny", "Adolfa,Emila", "Maryny,Elżbiety", "Romualda,Juliana", "Silverego,Rafała",
-  "Alojzego,Stanisława", "Paulina,Tomasza", "Zenona,Józefiny", "Jana,Chrzciciela", "Prospera,Doroty", "Jana,Pawła", "Władysława,Ladysława", "Ireneusza,Leona", "Piotra,Pawła", "Pawła,Piotra",
+  "Jakuba,Konrada", "Erazma,Marianny", "Leszka,Klotyldy", "Karola,Franciszka", "Walerii,Bonifacego", "Pauliny,Laury", "Roberta,Wiesława", "Maksyma,Medarda", "Pelagii,Felicjana", "Bogumiła,Małgorzaty",
+  "Barnaby,Feliksa", "Jana,Onufrego", "Lucjana,Antoniego", "Walerego,Bazylego", "Wita,Jolanty", "Aliny,Justyny", "Laury,Adolfa", "Marka,Elżbiety", "Gerwazego,Protazego", "Bogny,Florentyny",
+  "Alicji,Alojzego", "Pauliny,Flawiusza", "Wandy,Zenona", "Jana,Danuty", "Łucji,Wilhelma", "Jana,Pawła", "Marii,Władysława", "Leona,Ireneusza", "Piotra,Pawła", "Emilii,Lucyny",
   // Lipiec (31 dni)
-  "Ottona,Haliny,Mariana", "Urbana,Jagody,Marii", "Jacka,Anatola,Tomasza", "Teodora,Malwiny", "Karoliny,Atanazego", "Łucjii,Dominika,Dominiki", "Benedykta,Odo", "Prokopa,Elżbiety,Adriana", "Weroniki,Sylwii,Zenona", "Amelii,Filipa,Almy",
-  "Olgi,Piusa,Pelagi", "Bruno,Paulina", "Sary,Małgorzaty", "Angeliny,Stelli,Marcela,Kamila", "Bonawentury,Henryka,Dawida,Włodzimierza,Roksany", "Marii,Mariki", "Jadwigi,Bogdana,Anety", "Kamila,Emiliana,Szymona", "Wincentego,Radomiły,Makryny", "Małgorzaty,Hieronima,Czesława",
-  "Daniela,Wiktora", "Magdaleny,Mileny,Leny", "Brygidy,Apolinarii,Bogny", "Krzesimira,Kingi,Krystyny", "Krzysztofa,Jakuba", "Grażyny,Anny,Hanny,Mirosławy", "Julii,Natalii", "Tiny,Wiktora", "Marty,Olafa", "Julity,Piotra", "Ignacego,Heleny",
+  "Haliny,Mariana", "Marii,Urbana", "Jacka,Anatola", "Teodora,Innocentego", "Karoliny,Antoniego", "Łucji,Dominika", "Cyryla,Metodego", "Elżbiety,Prokopa", "Zenona,Weroniki", "Filipa,Amelii",
+  "Olgi,Pelagii", "Jana,Gwalberta", "Ernesta,Małgorzaty", "Marceliny,Bonawentury", "Henryka,Włodzimierza", "Marii,Benedykta", "Bogdana,Aleksego", "Kamila,Szymona", "Wincentego,Wodzisława", "Czesława,Hieronima",
+  "Daniela,Andrzeja", "Magdaleny,Bolesława", "Bogny,Apolinarego", "Kingi,Krystyny", "Jakuba,Krzysztofa", "Anny,Mirosławy", "Julii,Natalii", "Wiktora,Innocentego", "Marty,Olafa", "Julity,Ludmiły", "Ignacego,Heleny",
   // Sierpień (31 dni)
-  "Alfonsa,Piotra", "Juliana,Stefana", "Lidii,Augusta", "Jana,Dominika", "Oswalda,Marii", "Jakuba,Sławomira", "Kajetana,Klaudii", "Dominika,Cyriaka", "Teresy,Romany", "Wawrzyńca,Bogusława",
-  "Klary,Zuzanny", "Euzebiusza,Hilarego", "Hipolita,Radosława", "Maksymiliana,Alfreda", "Marii,Stefana", "Rocha,Jacka", "Hiacynta,Anastazego", "Heleny,Agapita", "Jana,Tymoteusza", "Bernarda,Samuela",
-  "Gracji,Joanny", "Filipa,Tymona", "Róży,Zygfryda", "Bartłomieja,Michała", "Ludwika,Patryka", "Samuela,Adama", "Moniki,Cezarego", "Augustyna,Juliana", "Sabiny,Jana", "Feliksa,Rufa", "Rajmunda,Pauliny",
+  "Piotra,Justyny", "Gustawa,Alfonsa", "Lidii,Augusta", "Dominika,Protazego", "Marii,Stanisławy", "Sławy,Jakuba", "Doroty,Kajetana", "Emila,Cyryla", "Romana,Romualda", "Borysa,Wawrzyńca",
+  "Zuzanny,Filomeny", "Klary,Hilarego", "Hipolita,Diany", "Alfreda,Euzebiusza", "Marii,Napoleona", "Rocha,Joachima", "Jacka,Mirona", "Heleny,Bronisławy", "Bolsława,Juliana", "Bernarda,Sobiesława",
+  "Joanny,Franciszki", "Cezarego,Tymoteusza", "Filipa,Apolinarego", "Jerzego,Bartłomieja", "Ludwika,Luizy", "Marii,Zefiryny", "Józefa,Moniki", "Augustyna,Patrycji", "Sabiny,Jana", "Rózy,Szczęsnego", "Bogdana,Rajmunda",
   // Wrzesień (30 dni)
-  "Idziego,Bronisława", "Stefana,Juliana", "Grzegorza,Serafiny", "Rozalii,Irmy", "Wiktorii,Justyny", "Zachariasza,Petry", "Reginy,Anastazji", "Marii,Adriana", "Piotra,Serafina", "Mikołaja,Pulcherii",
-  "Prota,Hiacynta", "Grzegorza,Marii", "Jana,Chryzostoma", "Cypriana,Kornelii", "Ludmiły,Alicji", "Edyty,Eufemii", "Roberta,Franciszka", "Stanisława,Irmy", "Januarego,Emilii", "Eustachiusza,Fausta",
-  "Mateusza,Ifigenii", "Maurycego,Tomy", "Tekli,Linusa", "Gerharda,Gerarda", "Władysława,Aureliusza", "Kosmy,Damiana", "Wincentego,Adolfa", "Wacława,Szczęsnego", "Michała,Gabriela", "Hieronima,Zofii",
+  "Bronisława,Idziego", "Stefana,Juliana", "Izabeli,Szymona", "Rozalii,Róży", "Doroty,Wawrzyńca", "Beaty,Eugeniusza", "Reginy,Melchiora", "Marii,Adrianny", "Piotra,Mikołaja", "Bernarda,Sobiesława",
+  "Jacka,Piotra", "Marii,Gwidona", "Filipa,Eugenii", "Cypriana,Bernarda", "Albina,Nikodema", "Edyty,Kornela", "Justyna,Franciszki", "Ireny,Józefa", "Januarego,Konstancji", "Filipiny,Eustachego",
+  "Hipolita,Mateusza", "Tomasza,Maurycego", "Tekli,Bogusława", "Gerarda,Teodora", "Aurelii,Ładysława", "Justyny,Cypriana", "Kosmy,Damiana", "Marka,Wacława", "Michała,Michaliny", "Zofii,Hieronima",
   // Październik (31 dni)
-  "Teresy,Remigiusza", "Leodgara,Marceliny", "Gerarda,Teresy", "Franciszka,Petroniusza", "Placyda,Flawii", "Brunona,Renaty", "Justyny,Marii", "Pelagii,Demetriusza", "Dionizego,Ludwina", "Franciszka,Daniela",
-  "Aleksandry,Solochona", "Wilfryda,Maksymiliana", "Geralda,Edwarda", "Kalliksta,Fortunata", "Teresy,Aurelii", "Jadwigi,Gali", "Ignacego,Margarity", "Łukasza,Justyny", "Piotra,Jana", "Jana,Irenki",
-  "Urszuli,Hilarego", "Korduli,Marii", "Jana,Sewera", "Rafała,Antoniego", "Kryspina,Chryzanta", "Lucjana,Dimitrego", "Sabiny,Frumentego", "Szymona,Tadeusza", "Narcyza,Zenobii", "Alfonsa,Marcelego", "Wolfganga,Quintyna",
+  "Danuty,Remigiusza", "Teofila,Dionizego", "Gerarda,Teresy", "Rozalii,Franciszka", "Apolinarego,Placyda", "Artura,Brunona", "Marii,Marka", "Pelagii,Brygidy", "Ludwika,Dionizego", "Pauliny,Franciszka",
+  "Emila,Aldony", "Eustachego,Maksymiliana", "Edwarda,Teofila", "Bernarda,Fortunaty", "Teresy,Jadwigi", "Gawła,Ambrożego", "Wiktora,Małgorzaty", "Łukasza,Juliana", "Piotra,Ziemowita", "Ireny,Kleopatry",
+  "Urszuli,Hilarego", "Filipa,Kordulii", "Teodora,Seweryna", "Rafała,Marcina", "Kryspina,Ingi", "Lucjana,Ewarysta", "Sabiny,Iwony", "Szymona,Tadeusza", "Euzebii,Narcyza", "Zenobii,Przemysława", "Urbana,Augusta",
   // Listopad (30 dni)
-  "Seweryn,Andrzej,Benignus", "Bohdan, Jerzy", "Huberta,Sylwii", "Karola,Modesty", "Zachariasza,Elżbiety", "Leonarda,Wincentyny", "Ernesta,Engelberga", "Gotarda,Klaudiusza", "Oresta,Teodora", "Leona,Andrzeja",
-  "Marcina,Meny", "Josafata,Łiwinii", "Stanisława,Homobonego", "Wawrzyńca,Sewery", "Alberta,Eugeniusza", "Otmara,Margarity", "Grzegorza,Hyldy", "Odona,Romana", "Elżbiety,Kseni", "Feliksa,Edwarda",
-  "Janusza,Gelazego", "Cecylii,Filomeny", "Klemensa,Kolumba", "Flory,Jana", "Katarzyny,Mojżesza", "Konrada,Styliany", "Wirgilego,Jacentego", "Zosimusa,Stefana", "Saturnina,Radegundy", "Andrzeja,Frumencego",
+  "Seweryna,Wiktoryny", "Bohdana,Bożydara", "Sylwii,Huberta", "Karola,Olgierda", "Sławomira,Elżbiety", "Feliksa,Leonarda", "Antoniego,Ernesta", "Sewera,Gotfryda", "Ursyna,Teodora", "Andrzeja,Ludomira",
+  "Bartłomieja,Marcina", "Renaty,Witolda", "Stanisława,Mikołaja", "Serafina,Rogera", "Alberta,Leopolda", "Gertrudy,Edmunda", "Grzegorza,Salomei", "Anieli,Romana", "Elżbiety,Seweryna", "Feliksa,Anatola",
+  "Janusza,Konrada", "Marka,Cecylii", "Klemensa,Amelii", "Jana,Flory", "Erazma,Katarzyny", "Konrada,Sylwestra", "Waleriana,Maksymiliana", "Grzegorza,Zdzisława", "Błażeja,Saturnina", "Andrzeja,Konstantego",
   // Grudzień (31 dni)
-  "Edmunda,Eligiusza", "Bibiany,Lucji", "Franciszka,Ksawerego", "Barbary,Jana", "Saby,Krispiny", "Mikołaja,Dionizego", "Ambrożego,Marcina", "Niepokalnego,Poczęcia", "Waleriusza,Piotra", "Julii,Melchiady",
-  "Damiana,Daniela", "Spirydona,Syneziusza", "Łucji,Odylia", "Jana,Krzyża", "Walerii,Celestyna", "Euzebiusza,Albiny", "Łazarza,Olimpii", "Gracjana,Gatiana", "Urbana,Nemezjusza", "Juliusza,Dominika",
-  "Tomasza,Apostoła", "Franciszki,Flaviany", "Wiktorii,Dagobertu", "Adama,Ewy", "Eugenia, Mateusz", "Stefana,Dionizego", "Jana,Ewangelisty", "Antoni, Teofila", "Dawid, Dominik, Tomasz", "Dawida,Proroków", "Sylwestra,Melanii"
+  "Natalii,Eligiusza", "Pauliny,Balbiny", "Franciszka,Ksawerego", "Barbary,Piotra", "Kryspina,Saby", "Mikołaja,Emiliana", "Marcina,Ambrożego", "Marii,Wirgiliusza", "Wiesławy,Leokadii", "Julii,Daniela",
+  "Damazego,Waldemara", "Adelajdy,Aleksandra", "Łucji,Otylii", "Alfreda,Izydora", "Celiny,Waleriana", "Euzebiusza,Zdzisławy", "Olimpii,Łazarza", "Gracjana,Bogusława", "Urbana,Dariusza", "Bogumiła,Dominika",
+  "Tomasza,Tomisława", "Zenona,Honoraty", "Wiktorii,Sławomiry", "Adama,Ewy", "Eugenii,Anastazji", "Dionizego,Szczepana", "Kosmy,Damiana", "Cezarego,Teofila", "Dawida,Tomasza", "Eugeniusza,Sabiny", "Sylwestra,Sebastiana"
 };
+
 
 #endif // NAMEDAYS_PL_H
 // clang-format on

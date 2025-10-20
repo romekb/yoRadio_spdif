@@ -78,7 +78,11 @@ const char apSettFmt[] PROGMEM = "instellingen: HTTP://%s/";
 const char weatherFmt[] PROGMEM = "temp:%.1f\011C\007 druk:%d hPa\007 hum:%d%% RH";
 #else
 #if EXT_WEATHER
-const char weatherFmt[] PROGMEM = "%s, %.1f\011C \007 gevoelstemperatuur: %.1f\011C \007 luchtdruk: %d hPa \007 luchtvochtigheid: %d%% \007 wind: %.1f m/s [%s]";
+  #ifdef WEATHER_WIND_UNITS_KPH
+    const char weatherFmt[] PROGMEM = "%s, %.1f\011C \007 gevoelstemperatuur: %.1f\011C \007 luchtdruk: %d hPa \007 luchtvochtigheid: %d%% \007 wind: %.1f km/h [%s]";
+  #else
+    const char weatherFmt[] PROGMEM = "%s, %.1f\011C \007 gevoelstemperatuur: %.1f\011C \007 luchtdruk: %d hPa \007 luchtvochtigheid: %d%% \007 wind: %.1f m/s [%s]";
+  #endif
 #else
 const char weatherFmt[] PROGMEM = "%s, %.1f\011C \007 %d hPa \007 %d%%";
 #endif
