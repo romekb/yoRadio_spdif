@@ -15,6 +15,7 @@ static unsigned long clock_tts_fade_timer = 0;
 static int           clock_tts_fade_volume = -1;
 static unsigned long clock_lastTTSMillis = 0;
 static bool          clock_ttsActive = false;
+static bool          clock_ttsPlayerIsPlaying = false;
 static int           clock_lastMinute = -1;
 
 // Konfigurációs változók
@@ -70,6 +71,8 @@ static void clock_tts_announcement(char *buf, size_t buflen, int hour, int min, 
     snprintf(buf, buflen, "Az idő %d:%02d.", hour, min);
   } else if (strncmp(lang, "FR", 2) == 0) {
     snprintf(buf, buflen, "Le temps %d:%02d.", hour, min);
+  } else if (strncmp(lang, "PL", 2) == 0) {
+    snprintf(buf, buflen, "Godzina %d:%02d.", hour, min);
   } else {
     snprintf(buf, buflen, "The time is %d:%02d.", hour, min);
   }
@@ -99,7 +102,8 @@ void clock_tts_loop() {
       clock_tts_fade_timer = nowMillis;
     }
     if (clock_tts_fade_volume <= 0) {
-      delay(150);
+      clock_ttsPlayerIsPlaying = (player.status() == PLAYING);
+      delay(500);
       char buf[48];
       clock_tts_announcement(buf, sizeof(buf), tm_struct->tm_hour, tm_struct->tm_min, clock_tts_language);
       player.setVolume(clock_tts_prev_volume);
@@ -143,7 +147,7 @@ void clock_tts_loop() {
       return;
     }
     if (clock_ttsActive && (nowMillis - clock_lastTTSMillis > 4500)) {
-      player.sendCommand({PR_PLAY, config.lastStation()});
+      if(clock_ttsPlayerIsPlaying) player.sendCommand({PR_PLAY, config.lastStation()});
       clock_tts_fading_up = true;
       clock_tts_fade_timer = nowMillis;
       clock_ttsActive = false;
@@ -152,7 +156,7 @@ void clock_tts_loop() {
   } else {
     static unsigned long lastTTS = 0;
     if (nowMillis - lastTTS > 120000) {
-      player.connecttospeech("Nem sikerült lekérni az időt", clock_tts_language);
+      //player.connecttospeech("Nie udało się pobrać czasu", clock_tts_language);
       lastTTS = nowMillis;
     }
   }

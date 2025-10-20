@@ -205,7 +205,7 @@ void AXS15231B_TFT::tftUpdate() {
 bool AXS15231B_TFT::checkBusy() {
     uint32_t tout = millis();
     while(_busy) {
-        if(millis()-tout > 50) return true;
+        if(millis()-tout > 80) return true;
         yield();
     }
     return false;

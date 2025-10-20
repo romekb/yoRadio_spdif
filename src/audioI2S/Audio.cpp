@@ -1203,7 +1203,8 @@ bool Audio::latinToUTF8(char* buff, size_t bufflen){
 
     while(buff[pos] != 0){
         len = strlen(buff);
-        if(buff[pos] >= 0x80 && buff[pos+1] < 0x80){       // is not UTF8, is latin?
+        if(buff[pos]==0xF1) buff[pos]=0xC1;                     // dirty fix for polish 'Ń' character
+        else if(buff[pos] >= 0x80 && buff[pos+1] < 0x80){       // is not UTF8, is latin?
             for(int i = len+1; i > pos; i--){
                 buff[i+1] = buff[i];
             }

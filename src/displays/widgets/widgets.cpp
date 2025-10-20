@@ -996,7 +996,7 @@ void ClockWidget::getNamedayUpper(char *dest, size_t len) { // commongfx.h - ban
 void ClockWidget::_printNameday() {
   // Rajzold le a nyelvfüggő "Névnap:" szót fehér színnel.
   dsp.setTextColor(config.theme.date, config.theme.background);
-  dsp.setCursor(_config.left, _config.top - 16 - 6*_namedayFont);
+  dsp.setCursor(_config.left, _config.top - 2 - 10*_namedayFont);
   dsp.setTextSize(_namedayFont - 1);
   if (!config.isScreensaver)
     dsp.print(utf8To(nameday_label, false)); // <<< Itt már a headerből jön

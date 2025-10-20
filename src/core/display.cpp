@@ -584,18 +584,29 @@ void Display::loop() {
       }
   }
 
-  if(_volbar && millis()-progressTicks >= 1000 && config.getMode()==PM_SDCARD && player.status() == PLAYING) {
+  if(millis()-progressTicks >= 1000 && config.getMode()==PM_SDCARD && player.status() == PLAYING) {
     progressTicks = millis();
-    int32_t curr = player.getFilePos()-player.sd_min;
-    int32_t step = (player.sd_max - player.sd_min) / 254;
-    if(step) {
-      curr /= step;
+    if(_volbar) {
+      int32_t curr = player.getFilePos()-player.inBufferFilled()-player.sd_min;
       if(curr < 0) curr = 0;
-      if(curr > 254) curr = 254;
-      #ifdef COLOR_PROGRESSBAR
-       _volbar->setColor(config.color565(COLOR_PROGRESSBAR));
-      #endif
-      _volbar->setValue(curr);
+      int32_t step = (player.sd_max - player.sd_min) / 254;
+      if(step) {
+        curr /= step;
+        if(curr < 0) curr = 0;
+        if(curr > 254) curr = 254;
+        #ifdef COLOR_PROGRESSBAR
+        _volbar->setColor(config.color565(COLOR_PROGRESSBAR));
+        #endif
+        _volbar->setValue(curr);\
+      }
+    }
+    if(_voltxt) {
+      char ptime[10];
+      int remain = player.getAudioCurrentTime() - player.getAudioFileDuration();
+      char sign = remain < 0 ? '-':' ';
+      remain = abs(remain);
+      snprintf(ptime, sizeof(ptime)-1, "%c%d:%02d", sign, remain/60, remain%60);
+      _voltxt->setText(ptime);
     }
   }
 

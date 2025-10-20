@@ -105,7 +105,7 @@ void TouchScreen::loop(){
   static uint32_t touchLongPress;
   static tsDirection_e direct;
   static uint16_t touchVol, touchStation;
-  if (!_checklpdelay((config.isScreensaver) ? 200:20, _touchdelay)) return;
+  if (!_checklpdelay((config.isScreensaver) ? 100:20, _touchdelay)) return;
 #if (TS_MODEL==TS_MODEL_GT911) || (TS_MODEL==TS_MODEL_AXS15231B)
   ts.read();
 #endif
@@ -126,9 +126,10 @@ void TouchScreen::loop(){
   #ifdef TS_MIRROR_Y
     touchY = _height - touchY;
   #endif
-#if(TS_MODEL==TS_MODEL_AXS15231B)       // ghost touch wakeup elimination
-  if(config.isScreensaver && config.store.screensaverBlank) {
-    if(touchX < (_width*4)/5 || touchY < (_height*4)/5) return;
+#if(TS_MODEL==TS_MODEL_AXS15231B && defined(TS_AXS15231_FIX)) // ghost touch on AXS15231 - accident wakeup elimination
+  if(config.isScreensaver) {
+    uint16_t siz = _height/4;
+    if(touchX<_width-siz || touchY<_height-siz) return;       // accept only square corner of 1/4 screen height
   }
 #endif
   if (!wastouched) { /*     START TOUCH     */
@@ -162,9 +163,9 @@ void TouchScreen::loop(){
         case TSD_UP:
         case TSD_DOWN: {
             touchLongPress=millis();
-            if(display.mode()==PLAYER || display.mode()==STATIONS){
+            if(display.mode()==PLAYER) display.putRequest(NEWMODE, STATIONS);
+            if(display.mode()==STATIONS) {
               int16_t yDelta = map(abs(touchStation - touchY), 0, _height, 0, TS_STEPS);
-              display.putRequest(NEWMODE, STATIONS);
               if (yDelta>2) {
                 controlsEvent((touchStation - touchY)<0);
                 touchStation = touchY;

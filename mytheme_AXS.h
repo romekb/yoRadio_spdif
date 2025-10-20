@@ -37,9 +37,9 @@
 #define COLOR_PL_CURRENT_BG      70, 102, 215
 #define COLOR_PL_CURRENT_FILL    70, 102, 215
 #define COLOR_PLAYLIST_0        180, 195, 172
-#define COLOR_PLAYLIST_1         65, 120,  95 
-#define COLOR_PLAYLIST_2         71, 127,  90
-#define COLOR_PLAYLIST_3         45,  80,  30
+#define COLOR_PLAYLIST_1         71, 127,  90
+#define COLOR_PLAYLIST_2         58, 100,  60 
+#define COLOR_PLAYLIST_3         48,  90,  35
 #define COLOR_PLAYLIST_4         25,  35,  25
 #define COLOR_BITRATE           225, 255, 255
 #endif  /* #ifdef  ENABLE_THEME */
