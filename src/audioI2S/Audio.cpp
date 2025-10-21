@@ -4660,19 +4660,19 @@ bool Audio::playSample(int16_t sample[2]) {
         sample[LEFTCHANNEL]  = ((sample[LEFTCHANNEL]  & 0xff) -128) << 8;
         sample[RIGHTCHANNEL] = ((sample[RIGHTCHANNEL] & 0xff) -128) << 8;
     }
-
+    _computeVUlevel(sample);
+    Gain(sample);
     // Filterchain, can commented out if not used
     if(!m_spdif_output) {
-        sample[LEFTCHANNEL]  = sample[LEFTCHANNEL]  >> 1; // half Vin so we can boost up to 6dB in filters
-        sample[RIGHTCHANNEL] = sample[RIGHTCHANNEL] >> 1;
-
+        //sample[LEFTCHANNEL]  = sample[LEFTCHANNEL]  >> 1; // half Vin so we can boost up to 6dB in filters
+        //sample[RIGHTCHANNEL] = sample[RIGHTCHANNEL] >> 1;
         sample = IIR_filterChain0(sample);
         sample = IIR_filterChain1(sample);
         sample = IIR_filterChain2(sample);
     }
     //-------------------------------------------
-    _computeVUlevel(sample);
-    Gain(sample);
+//    _computeVUlevel(sample);
+//    Gain(sample);
 
     if(m_spdif_output) {
         bool wrok = spdif_write(sample);
@@ -4708,19 +4708,6 @@ void Audio::setTone(int8_t gainLowPass, int8_t gainBandPass, int8_t gainHighPass
     m_gain2 = gainHighPass;
 
     IIR_calculateCoefficients(m_gain0, m_gain1, m_gain2);
-
-    /*
-        This will cause a clicking sound when adjusting the EQ.
-        Because when the EQ is adjusted, the IIR filter will be cleared and played,
-        mixed in the audio data frame, and a click-like sound will be produced.
-    */
-    /*
-    int16_t tmp[2]; tmp[0] = 0; tmp[1]= 0;
-
-    IIR_filterChain0(tmp, true ); // flush the filter
-    IIR_filterChain1(tmp, true ); // flush the filter
-    IIR_filterChain2(tmp, true ); // flush the filter
-    */
 }
 //---------------------------------------------------------------------------------------------------------------------
 void Audio::forceMono(bool m) { // #100 mono option
@@ -4752,8 +4739,15 @@ uint8_t Audio::getI2sPort() {
 }
 //---------------------------------------------------------------------------------------------------------------------
 void Audio::computeLimit() {    // is calculated when the volume or balance changes
-    double l = 1, r = 1, v = (float)m_vol / 100.0; // assume 100%
-
+//    double l = 1, r = 1, v = (float)m_vol / 100.0; // assume 100%, bad linear volume
+#ifdef LOGARYTMIC_VOLUME
+    double l = 1, r = 1, v = 0;
+    double log1 = log(1);
+    if(m_vol > 0) { v = m_vol * ((std::exp(log1 + (m_vol - 1) * (std::log(100) - log1) / 99)) / 100) / 100; }
+    else { v = 0; }
+#else
+    double l = 1, r = 1, v = (float)pow(m_vol, 2) / pow(100, 2);    // square root volume
+#endif
     if(m_balance > 0) { l -= (double)abs(m_balance) / 16; }
     else if(m_balance < 0) { r -= (double)abs(m_balance) / 16; }
     m_limit_left = l * v;
@@ -4874,6 +4868,11 @@ void Audio::IIR_calculateCoefficients(int8_t G0, int8_t G1, int8_t G2){  // Infi
 //                                                  m_filter[2].b1, m_filter[2].b2);
 }
 //---------------------------------------------------------------------------------------------------------------------
+void clipToMaxI16(float *sample) {
+    if(*sample > 32767) *sample = 32767;
+    if(*sample < -32768) *sample = -32768;
+}
+//---------------------------------------------------------------------------------------------------------------------
 int16_t* Audio::IIR_filterChain0(int16_t iir_in[2], bool clear){  // Infinite Impulse Response (IIR) filters
 
     uint8_t z1 = 0, z2 = 1;
@@ -4903,6 +4902,7 @@ int16_t* Audio::IIR_filterChain0(int16_t iir_in[2], bool clear){  // Infinite Im
     m_filterBuff[0][z1][in] [LEFTCHANNEL]  = inSample[LEFTCHANNEL];
     m_filterBuff[0][z2][out][LEFTCHANNEL]  = m_filterBuff[0][z1][out][LEFTCHANNEL];
     m_filterBuff[0][z1][out][LEFTCHANNEL]  = outSample[LEFTCHANNEL];
+    clipToMaxI16(&outSample[LEFTCHANNEL]);
     iir_out[LEFTCHANNEL] = (int16_t)outSample[LEFTCHANNEL];
 
 
@@ -4916,6 +4916,7 @@ int16_t* Audio::IIR_filterChain0(int16_t iir_in[2], bool clear){  // Infinite Im
     m_filterBuff[0][z1][in] [RIGHTCHANNEL] = inSample[RIGHTCHANNEL];
     m_filterBuff[0][z2][out][RIGHTCHANNEL] = m_filterBuff[0][z1][out][RIGHTCHANNEL];
     m_filterBuff[0][z1][out][RIGHTCHANNEL] = outSample[RIGHTCHANNEL];
+    clipToMaxI16(&outSample[RIGHTCHANNEL]);
     iir_out[RIGHTCHANNEL] = (int16_t) outSample[RIGHTCHANNEL];
 
     return iir_out;
@@ -4950,6 +4951,7 @@ int16_t* Audio::IIR_filterChain1(int16_t iir_in[2], bool clear){  // Infinite Im
     m_filterBuff[1][z1][in] [LEFTCHANNEL]  = inSample[LEFTCHANNEL];
     m_filterBuff[1][z2][out][LEFTCHANNEL]  = m_filterBuff[1][z1][out][LEFTCHANNEL];
     m_filterBuff[1][z1][out][LEFTCHANNEL]  = outSample[LEFTCHANNEL];
+    clipToMaxI16(&outSample[LEFTCHANNEL]);
     iir_out[LEFTCHANNEL] = (int16_t)outSample[LEFTCHANNEL];
 
 
@@ -4963,6 +4965,7 @@ int16_t* Audio::IIR_filterChain1(int16_t iir_in[2], bool clear){  // Infinite Im
     m_filterBuff[1][z1][in] [RIGHTCHANNEL] = inSample[RIGHTCHANNEL];
     m_filterBuff[1][z2][out][RIGHTCHANNEL] = m_filterBuff[1][z1][out][RIGHTCHANNEL];
     m_filterBuff[1][z1][out][RIGHTCHANNEL] = outSample[RIGHTCHANNEL];
+    clipToMaxI16(&outSample[RIGHTCHANNEL]);
     iir_out[RIGHTCHANNEL] = (int16_t) outSample[RIGHTCHANNEL];
 
     return iir_out;
@@ -4997,6 +5000,7 @@ int16_t* Audio::IIR_filterChain2(int16_t iir_in[2], bool clear){  // Infinite Im
     m_filterBuff[2][z1][in] [LEFTCHANNEL]  = inSample[LEFTCHANNEL];
     m_filterBuff[2][z2][out][LEFTCHANNEL]  = m_filterBuff[2][z1][out][LEFTCHANNEL];
     m_filterBuff[2][z1][out][LEFTCHANNEL]  = outSample[LEFTCHANNEL];
+    clipToMaxI16(&outSample[LEFTCHANNEL]);
     iir_out[LEFTCHANNEL] = (int16_t)outSample[LEFTCHANNEL];
 
 
@@ -5010,6 +5014,7 @@ int16_t* Audio::IIR_filterChain2(int16_t iir_in[2], bool clear){  // Infinite Im
     m_filterBuff[2][z1][in] [RIGHTCHANNEL] = inSample[RIGHTCHANNEL];
     m_filterBuff[2][z2][out][RIGHTCHANNEL] = m_filterBuff[2][z1][out][RIGHTCHANNEL];
     m_filterBuff[2][z1][out][RIGHTCHANNEL] = outSample[RIGHTCHANNEL];
+    clipToMaxI16(&outSample[RIGHTCHANNEL]);
     iir_out[RIGHTCHANNEL] = (int16_t) outSample[RIGHTCHANNEL];
 
     return iir_out;

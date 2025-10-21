@@ -28,7 +28,7 @@ const ScrollConfig title2Conf    PROGMEM = {{ TFT_FRAMEWDT, 85, 3, WA_LEFT}, 140
 const ScrollConfig playlistConf  PROGMEM = {{ TFT_FRAMEWDT, 146, 3, WA_LEFT }, 140, true, MAX_WIDTH, 1000, 7, 40 };
 const ScrollConfig apTitleConf   PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_CENTER }, 140, false, MAX_WIDTH, 0, 7, 40 };
 const ScrollConfig apSettConf    PROGMEM = {{ TFT_FRAMEWDT, 320-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 7, 40 };
-const ScrollConfig weatherConf   PROGMEM = {{ TFT_FRAMEWDT, 117, 3, WA_CENTER }, 140, false, MAX_WIDTH, 5000, 7, 40 };
+const ScrollConfig weatherConf   PROGMEM = {{ TFT_FRAMEWDT, 117, 3, WA_CENTER }, 140, false, MAX_WIDTH, 5000, 6, 40 };
 const ScrollConfig namedayConf   PROGMEM = {{ TFT_FRAMEWDT, 208, 3, WA_LEFT }, 80, true, 161, 0, 3, 30 };
 
 /* BACKGROUNDS  */                       /* {{ left, top, fontsize, align }, width, height, outlined } */
@@ -51,7 +51,7 @@ const WidgetConfig apPassConf    PROGMEM = {TFT_FRAMEWDT, 173, 3, WA_CENTER};
 const WidgetConfig apPass2Conf   PROGMEM = {TFT_FRAMEWDT, 205, 3, WA_CENTER};
 const WidgetConfig clockConf     PROGMEM = {10, 218, 60, WA_RIGHT}; // {jobb oldali távolság, top}
 const WidgetConfig vuConf        PROGMEM = {35, 252, 1, WA_CENTER}; // center fektetett, "align" nincs használva
-const WidgetConfig bootWdtConf   PROGMEM = {0, 216, 1, WA_CENTER};
+const WidgetConfig bootWdtConf   PROGMEM = {0, 216, 2, WA_CENTER};
 const ProgressConfig bootPrgConf PROGMEM = {90, 14, 4};
 
 //{{ left, top, fontsize, align }dimension}
@@ -59,9 +59,9 @@ const BitrateConfig fullbitrateConf PROGMEM = {{25, 148, 2, WA_RIGHT}, 60};
 
 /* BANDS { onebandwidth (width), onebandheight (height), bandsHspace (space), bandsVspace (vspace), numofbands (perheight), fadespeed (fadespeed)} */
 #ifdef BOOMBOX_STYLE
-  const VUBandsConfig bandsConf PROGMEM = {200, 7, 4, 2, 20, 12}; // 29
+  const VUBandsConfig bandsConf PROGMEM = {200, 7, 4, 2, 20, 10}; // 29
 #else
-  const VUBandsConfig bandsConf PROGMEM = {400, 7, 4, 2, 30, 6}; //
+  const VUBandsConfig bandsConf PROGMEM = {400, 7, 4, 2, 30, 9}; //
 #endif
 
 /* STRINGS  */

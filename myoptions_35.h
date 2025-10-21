@@ -16,6 +16,7 @@
 #define TFT_D3 				      39                /*  QSPI D3 pin  */
 #define BRIGHTNESS_PIN		  1
 #define IR_TS_BRIGHTNESS_CONTROL
+#define USE_BUILTIN_LED     false             // IMPORTANT ! MUST be "false" for JC3248W535 module
 
 // Touchscreen
 #define TS_MODEL 			      TS_MODEL_AXS15231B
@@ -35,6 +36,7 @@
 #define I2S_BCLK            42
 #define I2S_LRC             2
 #define PLAYER_FORCE_MONO   true
+//#define LOGARYTMIC_VOLUME
 
 // EXTERNAL DAC
 //#define I2S_DOUT            14

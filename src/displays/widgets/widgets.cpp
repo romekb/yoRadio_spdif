@@ -410,9 +410,9 @@ void VuWidget::_draw() {
   static uint16_t measL, measR;
   uint16_t        bandColor;
   uint16_t        dimension = _config.align ? _bands.width : _bands.height;
-  uint16_t        vulevel = player.get_VUlevel(dimension);
-  uint8_t         L = (vulevel >> 8) & 0xFF;
-  uint8_t         R = vulevel & 0xFF;
+  uint16_t        vulevel = player.get_VUlevel(255);              // fix for 8-bit channel VU value
+  uint16_t        L = map((vulevel >> 8),   0,255, 0,dimension);
+  uint16_t        R = map((vulevel & 0xFF), 0,255, 0,dimension);
   uint8_t         refresh_time = 30;
   static uint32_t last_draw_time;
 #ifdef VU_PEAK

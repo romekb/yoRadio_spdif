@@ -83,7 +83,7 @@ const char  const_waitForSD[]    PROGMEM = "CZYTAM KARTĘ";
 
 const char        apNameTxt[]    PROGMEM = "NAZWA AP";
 const char        apPassTxt[]    PROGMEM = "HASŁO";
-const char       bootstrFmt[]    PROGMEM = "Łączenie z %s";
+const char       bootstrFmt[]    PROGMEM = "Łączę z %s";
 const char        apSettFmt[]    PROGMEM = "STRONA KONFIGURACYJNA: HTTP://%s/";
 
 #ifdef WEATHER_FMT_SHORT

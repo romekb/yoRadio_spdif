@@ -38,7 +38,7 @@ const FillConfig  playlBGConf     PROGMEM = {{ 0, 107, 0, WA_LEFT }, DSP_WIDTH, 
 const FillConfig  heapbarConf     PROGMEM = {{ 0, 238, 0, WA_LEFT }, DSP_WIDTH, 2, false };
 
 /* WIDGETS  */                           /* { left, top, fontsize, align } */
-const WidgetConfig bootstrConf    PROGMEM = { 0, 182, 1, WA_CENTER };
+const WidgetConfig bootstrConf    PROGMEM = { 0, 182, 2, WA_CENTER };
 const WidgetConfig bitrateConf    PROGMEM = { 70, 191, 1, WA_LEFT };
 const WidgetConfig voltxtConf     PROGMEM = { 0, 216, 1, WA_CENTER };
 const WidgetConfig  iptxtConf     PROGMEM = { TFT_FRAMEWDT, 216, 1, WA_LEFT };

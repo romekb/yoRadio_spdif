@@ -1,5 +1,4 @@
 #pragma once
-//#pragma GCC optimize ("Ofast")
 
 #include "stdint.h"
 #include "SPI.h"
@@ -38,13 +37,6 @@
 #define TFT_CS_H      digitalWrite(TFT_CS, 1);
 #define TFT_CS_L      digitalWrite(TFT_CS, 0);
 
-typedef struct
-{
-    uint8_t cmd;
-    uint8_t data[36];
-    uint8_t len;
-} lcd_cmd_t;
-
 class AXS15231B_TFT : public Adafruit_GFX {
   public:
     AXS15231B_TFT(int16_t w, int16_t h);
@@ -54,7 +46,7 @@ class AXS15231B_TFT : public Adafruit_GFX {
     void drawPixel(int16_t x, int16_t y, uint16_t color);
     void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     void writePixels(uint16_t *data, uint32_t len);
-    void writeFillRect(int16_t xsta, int16_t ysta, int16_t w, int16_t h, uint16_t color);
+    virtual void writeFillRect(int16_t xsta, int16_t ysta, int16_t w, int16_t h, uint16_t color);
     void setRotation(uint8_t r);
     void setInvert(bool invert);
     void tftSleep(bool sleepin);
@@ -65,7 +57,6 @@ class AXS15231B_TFT : public Adafruit_GFX {
     void dumySetAddrWindow();
     void tftSendCmd(uint32_t cmd, uint8_t *dat, uint32_t len);
     bool checkBusy();
-    uint16_t *frameBuffer = NULL;
     uint16_t _dispHeight, _dispWidth;
     uint16_t _gx, _gy, _gw, _gh;
     uint32_t _lastUpdateTime, _buflen;
