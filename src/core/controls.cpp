@@ -1,3 +1,4 @@
+#include "esp32-hal-gpio.h"
 //v0.9.670 // Módosítva. "hanglépték"
 #include "Arduino.h"
 #include "options.h"
@@ -125,13 +126,13 @@ void initControls() {
   touchscreen.init(display.width(), display.height());
 #endif
 #if IR_PIN!=255
-  pinMode(IR_PIN, INPUT);
+  pinMode(IR_PIN, INPUT_PULLUP);
   assert(irutils::lowLevelSanityCheck() == 0);
 #if DECODE_HASH
   irrecv.setUnknownThreshold(kMinUnknownSize);
 #endif  // DECODE_HASH
   irrecv.setTolerance(config.store.irtlp);
-  irrecv.enableIRIn();
+  irrecv.enableIRIn(true);      // enable pullup on IRIN
 #endif // IR_PIN!=255
 }
 

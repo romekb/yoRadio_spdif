@@ -584,7 +584,7 @@ void Display::loop() {
       }
   }
 
-  if(millis()-progressTicks >= 1000 && config.getMode()==PM_SDCARD && player.status() == PLAYING) {
+  if(millis()-progressTicks >= 500 && config.getMode()==PM_SDCARD && player.status() == PLAYING) {
     progressTicks = millis();
     if(_volbar) {
       int32_t curr = player.getFilePos()-player.inBufferFilled()-player.sd_min;

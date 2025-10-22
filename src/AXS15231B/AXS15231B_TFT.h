@@ -56,7 +56,6 @@ class AXS15231B_TFT : public Adafruit_GFX {
     void tftSendPixels(uint16_t *data, uint32_t len);
     void dumySetAddrWindow();
     void tftSendCmd(uint32_t cmd, uint8_t *dat, uint32_t len);
-    bool checkBusy();
     uint16_t _dispHeight, _dispWidth;
     uint16_t _gx, _gy, _gw, _gh;
     uint32_t _lastUpdateTime, _buflen;

@@ -182,8 +182,11 @@ void TimeKeeper::_upClock(){
   if(config.isRTCFound()) rtc.getTime(&network.timeinfo);
 #else
   if(network.timeinfo.tm_year>100 || network.status == SDREADY) {
-    network.timeinfo.tm_sec++;
-    mktime(&network.timeinfo);
+    time_t now;
+    time(&now);
+    localtime_r(&now, &network.timeinfo);
+    //network.timeinfo.tm_sec++;
+    //mktime(&network.timeinfo);
   }
 #endif
   if(display.ready()) display.putRequest(CLOCK);

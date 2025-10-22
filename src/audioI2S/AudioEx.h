@@ -20,11 +20,9 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <vector>
-//TODO
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcpp"
+
+#define CONFIG_I2S_SUPPRESS_DEPRECATE_WARN true
 #include <driver/i2s.h>
-#pragma GCC diagnostic pop
 
 #ifdef SDFATFS_USED
 #include <SdFat.h>  // https://github.com/greiman/SdFat
