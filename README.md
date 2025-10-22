@@ -3,7 +3,7 @@ English version of Readme bellow.
 
 <img src="yoRadio_mis.jpg" width="280" height="200">  <img src="settings.jpg" width="284" height="200">
 
-https://www.youtube.com/watch?v=0B93uhm7WAI
+https://www.youtube.com/watch?v=0B93uhm7WAI<br>https://www.youtube.com/watch?v=uwM8PoyT15s
 
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
 Działa z wyświetlaczem ST7789 320x240, ILI9341 320x240, oraz 480x320 ILI9488, ST7796 i AXS15231B (Guition) Inne nie były testowane.. 
@@ -19,12 +19,13 @@ Co się zmieniło:
 - Jednoczesne działanie wielu scroll'i na ekranie.
 - Zainstalowana wyszukiwarka stacji radiowych - lupka w interfejscie www.
 - Dodano możliwość zmiany jasności wyświetlacza z pilota IR i touchscreena. Jak odtwarzanie jest zatrzymane to jasność regulują przyciski głoścości / lewo-prawo na touchscreenie.
-- Więcej kontroli przez touchscreen. Klik u góry po lewej lub prawej - poprzednia/nastepna stacja, góra-środek - przełączanie WEB/SD, klik na dole po lewej/prawej - regulacja głośności z repetycją.
+- Więcej kontroli przez touchscreen. Klik u góry po lewej lub prawej - poprzednia/nastepna stacja, góra-środek - przełączanie WEB/SD, klik na dole po lewej/prawej - regulacja głośności z repetycją. W trybie playlisty klik prawo-góra daje -1/-10 na liście (-10 po przytrzymaniu), prawo-dół daje +1/+10 na liście (+10 po przytrzymaniu), a klik na lewej połowie ekranu zatwierdza wybór.
 - Dodano opcje TS_MIRROR_X i TS_MIRROR_Y dla ustalenia prawidłowej orientacji touchscreena.
-- W trybie odtwarzania z SD pasek głośności zmienia kolor i staje się w paskiem postępu ostwarzania utworu.
+- W trybie odtwarzania z SD pasek głośności zmienia kolor i staje się w paskiem postępu ostwarzania utworu. Pokazywany jest też czas do końca utworu.
 - Odczyt ID3 tagów (również v1) z plików MP3 na karcie SD
 - Lewo/Prawo na touchscreenie podczas odtwarzania z karty SD działa jako przewijanie utworu.
 - Dodano obsługę wyświetlaczy AXS15231B z pojemnościowym zintegrowanym touchscteenem (moduł GUITION JC3248W535)
+- Radykalnie poprawiona dokładność zegarka
 
 Wyjście SPDIF może działać zamiennie ze zwykłym przetwornikiem cyfrowo-analogowym I2S lub wewnętrznym przetwornikiem cyfrowo-analogowym. Nie można używać SPDIF wraz z VS1053. 
 Jedynym sposobem w tej sytuacji jest całkowite wyłączenie VS1053. 
@@ -40,7 +41,7 @@ W przypadku COAX wystarczy wstawić rezystor szeregowy 470 omów między pinem z
 Do wyjścia optycznego można użyć nadajnika TOSLINK, takiego jak FCR684214T lub TOTX173, lub dowolnego innego. 
 W niektórych przypadkach wystarczy nawet czerwona dioda LED z rezystorem szeregowym 100 omów.
 
-Załączam mój plik „myoptions.h” w celach referencyjnych. 
+Załączam mój plik „myoptions.h” w celach referencyjnych dla CYD. Plik myoptions_32.h jest dla IPS ESP32 CYD (https://www.lcdwiki.com/3.2inch_ESP32-32E_Display), a myoptions_35.h dla Guition JC3248W535 <br>
 Używam płytki ESP32 CYD z dodanym układem pamięci PSRAM, przetwornikiem cyfrowo-analogowym PCM5102A i koncentrycznym wyjœciem SPDIF podłączonym do pinu Data przetwornika DAC.
 
 Testy przeprowadzono na radiach internetowych, korzystając ze strumieni AAC i MP3 oraz plików MP3 na karcie SD (testowano stacje MP3 o bitrate do 320 kbps i AAC o bitraate około 200 kbps, oraz OGG-FLAC, OGG-OPUS i OGG-VORBIS).
@@ -63,12 +64,13 @@ What's changed:
 - allow multiple scrolls working at the same time.
 - installed radio stations search engine
 - added brightness control from IR remote / touchscreen. In STOP condition brightness can be controlled via volume keys / touchscreen left/right slide.
-- more touchscreen controls. Click at top left or right - prevous/next station, top-middle - switch WEB/SD, click on bottom left/right - volume control with repeat.
+- more touchscreen controls. Click at top left or right - prevous/next station, top-middle - switch WEB/SD, click on bottom left/right - volume down/up control with repeat. In playlist mode top-right click to -1/-10 list scroll (-10 after longpress), bottom-right click to +1/+10 list scroll (+10 after longpress). Click at left half of screen - select station.
 - added TS_MIRROR_X and TS_MIRROR_Y options for propper touchscreen orientation setup.
-- in SD playback mode, the volume bar changes color and acts as a file playback progress bar.
+- in SD playback mode, the volume bar changes color and acts as a file playback progress bar. The time remaining in the song is also shown.
 - added ID3 tags (v1 tags too) reading from local MP3 dile on SD.
-- left/right on the touchscreen acts as a track scroller when playing from an SD card.
+- left/right swipe on the touchscreen acts as a track scroller when playing from an SD card.
 - added support for AXS15231B display with integrated capacitive touchscteen (GUITION JC3248W535 module)
+- radically improved clock accuracy
   
 The SPDIF output can coexist with normal I2S DAC, or internal DAC. You can't use SPDIF with VS1053. Only way in this situation is completly disable VS1053.
 You can switch ("on the fly") current output type via "Settings" in WWW interface. For this I use the "Touch debug" switch. 
@@ -79,6 +81,7 @@ If left undefined or set to 255, SPDIF support is disabled.
 In hardware, the COAXIAL spdif output is simple. For COAX just put a 470 ohm series resistor between the pin declared as SPDIF_OUT and the cinch socket that is the COAX output.
 For optical output you can use TOSLINK transmitter like FCR684214T or TOTX173, or any other. In some cases, even a red LED with a 100 ohm series resistor is sufficient.
 
-I provide my "myoptions.h" file for reference. I use CYD module with additional PSRAM chip, PCM5102A DAC and coaxial spdif output connected to Data pin of DAC for common usage.
+I provide my "myoptions.h" file for reference for CYD. File myoptions_32.h is for IPS ESP32 CYD (https://www.lcdwiki.com/3.2inch_ESP32-32E_Display), and myoptions_35.h is for Guition JC3248W535 <br> 
+I use CYD module with additional PSRAM chip, PCM5102A DAC and coaxial spdif output connected to Data pin of DAC for common usage.
 
 Tested on internet radio provided AAC and MP3 streams, and on MP3 files on SD card (testing up to 320kbps MP3 stations and about 200kbps AAC and OGG-FLAC, OGG-OPUS & OGG-VORBIS).
