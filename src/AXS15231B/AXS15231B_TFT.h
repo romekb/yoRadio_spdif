@@ -51,7 +51,7 @@ class AXS15231B_TFT : public Adafruit_GFX {
     void setInvert(bool invert);
     void tftSleep(bool sleepin);
     void tftClearScreen(uint16_t color);
-    void tftUpdate();
+    void tftUpdate(bool force=false);
   private:
     void tftSendPixels(uint16_t *data, uint32_t len);
     void dumySetAddrWindow();

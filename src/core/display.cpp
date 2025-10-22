@@ -164,7 +164,7 @@ void Display::_bootScreen(){
   _pager->addPage(_boot);
   _pager->setPage(_boot, true);
   dsp.drawLogo(bootLogoTop);
-  config.setBrightness(100, false);   // after logo drawing
+  config.setBrightness(config.store.brightness, false);   // after logo drawing
   _bootStep = 1;
 }
 
@@ -376,7 +376,10 @@ void Display::_swichMode(displayMode_e newmode) {
       dsp.wake();
       dsp.clearDsp(true);
       dsp.drawLogo(bootLogoTop);
-      config.setBrightness(100, false);   // fast visual feedback
+      #if(DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270)
+        dsp.tftUpdate(true);
+      #endif
+      config.setBrightness(config.store.brightness, false);   // fast visual feedback
       delay(250);
     #endif
       ESP.restart();

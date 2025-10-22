@@ -1,5 +1,5 @@
 #include "../core/options.h"
-#if DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270
+#if(DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270)
 #include "AXS15231B_TFT.h"
 
 //#define AXS_WRTIM_DEBUG
@@ -182,6 +182,7 @@ void AXS15231B_TFT::tftClearScreen(uint16_t color) {
     if(color==0) {
         memset(frameBuffer, 0, _buflen*2);
         tftSendCmd(TFT_PIXELS_OFF, NULL, 0);
+        delay(10);
     } else {
         color = (color<<8) | (color>>8);
         for(int i=0; i<_buflen; ++i) frameBuffer[i] = color;
@@ -189,12 +190,12 @@ void AXS15231B_TFT::tftClearScreen(uint16_t color) {
     }
 }
 //---------------------------------------------------------------------------------
-void AXS15231B_TFT::tftUpdate() {
+void AXS15231B_TFT::tftUpdate(bool force) {
 #ifdef AXS_WRTIM_DEBUG    
     static uint32_t tim, oldtim;
     static uint16_t cnt;
 #endif
-    if(!_inSleep && _initialized > 1 && _needRefresh && millis() - _lastUpdateTime >= 50) {
+    if(!_inSleep && _initialized > 1 && ((_needRefresh && millis() - _lastUpdateTime >= 60) || force)) {
 #ifdef AXS_WRTIM_DEBUG
         oldtim = micros();
 #endif
@@ -265,7 +266,8 @@ void AXS15231B_TFT::tftSendPixels(uint16_t *data, uint32_t len)
         spi_transaction_t *rtrans;
         while(1) {
             if(spi_device_get_trans_result(spi, &rtrans, 0) == ESP_OK) break; // wait for DMA complata - faster than pooling method
-            yield();         // allow other task to do during wait
+            delay(1);
+//            yield();         // allow other task to do during wait
         }
         len -= chunk_size;
         p += chunk_size;

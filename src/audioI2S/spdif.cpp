@@ -9,10 +9,8 @@
 #include "../core/options.h"
 #if SPDIF_OUT!=255
 #include "spdif.h"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcpp"
+#define CONFIG_I2S_SUPPRESS_DEPRECATE_WARN true
 #include <driver/i2s.h>
-#pragma GCC diagnostic pop
 using namespace std;
 
 #define I2S_NUM			        I2S_NUM_0
