@@ -404,6 +404,7 @@ void Display::_swichMode(displayMode_e newmode) {
       //dsp.clearClock();
       _clock->clear();
       config.setDspOn(false, false);
+      player.lockOutput = false;
     }
   }else{
     config.screensaverTicks=SCREENSAVERSTARTUPDELAY;

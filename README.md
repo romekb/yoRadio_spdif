@@ -26,6 +26,7 @@ Co się zmieniło:
 - Lewo/Prawo na touchscreenie podczas odtwarzania z karty SD działa jako przewijanie utworu.
 - Dodano obsługę wyświetlaczy AXS15231B z pojemnościowym zintegrowanym touchscteenem (moduł GUITION JC3248W535)
 - Radykalnie poprawiona dokładność zegarka
+- Dodane dwa przyciski na pilocie IR. Dedykowany włącz/wyłącz, oraz przycisk MUTE. Należy wgrać ponownie do esp zawartość folderu "data/www" po czym odświerzyć cache przeglądarki. W IR Record powinny być widoczne dodatkowe przyciski. Następnie na nowo trzeba ustawić kody przycisków pilota.
 
 Wyjście SPDIF może działać zamiennie ze zwykłym przetwornikiem cyfrowo-analogowym I2S lub wewnętrznym przetwornikiem cyfrowo-analogowym. Nie można używać SPDIF wraz z VS1053. 
 Jedynym sposobem w tej sytuacji jest całkowite wyłączenie VS1053. 
@@ -71,6 +72,7 @@ What's changed:
 - left/right swipe on the touchscreen acts as a track scroller when playing from an SD card.
 - added support for AXS15231B display with integrated capacitive touchscteen (GUITION JC3248W535 module)
 - radically improved clock accuracy
+- Two buttons have been added to the IR remote: a dedicated on/off button and a mute button. The contents of the "data/www" folder need to be re-uploaded to the ESP and then the browser cache needs to be refreshed. The additional buttons should now be visible in IR Record page. The remote's button codes need to be re-learned.
   
 The SPDIF output can coexist with normal I2S DAC, or internal DAC. You can't use SPDIF with VS1053. Only way in this situation is completly disable VS1053.
 You can switch ("on the fly") current output type via "Settings" in WWW interface. For this I use the "Touch debug" switch. 

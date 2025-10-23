@@ -13,6 +13,7 @@
 long encOldPosition  = 0;
 long enc2OldPosition  = 0;
 int lpId = -1;
+uint8_t _lastVolume = 0;
 
 #if DSP_MODEL==DSP_DUMMY
 #define DUMMYDISPLAY
@@ -258,21 +259,42 @@ void irLoop() {
           break;
         }
     }
-    for(int target=0; target<17; target++){
+    for(int target=0; target<19; target++){
       for(int j=0; j<3; j++){
         if(config.ircodes.irVals[target][j]==irResults.value){
           if (network.status != CONNECTED && network.status!=SDREADY && target!=IR_AST) return;
           if(target!=IR_AST && display.mode()==LOST) return;
           if (display.mode() == SCREENSAVER || display.mode() == SCREENBLANK) {
-            if (player.status() == STOPPED && target != IR_PLAY) {    // wakeup only via PLAY key
+            if (player.status() == STOPPED && target != IR_PWR) {   // wakeup only via PWR key
+              if(config.ircodes.irVals[IR_PWR][j] != 0) return;     // if PWR key is stored return
+              else if(target == IR_PLAY) goto wkup;                 // in no pwr key stored -> use play for wakeup
               return;
             } else {
+wkup:              
               display.allowReboot = true;
               display.putRequest(NEWMODE, PLAYER);
+              #ifndef WAKEUP_REBOOT
+              if(config.store.smartstart == 1) player.sendCommand({PR_PLAY, config.lastStation()});
+              #endif
               return;
             }
           }
           switch (target){
+            case IR_PWR: {
+              player.lockOutput = true;
+              player.sendCommand({PR_STOP, 0});
+              display.putRequest(NEWMODE, SCREENBLANK);
+              break;
+            }
+            case IR_MUTE: {
+              if(config.store.volume) {
+                _lastVolume = config.store.volume;
+                player.setVol(0);
+              } else {
+                player.setVol(_lastVolume);
+              }
+              break;
+            }
             case IR_PLAY: {
                 irBlink();
                 if (display.mode() == NUMBERS) {
@@ -284,14 +306,8 @@ void irLoop() {
                 onBtnClick(1);
                 break;
               }
-            case IR_PREV: {
-                player.prev();
-                break;
-              }
-            case IR_NEXT: {
-                player.next();
-                break;
-              }
+            case IR_PREV: {player.prev();  break; }
+            case IR_NEXT: { player.next(); break; }
             case IR_UP: {
                 controlsEvent(display.mode() == STATIONS ? false : true, 0, true);
                 irVolRepeat = 1;
@@ -311,57 +327,23 @@ void irLoop() {
                 display.putRequest(NEWMODE, display.mode() == PLAYER ? STATIONS : PLAYER);
                 break;
               }
-            case IR_0: {
-                irNumber(0);
-                break;
-              }
-            case IR_1: {
-                irNumber(1);
-                break;
-              }
-            case IR_2: {
-                irNumber(2);
-                break;
-              }
-            case IR_3: {
-                irNumber(3);
-                break;
-              }
-            case IR_4: {
-                irNumber(4);
-                break;
-              }
-            case IR_5: {
-                irNumber(5);
-                break;
-              }
-            case IR_6: {
-                irNumber(6);
-                break;
-              }
-            case IR_7: {
-                irNumber(7);
-                break;
-              }
-            case IR_8: {
-                irNumber(8);
-                break;
-              }
-            case IR_9: {
-                irNumber(9);
-                break;
-              }
-            case IR_AST: {
-                //ESP.restart();
-                onBtnClick(EVT_BTNMODE);
-                break;
-              }
+            case IR_0: { irNumber(0); break; }
+            case IR_1: { irNumber(1); break; }
+            case IR_2: { irNumber(2); break; }
+            case IR_3: { irNumber(3); break; }
+            case IR_4: { irNumber(4); break; }
+            case IR_5: { irNumber(5); break; }
+            case IR_6: { irNumber(6); break; }
+            case IR_7: { irNumber(7); break; }
+            case IR_8: { irNumber(8); break; }
+            case IR_9: { irNumber(9); break; }
+            case IR_AST: { onBtnClick(EVT_BTNMODE); break; }
           } /* switch (target) */
-          target=17;
+          //target=19;
           break;
         } /* if(config.ircodes.irVals[target][j]==irResults.value) */
       }   /* for(int j=0; j<3; j++) */
-    }     /* for(int target=0; target<16; target++) */
+    }     /* for(int target=0; target<19; target++) */
   }       /* if (irrecv.decode(&irResults)) */
 }
 #endif // if IR_PIN!=255
