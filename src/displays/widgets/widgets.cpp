@@ -644,12 +644,13 @@ void VuWidget::_clear() {
 }
 #else // DSP_LCD
 VuWidget::~VuWidget() {}
-void VuWidget::init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumincolor, uint16_t bgcolor) {
+void VuWidget::init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumidcolor, uint16_t vumincolor, uint16_t bgcolor) {
   Widget::init(wconf, bgcolor, bgcolor);
 }
 void VuWidget::_draw() {}
 void VuWidget::loop() {}
 void VuWidget::_clear() {}
+void VuWidget::setLabelsDrawn(bool value) {}
 #endif
 
 // clang-format off
@@ -949,6 +950,7 @@ void ClockWidget::_printClock(bool force){
       }
     }
   }
+  #ifndef DSP_OLED
   if(_fullclock || _superfont>0){
     gfx.setTextSize(0);          // *** Másodperc kiírása ***
     gfx.setFont(Clock_GFXfontPtr_Sec);
@@ -964,6 +966,7 @@ void ClockWidget::_printClock(bool force){
     sprintf(_tmp, "%02d", network.timeinfo.tm_sec);
     gfx.print(_tmp);
   }
+  #endif
   gfx.setTextSize(Clock_GFXfontPtr==nullptr?TIME_SIZE:1);
   gfx.setFont(Clock_GFXfontPtr);
   #ifndef DSP_OLED
@@ -1113,17 +1116,17 @@ void BitrateWidget::_draw(){  //Módosítás
   dsp.setTextSize(_config.textsize);
   dsp.setTextColor(_fgcolor, _bgcolor);
   snprintf(_buf, 6, "%d", _bitrate);
-#ifdef NAMEDAYS_FILE
+//#ifdef NAMEDAYS_FILE
   dsp.setCursor(_config.left + _dimension / 2 - _charWidth * strlen(_buf) / 2, _config.top + _dimension / 4 - _textheight / 2 + 1);
-#else
-  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2 + 1, _config.top + (_dimension / 2) - 3 - _textheight);
-#endif
+//#else
+//  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2 + 1, _config.top + (_dimension / 2) - 3 - _textheight);
+//#endif
   dsp.print(_buf);
   dsp.setTextColor(_bgcolor, _fgcolor);
 #ifdef NAMEDAYS_FILE
   dsp.setCursor(_config.left + _dimension + _dimension / 2 - _charWidth * 3 / 2, _config.top + _dimension / 4 - _textheight / 2 + 1);
 #else
-  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2, _config.top + _dimension / 2 + _dimension / 4 - _textheight / 2 + 2);
+  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2, _config.top + _dimension / 2 + _dimension / 4 - _textheight / 2 + 1);
 #endif
   switch(_format){
     case BF_MP3:  dsp.print("MP3"); break;
@@ -1155,6 +1158,7 @@ void PlayListWidget::init(ScrollWidget* current){
   _current = current;
   #ifndef DSP_LCD
   _plItemHeight = playlistConf.widget.textsize*(CHARHEIGHT-1)+playlistConf.widget.textsize*4;
+  //_plItemHeight = playlistConf.widget.textsize*CHARHEIGHT + playlistConf.widget.textsize*2;
   _plTtemsCount = round((float)dsp.height()/_plItemHeight);
   if(_plTtemsCount%2==0) _plTtemsCount++;
   _plCurrentPos = _plTtemsCount/2;
@@ -1215,12 +1219,13 @@ void PlayListWidget::drawPlaylist(uint16_t currentItem) {
 void PlayListWidget::_printPLitem(uint8_t pos, const char* item){
   dsp.setTextSize(playlistConf.widget.textsize);
   if (pos == _plCurrentPos) {
+    dsp.fillRect(0, _plYStart + pos * _plItemHeight - 2*playlistConf.widget.textsize, dsp.width(), _plItemHeight, config.theme.plcurrentbg);
     _current->setText(item);
   } else {
     uint8_t plColor = (abs(pos - _plCurrentPos)-1)>4?4:abs(pos - _plCurrentPos)-1;
     dsp.setTextColor(config.theme.playlist[plColor], config.theme.background);
     dsp.setCursor(TFT_FRAMEWDT, _plYStart + pos * _plItemHeight);
-    dsp.fillRect(0, _plYStart + pos * _plItemHeight - 4, dsp.width(), _plItemHeight - 2, config.theme.background);
+    dsp.fillRect(0, _plYStart + pos * _plItemHeight - 2*playlistConf.widget.textsize, dsp.width(), _plItemHeight, config.theme.background);
     dsp.print(utf8To(item, true));
   }
 }

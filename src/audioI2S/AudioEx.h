@@ -22,6 +22,7 @@
 #include <vector>
 
 #define CONFIG_I2S_SUPPRESS_DEPRECATE_WARN true
+#define CONFIG_ADC_SUPPRESS_DEPRECATE_WARN true
 #include <driver/i2s.h>
 
 #ifdef SDFATFS_USED

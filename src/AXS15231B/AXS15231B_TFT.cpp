@@ -160,7 +160,7 @@ void AXS15231B_TFT::writePixels(uint16_t *data, uint32_t len) {
 }
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::writeFillRect(int16_t xsta, int16_t ysta, int16_t w, int16_t h, uint16_t color) {
-    if(xsta<0 || ysta<0 || xsta+w > _dispWidth || ysta+h > _dispHeight) return;
+    if(xsta<0 || ysta<0 || xsta+w > _dispWidth || ysta+h > _dispHeight || w==0 || h==0) return;
     color = (color<<8) | (color>>8);
     for(int i=0; i<w; ++i) {
         for(int j=0; j<h; ++j) frameBuffer[(_dispWidth-1 - xsta - i) * _dispHeight + ysta + j] = color;

@@ -7,9 +7,10 @@
 */
 
 #include "../core/options.h"
-#if SPDIF_OUT!=255
+#if(SPDIF_OUT != 255)
 #include "spdif.h"
 #define CONFIG_I2S_SUPPRESS_DEPRECATE_WARN true
+#define CONFIG_ADC_SUPPRESS_DEPRECATE_WARN true
 #include <driver/i2s.h>
 using namespace std;
 

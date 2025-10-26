@@ -11,7 +11,7 @@
 
 #define DSP_WIDTH       480
 #define DSP_HEIGHT      320
-#define TFT_FRAMEWDT    10
+#define TFT_FRAMEWDT    5
 #define MAX_WIDTH       DSP_WIDTH-TFT_FRAMEWDT*2
 
 #if BITRATE_FULL
@@ -22,18 +22,28 @@
 #define bootLogoTop     110
 
 /* SROLLS  */                            /* {{ left, top, fontsize, align }, buffsize, uppercase, width, scrolldelay, scrolldelta, scrolltime } */
-const ScrollConfig metaConf      PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 9, 40 };
-const ScrollConfig title1Conf    PROGMEM = {{ TFT_FRAMEWDT, 55, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 40};
-const ScrollConfig title2Conf    PROGMEM = {{ TFT_FRAMEWDT, 85, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 40};
-const ScrollConfig playlistConf  PROGMEM = {{ TFT_FRAMEWDT, 146, 4, WA_LEFT }, 140, true, MAX_WIDTH, 1000, 7, 40 };
-const ScrollConfig apTitleConf   PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_CENTER }, 140, false, MAX_WIDTH, 0, 7, 40 };
-const ScrollConfig apSettConf    PROGMEM = {{ TFT_FRAMEWDT, 320-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 7, 40 };
-const ScrollConfig weatherConf   PROGMEM = {{ TFT_FRAMEWDT, 117, 3, WA_CENTER }, 140, false, MAX_WIDTH, 5000, 6, 40 };
-const ScrollConfig namedayConf   PROGMEM = {{ TFT_FRAMEWDT, 208, 3, WA_LEFT }, 80, true, 161, 0, 3, 30 };
+#ifdef HIDE_TITLE2
+const ScrollConfig metaConf      PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 5, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 9, 50 };
+const ScrollConfig title1Conf    PROGMEM = {{ TFT_FRAMEWDT, 66, 5, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 50};
+#else
+const ScrollConfig metaConf      PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 9, 50 };
+const ScrollConfig title1Conf    PROGMEM = {{ TFT_FRAMEWDT, 55, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 50};
+#endif
+const ScrollConfig title2Conf    PROGMEM = {{ TFT_FRAMEWDT, 85, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 50};
+const ScrollConfig playlistConf  PROGMEM = {{ TFT_FRAMEWDT, 146, 4, WA_LEFT }, 140, true, MAX_WIDTH, 1000, 7, 50 };
+const ScrollConfig apTitleConf   PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_CENTER }, 140, false, MAX_WIDTH, 0, 7, 50 };
+const ScrollConfig apSettConf    PROGMEM = {{ TFT_FRAMEWDT, 320-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 7, 50 };
+const ScrollConfig weatherConf   PROGMEM = {{ TFT_FRAMEWDT, 117, 3, WA_CENTER }, 140, false, MAX_WIDTH, 5000, 6, 50 };
+const ScrollConfig namedayConf   PROGMEM = {{ TFT_FRAMEWDT, 208, 3, WA_LEFT }, 80, true, 161, 0, 3, 50 };
 
 /* BACKGROUNDS  */                       /* {{ left, top, fontsize, align }, width, height, outlined } */
-const FillConfig metaBGConf      PROGMEM = {{3, 45, 0, WA_CENTER}, DSP_WIDTH - 6, 1, true};
-const FillConfig metaBGConfInv   PROGMEM = {{ 0, 50, 0, WA_LEFT }, DSP_WIDTH, 2, false };
+#ifdef HIDE_TITLE2
+const FillConfig metaBGConf      PROGMEM = {{ 5, 51, 0, WA_CENTER}, DSP_WIDTH - 10, 3, true};
+const FillConfig metaBGConfInv   PROGMEM = {{ 0, 0, 0, WA_LEFT }, 0, 0, false };
+#else
+const FillConfig metaBGConf      PROGMEM = {{ 5, 43, 0, WA_CENTER}, DSP_WIDTH - 10, 1, true};
+const FillConfig metaBGConfInv   PROGMEM = {{ 0, 0, 0, WA_LEFT }, 0, 0, false };
+#endif
 const FillConfig volbarConf      PROGMEM = {{TFT_FRAMEWDT, DSP_HEIGHT - TFT_FRAMEWDT - 8, 0, WA_LEFT}, MAX_WIDTH, 8, true};
 const FillConfig  playlBGConf    PROGMEM = {{ 0, 138, 0, WA_LEFT }, DSP_WIDTH, 36, false };
 const FillConfig  heapbarConf    PROGMEM = {{ 0, DSP_HEIGHT-2, 0, WA_LEFT }, DSP_WIDTH, 2, false };

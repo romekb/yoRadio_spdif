@@ -130,6 +130,9 @@ void TouchScreen::loop(){
   if(config.isScreensaver) {
     uint16_t siz = _height/4;
     if(touchX<_width-siz || touchY<_height-siz) return;       // accept only square corner of 1/4 screen height
+    if(config.store.screensaverBlank && player.status() == STOPPED) {
+      config.setBrightness(config.store.brightness, false);   // fast visual feedback
+    }
   }
 #endif
   if (!wastouched) { /*     START TOUCH     */
@@ -142,6 +145,7 @@ void TouchScreen::loop(){
     } else { /*     SWIPE TOUCH     */
       direct = _tsDirection(touchX, touchY);
       switch (direct) {
+        case TSD_STAY: return;
         case TSD_LEFT:
         case TSD_RIGHT: {
             touchLongPress=millis();
@@ -222,8 +226,14 @@ void TouchScreen::loop(){
             onBtnClick(EVT_BTNCENTER);    // Other area - Play/Pause
           }
         } else { 
-          display.allowReboot = true;
-          display.putRequest(NEWMODE, display.mode() == PLAYER ? STATIONS : PLAYER); 
+          if(player.status() == STOPPED && display.mode() == PLAYER && display.mode() != SCREENSAVER) {
+            player.lockOutput = true;                 // longpress during stop -> power off
+            player.sendCommand({PR_STOP, 0});
+            display.putRequest(NEWMODE, SCREENBLANK);
+          } else {                                    // longpress during stations -> return
+            display.allowReboot = true;               // longpress during sleep -> reboot
+            display.putRequest(NEWMODE, display.mode() == PLAYER ? STATIONS : PLAYER); 
+          }
         }
       }
 _exit:      
