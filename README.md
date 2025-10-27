@@ -6,9 +6,9 @@ English version of Readme bellow.
 https://www.youtube.com/watch?v=0B93uhm7WAI<br>https://www.youtube.com/watch?v=uwM8PoyT15s
 
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
-Działa z wyświetlaczem ST7789 320x240, ILI9341* 320x240, oraz 480x320 ILI9488*, ST7796* i AXS15231B (Guition) oraz oled SSD1306/SH1106.
-Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32-S3. PSRAM wymagany.
-* - nie testowałem tych modeli TFT ale powinny działać.
+Działa z wyświetlaczem ST7789 320x240, ILI9341** 320x240, oraz 480x320 ILI9488**, ST7796** i AXS15231B (Guition) oraz oled SSD1306/SH1106.
+Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32-S3. PSRAM wymagany.<br>
+** nie testowałem tych modeli TFT ale powinny działać.
 
 Co nowego lub się zmieniło:
 - Funkcja przewijania utworu odtwarzanego z karty SD przy pomocy enkodera 1. Wciśnij enkoder i obróć wciśnięty. Można puścić przycisk, i teraz obracając enkoder przewijamy utwór w przód/tył. Po 2 sekundach bezruchu enkoder wraca do standardowego trybu.
