@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "../core/options.h"
 #if VS1053_CS==255
 /*
@@ -2869,7 +2870,8 @@ void Audio::processLocalFile() {
                     eofHeader = true; 
                 }
             }
-            audiofile.seek(m_audioDataStart);
+            //audiofile.seek(m_audioDataStart);
+            if(!setFilePos(m_resumeFilePos ? m_resumeFilePos:m_audioDataStart)) audiofile.seek(m_audioDataStart);
             InBuff.resetBuffer();
         }
         return;
@@ -2880,9 +2882,13 @@ void Audio::processLocalFile() {
         AUDIO_INFO("stream ready");
         if(m_resumeFilePos){
             if(m_resumeFilePos < m_audioDataStart) m_resumeFilePos = m_audioDataStart;
+            setFilePos(m_resumeFilePos);
+            m_resumeFilePos = 0;
+/*                        
             if(m_avr_bitrate) m_audioCurrentTime = ((m_resumeFilePos - m_audioDataStart) / m_avr_bitrate) * 8;
             audiofile.seek(m_resumeFilePos);
             InBuff.resetBuffer();
+*/            
             if(m_f_Log) log_i("m_resumeFilePos %i", m_resumeFilePos);
         }
     }
@@ -4544,20 +4550,22 @@ bool Audio::setTimeOffset(int sec){
 }
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::setFilePos(uint32_t pos) {
+    if(!audiofile) return false;
     if(m_codec == CODEC_OPUS) return false; // not impl. yet
     if(m_codec == CODEC_VORBIS) return false; // not impl. yet
-    if(!audiofile) return false;
-//    if(!m_avr_bitrate) return false;
     if(m_codec == CODEC_M4A) return false;
+    if(pos >= m_file_size-4) return false;
     m_f_playing = false;
-    if(m_codec == CODEC_MP3) MP3Decoder_ClearBuffer();
-    if(m_codec == CODEC_WAV) {while((pos % 4) != 0) pos++;} // must be divisible by four
-    if(m_codec == CODEC_FLAC) FLACDecoderReset();
+    int32_t newpos = pos;
+    if(m_codec == CODEC_MP3)  {MP3Decoder_ClearBuffer(); newpos = mp3_correctResumeFilePos(pos);}
+    if(m_codec == CODEC_WAV)  {while((newpos % 4) != 0) newpos++; audiofile.seek(newpos);} // must be divisible by four
+    if(m_codec == CODEC_FLAC) {FLACDecoderReset(); newpos = flac_correctResumeFilePos(pos);}
     InBuff.resetBuffer();
-    if(pos < m_audioDataStart) pos = m_audioDataStart; // issue #96
-    if(m_avr_bitrate) m_audioCurrentTime = ((pos-m_audioDataStart) / m_avr_bitrate) * 8; // #96
-    uint32_t sk = audiofile.seek(pos);
-    return sk;
+//    if(pos < m_audioDataStart) pos = m_audioDataStart; // issue #96
+//    if(pos >= m_file_size) return false;
+    if(newpos>0 && m_avr_bitrate) m_audioCurrentTime = ((newpos-m_audioDataStart) / m_avr_bitrate) * 8; // #96
+//    uint32_t sk = audiofile.seek(pos);
+    return newpos>0 ? true:false;
 }
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::audioFileSeek(const float speed) {
@@ -5410,6 +5418,124 @@ uint8_t Audio::determineOggCodec(uint8_t* data, uint16_t len){
         return CODEC_VORBIS;
     }
     return CODEC_NONE;
+}
+//--------------------------------------------------------------------------------------------------------------------
+/*
+uint32_t Audio::ogg_correctResumeFilePos(uint32_t resumeFilePos) {
+    // The starting point is the next OggS magic word
+  log_w("in_resumeFilePos %i", resumeFilePos);
+
+    uint8_t  p1, p2, p3, p4;
+    boolean  found = false;
+    uint32_t pos = resumeFilePos;
+    audiofile.seek(pos);
+
+    p1 = audiofile.read();
+    p2 = audiofile.read();
+    p3 = audiofile.read();
+    p4 = audiofile.read();
+
+    pos += 4;
+    while(!found || pos >= m_file_size) {
+        if(p1 == 'O' && p2 == 'g'&& p3 == 'g' && p4 == 'S') {
+            found = true;
+            break;
+        }
+        p1 = p2;
+        p2 = p3;
+        p3 = p4;
+        p4 = audiofile.read();
+        pos++;
+    }
+    if(found) { log_w("out_resumeFilePos %i", pos - 4);    return (pos - 4);}
+    stopSong();
+    return 0;
+}
+*/
+//-------------------------------------------------------------------------------------------------------------------
+int32_t Audio::flac_correctResumeFilePos(uint32_t resumeFilePos) {
+    // The starting point is the next FLAC syncword
+    uint8_t  p1, p2;
+    boolean  found = false;
+    uint32_t pos = resumeFilePos;
+    uint32_t maxPos = m_audioDataStart + m_audioDataSize;
+
+    if(pos + 2 >= maxPos) goto exit;
+
+    audiofile.seek(pos);
+    p1 = audiofile.read();
+    p2 = audiofile.read();
+    pos += 2;
+    while(!found && pos < maxPos) {
+        if(p1 == 0xFF && p2 == 0xF8) {
+            found = true;
+            break;
+        }
+        p1 = p2;
+        p2 = audiofile.read();
+        pos++;
+    }
+    if(found) return (pos - 2);
+
+exit:
+    return -1;
+}
+//-----------------------------------------------------------------------------------------------------------------------
+int32_t Audio::mp3_correctResumeFilePos(uint32_t resumeFilePos) {
+/* this checks that the first 22 bits of the next frame header are the same as the current frame header, but it's still not foolproof
+ * (could accidentally find a sequence in the bitstream which appears to match but is not actually the next frame header)
+ * this could be made more error-resilient by checking several frames in a row and verifying that nSlots is the same in each case
+*/
+    boolean  found = false;
+    uint32_t pos = resumeFilePos;
+    uint32_t pos1 = 0, pos2 = 0;
+    uint32_t maxPos = m_audioDataStart + m_audioDataSize;
+    uint8_t byte1a, byte2a, byte3a;
+    uint8_t byte1b, byte2b, byte3b;
+
+    if(pos + 3 >= maxPos) goto exit;
+    if(pos < m_audioDataStart) pos = m_audioDataStart;
+    audiofile.seek(pos);
+
+    while(!found){
+        if(pos + 3 >= maxPos) goto exit;
+        byte1a = audiofile.read(); pos++;
+        byte2a = audiofile.read(); pos++;
+        while(true){
+            if(byte1a == 0xFF && (byte2a & 0x0E0) == 0xE0) {
+                byte3a = audiofile.read(); pos++;
+                pos1 = pos - 3; break;
+            }
+            byte1a = byte2a;
+            byte2a = audiofile.read(); pos++;
+            if(pos >= maxPos) goto exit;
+        }
+        // log_i("pos1 %i, byte1a %X, byte2a %X, byte3a %X", pos1, byte1a, byte2a, byte3a);
+
+        if(pos + 3 >= maxPos) goto exit;
+        byte1b = audiofile.read(); pos++;
+        byte2b = audiofile.read(); pos++;
+        while(true){
+            if(byte1b == 0xFF && (byte2b & 0x0E0) == 0xE0) {
+                byte3b = audiofile.read(); pos++;
+                pos2 = pos - 3; break;
+            }
+            byte1b = byte2b;
+            byte2b = audiofile.read(); pos++;
+            if(pos >= maxPos) goto exit;
+        }
+
+        if((byte1a == byte1b) && (byte2a ==  byte2b) && ((byte3a & 0xFC) == (byte3b & 0xFC))){
+            if(byte1a == 0xFF && byte2a == 0xFF && byte3a == 0xFF) found = false; // 0xFFFFFF can't be
+            else found = true;
+        }
+    }
+    (void) pos2;
+    // log_i("found pos1=%i, pos2=%i", pos1, pos2);
+    if(found) return (pos1);
+
+exit:
+    return -1;
 }
 //----------------------------------------------------------------------------------------------------------------------
 #endif  //  if VS1053_CS==255

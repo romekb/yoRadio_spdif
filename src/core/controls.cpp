@@ -189,10 +189,10 @@ void encodersLoop(yoEncoder *enc, bool first){
     if(first){
       if(encBtnState == LOW && display.mode() == PLAYER && config.getMode()==PM_SDCARD && player.status() == PLAYING) {
         _seekMode = true;
+        _seekReturnTout = millis();
       }
       if(_seekMode) {
-        if(encoderDelta < 0) encoderDelta *= 8;
-        player.SDSeekTo(encoderDelta);
+        if(player.inBufferFilled() > 4096) player.SDSeekTo(encoderDelta);
         _seekReturnTout = millis();
       } else {
         controlsEvent(encoderDelta > 0, encoderDelta);
@@ -210,8 +210,7 @@ void encodersLoop(yoEncoder *enc, bool first){
     }
 #   endif
   }
-  if(_seekMode && _seekReturnTout && millis()-_seekReturnTout > 2000) {
-    _seekReturnTout = 0;
+  if(_seekMode && millis()-_seekReturnTout > 2000) {
     _seekMode = false;                // turn off seek mode after 2sec of encoder inactivity
     display.putRequest(DRAWVOL, 0);   // timeout visual feedback
   }
@@ -505,7 +504,7 @@ void onBtnClick(int id) {
         break;
       }
     case EVT_ENCBTNB:
-        if(_seekMode) { _seekMode = false; break; }
+        if(_seekMode) {/* _seekMode = false;*/ break; }
     case EVT_BTNCENTER:
     case EVT_ENC2BTNB: {
         if (display.mode() == NUMBERS) {

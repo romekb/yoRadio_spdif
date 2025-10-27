@@ -102,7 +102,7 @@ void Player::setError(const char *e){
 
 void Player::_stop(bool alreadyStopped){
   log_i("%s called", __func__);
-  if(config.getMode()==PM_SDCARD && !alreadyStopped) config.sdResumePos = player.getFilePos();
+  if(config.getMode()==PM_SDCARD && !alreadyStopped) config.sdResumePos = player.getFilePos()-player.inBufferFilled();
   _status = STOPPED;
   setOutputPins(false);
   if(!_hasError) config.setTitle((display.mode()==LOST || display.mode()==UPDATING)?"":LANG::const_PlStopped);
@@ -308,9 +308,9 @@ void Player::SDSeekTo(int16_t value) {
   if(value < -100) value = -100;
   if(value > 100)  value = 100;
   int32_t step = (sd_max - sd_min) / 100;
-  int32_t curr = getFilePos() + step*value;
-  if(curr > sd_max - 1000) curr = sd_max - 1000;
-  if(curr < sd_min) curr = sd_min;
+  int32_t curr = getFilePos()-player.inBufferFilled() + step*value;
+  if(curr > sd_max-sd_min-512) curr = sd_max-sd_min-512;
+  if(curr < 0) curr = 0;
   config.setSDpos(curr);
 }
 

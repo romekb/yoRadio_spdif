@@ -298,6 +298,9 @@ private:
     bool     readID3V1Tag();
     void     slowStreamDetection(uint32_t inBuffFilled, uint32_t maxFrameSize);
     uint8_t  determineOggCodec(uint8_t* data, uint16_t len);
+    uint32_t ogg_correctResumeFilePos(uint32_t resumeFilePos);
+    int32_t  flac_correctResumeFilePos(uint32_t resumeFilePos);
+    int32_t  mp3_correctResumeFilePos(uint32_t resumeFilePos);
 
     //++++ implement several function with respect to the index of string ++++
     void trim(char *s) {
