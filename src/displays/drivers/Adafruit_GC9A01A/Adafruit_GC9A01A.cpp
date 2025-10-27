@@ -33,7 +33,7 @@
  * BSD license, all text here must be included in any redistribution.
  *
  */
-#include "../core/options.h"
+#include "../../../core/options.h"
 #if DSP_MODEL==DSP_GC9A01A
 
 #include "Adafruit_GC9A01A.h"

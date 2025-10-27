@@ -1,4 +1,4 @@
-#include "../core/options.h"
+#include "../../../core/options.h"
 #if DSP_MODEL==DSP_ST7796
 /*!
  * These displays use SPI to communicate, 4 or 5 pins are required

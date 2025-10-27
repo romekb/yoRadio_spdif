@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include <Adafruit_GFX.h>
-#include "../AXS15231B/AXS15231B_TFT.h"
+#include "drivers/AXS15231B/AXS15231B_TFT.h"
 #include "fonts/bootlogo99x64.h"
 #include "fonts/dsfont70.h"
 

@@ -660,6 +660,7 @@ void VuWidget::setLabelsDrawn(bool value) {}
 #if !defined(DSP_LCD)
   #if TIME_SIZE<19 //19->NOKIA
     const GFXfont* Clock_GFXfontPtr = nullptr;
+    const GFXfont* Clock_GFXfontPtr_Sec = nullptr;
     #define CLOCKFONT5x7
   #else
     const GFXfont* Clock_GFXfontPtr = &Clock_GFXfont;
@@ -950,7 +951,6 @@ void ClockWidget::_printClock(bool force){
       }
     }
   }
-  #ifndef DSP_OLED
   if(_fullclock || _superfont>0){
     gfx.setTextSize(0);          // *** Másodperc kiírása ***
     gfx.setFont(Clock_GFXfontPtr_Sec);
@@ -966,7 +966,6 @@ void ClockWidget::_printClock(bool force){
     sprintf(_tmp, "%02d", network.timeinfo.tm_sec);
     gfx.print(_tmp);
   }
-  #endif
   gfx.setTextSize(Clock_GFXfontPtr==nullptr?TIME_SIZE:1);
   gfx.setFont(Clock_GFXfontPtr);
   #ifndef DSP_OLED

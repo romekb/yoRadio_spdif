@@ -4,7 +4,7 @@
 
 #include "Arduino.h"
 #include <Adafruit_GFX.h>
-#include "../Adafruit_GC9106Ex/Adafruit_GC9106Ex.h"       // https://github.com/prenticedavid/Adafruit_GC9102_kbv
+#include "drivers/Adafruit_GC9106Ex/Adafruit_GC9106Ex.h"       // https://github.com/prenticedavid/Adafruit_GC9102_kbv
 #include "fonts/bootlogo62x40.h"
 #include "fonts/dsfont35.h"
 

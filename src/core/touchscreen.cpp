@@ -35,7 +35,7 @@
   TAMC_GT911 ts = TAMC_GT911(TS_SDA, TS_SCL, TS_INT, TS_RST, 0, 0);
   typedef TP_Point TSPoint;
 #elif TS_MODEL==TS_MODEL_AXS15231B
-  #include "../AXS15231B/AXS15231B_Touch.h"
+  #include "../AXS15231B_Touchscreen/AXS15231B_Touch.h"
   AXS15231B_Touch ts = AXS15231B_Touch(TS_SDA, TS_SCL, TS_INT, TS_RST, 0, 0);
   typedef TP_Point TSPoint;
 #endif

@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include <Adafruit_GFX.h>
-#include "../ILI9488/ILI9486_SPI.h"
+#include "drivers/ILI9488/ILI9486_SPI.h"
 #include "fonts/bootlogo99x64.h"
 #include "fonts/dsfont70.h"
 

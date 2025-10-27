@@ -1,4 +1,4 @@
-#include "../core/options.h"
+#include "../../../core/options.h"
 #if DSP_MODEL==DSP_ST7920
 
 #include "Adafruit_GFX.h"

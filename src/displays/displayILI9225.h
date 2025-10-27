@@ -3,7 +3,7 @@
 #include "../core/options.h"
 //==================================================
 #include "Arduino.h"
-#include "../Adafruit_ILI9225/Adafruit_ILI9225.h"
+#include "drivers/Adafruit_ILI9225/Adafruit_ILI9225.h"
 #include "fonts/bootlogo99x64.h"
 #include "fonts/dsfont35.h"
 

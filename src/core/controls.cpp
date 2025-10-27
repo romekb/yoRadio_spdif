@@ -14,6 +14,8 @@ long encOldPosition  = 0;
 long enc2OldPosition  = 0;
 int lpId = -1;
 uint8_t _lastVolume = 0;
+bool _seekMode = false;
+uint32_t _seekReturnTout = 0;
 
 #if DSP_MODEL==DSP_DUMMY
 #define DUMMYDISPLAY
@@ -185,7 +187,16 @@ void encodersLoop(yoEncoder *enc, bool first){
     }
 #   else
     if(first){
-      controlsEvent(encoderDelta > 0, encoderDelta);
+      if(encBtnState == LOW && display.mode() == PLAYER && config.getMode()==PM_SDCARD && player.status() == PLAYING) {
+        _seekMode = true;
+      }
+      if(_seekMode) {
+        if(encoderDelta < 0) encoderDelta *= 8;
+        player.SDSeekTo(encoderDelta);
+        _seekReturnTout = millis();
+      } else {
+        controlsEvent(encoderDelta > 0, encoderDelta);
+      }
     }else{
       if (encBtnState == HIGH && display.mode() == PLAYER) {
         if(config.store.skipPlaylistUpDown){
@@ -198,6 +209,11 @@ void encodersLoop(yoEncoder *enc, bool first){
       controlsEvent(encoderDelta > 0, encoderDelta);
     }
 #   endif
+  }
+  if(_seekMode && _seekReturnTout && millis()-_seekReturnTout > 2000) {
+    _seekReturnTout = 0;
+    _seekMode = false;                // turn off seek mode after 2sec of encoder inactivity
+    display.putRequest(DRAWVOL, 0);   // timeout visual feedback
   }
 }
 #endif
@@ -357,8 +373,9 @@ void onBtnLongPressStart(int id) {
         lpId = id;
         break;
       }
-    case EVT_BTNCENTER:
-    case EVT_ENCBTNB: {
+    case EVT_ENCBTNB:
+        if(_seekMode) break;
+    case EVT_BTNCENTER: {
 #       if defined(DUMMYDISPLAY) && !defined(USE_NEXTION)
         break;
 #       endif
@@ -487,8 +504,9 @@ void onBtnClick(int id) {
         controlsEvent(false);
         break;
       }
-    case EVT_BTNCENTER:
     case EVT_ENCBTNB:
+        if(_seekMode) { _seekMode = false; break; }
+    case EVT_BTNCENTER:
     case EVT_ENC2BTNB: {
         if (display.mode() == NUMBERS) {
           display.numOfNextStation = 0;

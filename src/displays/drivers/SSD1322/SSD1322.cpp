@@ -18,7 +18,7 @@
  * must be included in any redistribution.
  *
  */
-#include "../core/options.h"
+#include "../../../core/options.h"
 #if DSP_MODEL==DSP_SSD1322
 
 

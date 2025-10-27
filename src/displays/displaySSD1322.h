@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include <Adafruit_GFX.h>
-#include "../SSD1322/SSD1322.h"
+#include "drivers/SSD1322/SSD1322.h"
 #include "fonts/bootlogo21x32.h"
 #include "fonts/dsfont35.h"
 

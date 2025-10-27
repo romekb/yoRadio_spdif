@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include <Adafruit_GFX.h>
-#include "../ST7920/ST7920.h"
+#include "drivers/ST7920/ST7920.h"
 #include "fonts/bootlogo21x32.h"
 
 typedef GFXcanvas1 Canvas;

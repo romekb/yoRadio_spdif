@@ -15,7 +15,7 @@
 
 #if DSP_MODEL==DSP_1602I2C || DSP_MODEL==DSP_2004I2C || DSP_MODEL==DSP_2002I2C
   #define LCD_I2C
-  #include "../LiquidCrystalI2C/LiquidCrystalI2CEx.h"
+  #include "drivers/LiquidCrystalI2C/LiquidCrystalI2CEx.h"
 #else
   #include <LiquidCrystal.h>
 #endif

@@ -1,4 +1,4 @@
-#include "../core/options.h"
+#include "../../../core/options.h"
 #if(DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270)
 #include "AXS15231B_TFT.h"
 

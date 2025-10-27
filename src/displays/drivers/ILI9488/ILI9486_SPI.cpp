@@ -5,7 +5,7 @@
 //
 // License: GNU GENERAL PUBLIC LICENSE V3, see LICENSE
 //
-#include "../core/options.h"
+#include "../../../core/options.h"
 #if DSP_MODEL==DSP_ILI9488 || DSP_MODEL==DSP_ILI9486
 
 #include <SPI.h>

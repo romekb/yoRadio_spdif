@@ -600,9 +600,11 @@ void Display::loop() {
         if(curr < 0) curr = 0;
         if(curr > 254) curr = 254;
         #ifdef COLOR_PROGRESSBAR
-        _volbar->setColor(config.color565(COLOR_PROGRESSBAR));
+        if(config.theme.volbarin != 0x0001) {          // fix for monochrome displays
+          _volbar->setColor(config.color565(COLOR_PROGRESSBAR)); 
+        }
         #endif
-        _volbar->setValue(curr);\
+        _volbar->setValue(curr);
       }
     }
     if(_voltxt) {
