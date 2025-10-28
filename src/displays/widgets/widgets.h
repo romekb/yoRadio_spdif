@@ -164,7 +164,7 @@ class VuWidget: public Widget {
     static void setLabelsDrawn(bool value); // Módosítás
     static bool isLabelsDrawn(); // Módosítás
   protected:
-    #if !defined(DSP_LCD) && !defined(DSP_OLED)
+    #if !defined(DSP_LCD) //&& !defined(DSP_OLED)
       Canvas *_canvas;
     #endif
     static bool   _labelsDrawn; // Módosítás új változó.

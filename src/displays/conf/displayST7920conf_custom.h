@@ -14,19 +14,18 @@
 
 #define HIDE_HEAPBAR
 #define HIDE_VOL
-//#define HIDE_VU
-#undef BOOMBOX_STYLE
+#define HIDE_VU
 
 #define bootLogoTop     8
 
 /* SROLLS  */                            /* {{ left, top, fontsize, align }, buffsize, uppercase, width, scrolldelay, scrolldelta, scrolltime } */
-const ScrollConfig metaConf       PROGMEM = {{ TFT_FRAMEWDT+3, 1, 2, WA_CENTER }, 140, true, MAX_WIDTH-2, 5000, 3, 35 };
-const ScrollConfig title1Conf     PROGMEM = {{ TFT_FRAMEWDT, 18, 1, WA_LEFT }, 140, true, DSP_WIDTH, 5000, 2, 35 };
-const ScrollConfig title2Conf     PROGMEM = {{ TFT_FRAMEWDT, 27, 1, WA_LEFT }, 140, true, DSP_WIDTH-26, 5000, 2, 35 };
-const ScrollConfig playlistConf   PROGMEM = {{ TFT_FRAMEWDT, 30, 1, WA_LEFT }, 140, true, MAX_WIDTH, 500, 2, 25 };
-const ScrollConfig apTitleConf    PROGMEM = {{ TFT_FRAMEWDT, 0, 2, WA_CENTER }, 140, false, MAX_WIDTH, 0, 2, 35 };
-const ScrollConfig apSettConf     PROGMEM = {{ TFT_FRAMEWDT, 64-7, 1, WA_LEFT }, 140, false, MAX_WIDTH, 0, 2, 25 };
-const ScrollConfig weatherConf    PROGMEM = {{ TFT_FRAMEWDT, 64-11, 1, WA_LEFT }, 140, false, DSP_WIDTH-6*4, 0, 2, 30 };
+const ScrollConfig metaConf       PROGMEM = {{ TFT_FRAMEWDT+3, 1, 2, WA_CENTER }, 140, true, MAX_WIDTH-2, 5000, 6, 300 };
+const ScrollConfig title1Conf     PROGMEM = {{ TFT_FRAMEWDT, 18, 1, WA_LEFT }, 140, true, DSP_WIDTH, 5000, 6, 300 };
+const ScrollConfig title2Conf     PROGMEM = {{ TFT_FRAMEWDT, 27, 1, WA_LEFT }, 140, true, DSP_WIDTH-26, 5000, 6, 300 };
+const ScrollConfig playlistConf   PROGMEM = {{ TFT_FRAMEWDT, 30, 1, WA_LEFT }, 140, true, MAX_WIDTH, 500, 6, 300 };
+const ScrollConfig apTitleConf    PROGMEM = {{ TFT_FRAMEWDT, 0, 2, WA_CENTER }, 140, false, MAX_WIDTH, 0, 6, 300 };
+const ScrollConfig apSettConf     PROGMEM = {{ TFT_FRAMEWDT, 64-7, 1, WA_LEFT }, 140, false, MAX_WIDTH, 0, 6, 300 };
+const ScrollConfig weatherConf    PROGMEM = {{ TFT_FRAMEWDT, 64-11, 1, WA_LEFT }, 140, false, DSP_WIDTH-6*4, 0, 6, 300 };
 
 /* BACKGROUNGC9106DS  */                       /* {{ left, top, fontsize, align }, width, height, outlined } */
 const FillConfig   metaBGConf     PROGMEM = {{ 0, 0,  0, WA_LEFT }, DSP_WIDTH, 17, false };
@@ -46,15 +45,15 @@ const WidgetConfig apNameConf     PROGMEM = { 0, 18, 1, WA_CENTER };
 const WidgetConfig apName2Conf    PROGMEM = { 0, 26, 1, WA_CENTER };
 const WidgetConfig apPassConf     PROGMEM = { 0, 37, 1, WA_CENTER };
 const WidgetConfig apPass2Conf    PROGMEM = { 0, 45, 1, WA_CENTER };
-const WidgetConfig  clockConf     PROGMEM = { 6, 36, 0, WA_CENTER };
-const WidgetConfig vuConf         PROGMEM = { 1, 40, 1, WA_CENTER };
+const WidgetConfig  clockConf     PROGMEM = { 3, 36, 0, WA_CENTER };
+const WidgetConfig vuConf         PROGMEM = { 1, 28, 1, WA_LEFT };
 
 const WidgetConfig bootWdtConf    PROGMEM = { 0, 64-8*2-5, 1, WA_CENTER };
 const ProgressConfig bootPrgConf  PROGMEM = { 90, 14, 4 };
 const BitrateConfig fullbitrateConf PROGMEM = {{128-21, 30, 1, WA_LEFT}, 21 };
 
-/* BANDS  */          /* { onebandwidth, onebandheight, bandsVspace, bandsHspace, numofbands, fadespeed } */
-const VUBandsConfig bandsConf     PROGMEM = { 32, 3, 1, 0, 16, 2 };
+/* BANDS  */                             /* { onebandwidth, onebandheight, bandsHspace, bandsVspace, numofbands, fadespeed } */
+const VUBandsConfig bandsConf     PROGMEM = { 12, 48, 2, 1, 8, 3 };
 
 /* STRINGS  */
 const char         numtxtFmt[]    PROGMEM = "%d";

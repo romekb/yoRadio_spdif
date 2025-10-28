@@ -368,7 +368,7 @@ void SliderWidget::_reset() {
 /************************
       VU WIDGET
  ************************/
-#if !defined(DSP_LCD) && !defined(DSP_OLED)
+#if !defined(DSP_LCD) //&& !defined(DSP_OLED)
 VuWidget::~VuWidget() {
   if (_canvas)
     free(_canvas);
@@ -428,8 +428,7 @@ void VuWidget::_draw() {
 
   if (last_draw_time + refresh_time > now) {
     return;
-  } else
-    last_draw_time = now;
+  } else last_draw_time = now;
 
   bool played = player.isRunning();
   if (played) {
@@ -542,16 +541,14 @@ void VuWidget::_draw() {
     _canvas->fillRect(peakR, _bands.height + _bands.space, peak_width, _bands.height, peak_color);
   }
 #endif // VU_PEAK
-
-  // --- Végső kirajzolás ---
-  dsp.drawRGBBitmap(
-      _config.left,
-      _config.top,
-      _canvas->getBuffer(),
-      _bands.width,
-      _bands.height * 2 + _bands.space);
-
+#ifdef DSP_OLED
+  dsp.drawBitmap(_config.left, _config.top, (uint8_t*)_canvas->getBuffer(), 
+                 _bands.width, _bands.height * 2 + _bands.space, 1, 0);
 #else
+  dsp.drawRGBBitmap(_config.left, _config.top, _canvas->getBuffer(),
+                    _bands.width, _bands.height * 2 + _bands.space);
+#endif //DSP_OLED
+#else // BOOMBOX_STYLE
   // --- Visszatörlés a pillanatnyi szint alapján ---
   _canvas->fillRect(0, 0, _bands.width - (_bands.width - measL), _bands.width, _bgcolor);
   _canvas->fillRect(_bands.width * 2 + _bands.space - measR, 0, measR, _bands.width, _bgcolor);
@@ -794,7 +791,7 @@ void ClockWidget::init(WidgetConfig wconf, uint16_t fgcolor, uint16_t bgcolor){
   _timeheight = _textHeight();
   _fullclock = TIME_SIZE>35 || DSP_MODEL==DSP_ILI9225;
   if(_fullclock) _superfont = TIME_SIZE / 17; //magick
-  else if(TIME_SIZE==19 || TIME_SIZE==2) _superfont=1;
+  else if(TIME_SIZE==19/* || TIME_SIZE==2*/) _superfont=1;
   else _superfont=0;
   _space = (5*_superfont)/2 - 5; //magick
   #ifndef HIDE_DATE
@@ -952,7 +949,7 @@ void ClockWidget::_printClock(bool force){
     }
   }
   if(_fullclock || _superfont>0){
-    gfx.setTextSize(0);          // *** Másodperc kiírása ***
+    gfx.setTextSize(0);
     gfx.setFont(Clock_GFXfontPtr_Sec);
     if (CLOCKFONT_MONO) {
       gfx.setTextColor(config.theme.clockbg, config.theme.background);
@@ -1116,7 +1113,7 @@ void BitrateWidget::_draw(){  //Módosítás
   dsp.setTextColor(_fgcolor, _bgcolor);
   snprintf(_buf, 6, "%d", _bitrate);
 //#ifdef NAMEDAYS_FILE
-  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * strlen(_buf) / 2, _config.top + _dimension / 4 - _textheight / 2 + 1);
+  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * strlen(_buf) / 2 + 1, _config.top + _dimension / 4 - _textheight / 2 + 1);
 //#else
 //  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2 + 1, _config.top + (_dimension / 2) - 3 - _textheight);
 //#endif
@@ -1125,7 +1122,7 @@ void BitrateWidget::_draw(){  //Módosítás
 #ifdef NAMEDAYS_FILE
   dsp.setCursor(_config.left + _dimension + _dimension / 2 - _charWidth * 3 / 2, _config.top + _dimension / 4 - _textheight / 2 + 1);
 #else
-  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2, _config.top + _dimension / 2 + _dimension / 4 - _textheight / 2 + 1);
+  dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2 + 1, _config.top + _dimension / 2 + _dimension / 4 - _textheight / 2 + 1);
 #endif
   switch(_format){
     case BF_MP3:  dsp.print("MP3"); break;

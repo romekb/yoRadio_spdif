@@ -6,11 +6,12 @@ English version of Readme bellow.
 https://www.youtube.com/watch?v=0B93uhm7WAI<br>https://www.youtube.com/watch?v=uwM8PoyT15s
 
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
-Działa z wyświetlaczem ST7789 320x240, ILI9341** 320x240, oraz 480x320 ILI9488**, ST7796** i AXS15231B (Guition) oraz oled SSD1306/SH1106.
+Działa z wyświetlaczem ST7789 320x240, ILI9341** 320x240, oraz 480x320 ILI9488**, ST7796** i AXS15231B (Guition), LCD ST7920 oraz oled SSD1306/SH1106.
 Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32-S3. PSRAM wymagany.<br>
 ** nie testowałem tych modeli TFT ale powinny działać.
 
 Co nowego lub się zmieniło:
+- Odblokowany VU widget na OLED'ach 128x64
 - Funkcja przewijania utworu odtwarzanego z karty SD przy pomocy enkodera 1. Wciśnij enkoder i obróć wciśnięty. Można puścić przycisk, i teraz obracając enkoder przewijamy utwór w przód/tył. Po 2 sekundach bezruchu enkoder wraca do standardowego trybu.
 - Przetestowane na oledach SSD1306/SH1106 128x64. Poprawione ekrany na tych oledach, wyświetlany jest widżet bitrate + parę innych poprawek.
 - Dodane dwa przyciski na pilocie IR. Dedykowany włącz/wyłącz, oraz przycisk MUTE. Należy wgrać ponownie do esp zawartość folderu "data/www" po czym odświerzyć cache przeglądarki. W IR Record powinny być widoczne dodatkowe przyciski. Następnie na nowo trzeba ustawić kody przycisków pilota.
@@ -56,10 +57,11 @@ Testy przeprowadzono na radiach internetowych, korzystając ze strumieni AAC i M
 This is modified version of yoRadio (eRadio) project from: https://github.com/e2002/yoradio
 
 New version based on yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip.
-Tested with ST7789 320x240 display and AXS15231B 480x320 from Guition module and oled's SSD1306/SH1106. Should work on ILI9341, ILI9488, ST7796 displays too.
+Tested with ST7789 320x240 display and AXS15231B 480x320 from Guition module, ST7920 LCD and oled's SSD1306/SH1106. Should work on ILI9341, ILI9488, ST7796 displays too.
 Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported. PSRAM is required especially for AXS15231B display.
 
 What's new or changed:
+- Now VU widget work on 128x64 OLED's too.
 - Seek function for a song played from an SD card using the encoder 1. Press the encoder and rotate it. Now You can release the button and turn the encoder to fast forward/backward the song. After 2 seconds of inactivity, the encoder returns to standard mode.
 - Tested on SSD1306/SH1106 128x64 OLEDs. Improved screens on these OLEDs, bitrate widget is displayed + a few other corrections.
 - Two buttons have been added to the IR remote: a dedicated on/off button and a mute button. The contents of the "data/www" folder need to be re-uploaded to the ESP and then the browser cache needs to be refreshed. The additional buttons should now be visible in IR Record page. The remote's button codes need to be re-learned.
