@@ -404,8 +404,7 @@ bool VuWidget::isLabelsDrawn() { // Saját
 }
 
 void VuWidget::_draw() {
-  if (!_active || _locked)
-    return;
+  if (!_active || _locked) return;
 
   static uint16_t measL, measR;
   uint16_t        bandColor;
@@ -636,7 +635,12 @@ void VuWidget::loop() {
 
 void VuWidget::_clear() {
   // dsp.fillRect(_config.left, _config.top, _bands.width * 2 + _bands.space, _bands.height, _bgcolor);
-  dsp.fillRect(0, _config.top - 4, 479, 24, _bgcolor);
+  // dsp.fillRect(0, _config.top - 4, 479, 24, _bgcolor);
+#ifndef BOOMBOX_STYLE
+  dsp.fillRect(0, _config.top-2, _bands.width, _bands.height * 2 + _bands.space + 4, _bgcolor);
+#else
+  dsp.fillRect(0, _config.top-2, _bands.width * 2 + _bands.space, _bands.height + 4, _bgcolor);
+#endif
   _labelsDrawn = false; // L és R meg keljen rajzolni. Módosítás.
 }
 #else // DSP_LCD
