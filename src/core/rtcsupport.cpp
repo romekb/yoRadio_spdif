@@ -4,7 +4,7 @@
 #if RTCSUPPORTED
 #include <Wire.h>
 
-TwoWire RTCWire = TwoWire(0);
+TwoWire RTCWire = TwoWire(1);			// I2C interface 1 is used to avoid conflict with I2C Display or I2C Touchscreen
   
 RTC rtc;
 
@@ -21,11 +21,11 @@ bool RTC::isRunning(){
 #endif
 }
 
-void RTC::getTime(struct tm* tinfo){
+bool RTC::getTime(struct tm* tinfo){
 	if(isRunning()){
-		DateTime nowTm = now();
+		DateTime nowTm = rtc.now();
 		if(nowTm.second()>59 || nowTm.minute()>59 || nowTm.hour()>23 || nowTm.day()==0 || 
-			 nowTm.day()>31 || nowTm.month()==0 || nowTm.month()>12) return;
+			 nowTm.day()>31 || nowTm.month()==0 || nowTm.month()>12) return false;
 		tinfo->tm_sec  = nowTm.second();
 		tinfo->tm_min  = nowTm.minute();
 		tinfo->tm_hour = nowTm.hour();
@@ -33,10 +33,9 @@ void RTC::getTime(struct tm* tinfo){
 		tinfo->tm_mday = nowTm.day();
 		tinfo->tm_mon  = nowTm.month() - 1;
 		tinfo->tm_year = nowTm.year() - 1900;
-	}else{
-		tinfo->tm_sec++;
-		mktime(tinfo);
+		return true;
 	}
+	return false;
 }
 
 void RTC::setTime(struct tm* tinfo){

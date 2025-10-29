@@ -179,14 +179,16 @@ void TimeKeeper::_doAfterWait(){
 
 void TimeKeeper::_upClock(){
 #if RTCSUPPORTED
-  if(config.isRTCFound()) rtc.getTime(&network.timeinfo);
+  if( !(config.isRTCFound() && rtc.getTime(&network.timeinfo)) ) {
+    time_t now;
+    time(&now);
+    localtime_r(&now, &network.timeinfo);
+  }
 #else
   if(network.timeinfo.tm_year>100 || network.status == SDREADY) {
     time_t now;
     time(&now);
     localtime_r(&now, &network.timeinfo);
-    //network.timeinfo.tm_sec++;
-    //mktime(&network.timeinfo);
   }
 #endif
   if(display.ready()) display.putRequest(CLOCK);
@@ -239,7 +241,10 @@ void TimeKeeper::_upSDPos(){
 void TimeKeeper::timeTask(){
   static uint8_t tsFailCnt = 0;
   config.waitConnection();
-  if(getLocalTime(&network.timeinfo)){
+//  if(getLocalTime(&network.timeinfo)){
+  tm tmp_tinfo;
+  if(getLocalTime(&tmp_tinfo)){
+    network.timeinfo = tmp_tinfo; 
     tsFailCnt = 0;
     forceTimeSync = false;
     mktime(&network.timeinfo);

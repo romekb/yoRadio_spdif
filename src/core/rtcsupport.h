@@ -16,7 +16,7 @@
 	public:
 		bool init();
 		bool isRunning();
-		void getTime(struct tm* tinfo);
+		bool getTime(struct tm* tinfo);
 		void setTime(struct tm* tinfo);
 	};
 extern RTC rtc;
