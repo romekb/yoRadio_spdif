@@ -91,7 +91,7 @@ const char weatherFmt[] PROGMEM = "%.1f\011C  \007  %d hPa  \007  %d%% RH";
 #else
 #if EXT_WEATHER
   #ifdef WEATHER_WIND_UNITS_KPH
-    const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Odcz: %.1f\011C \007 Ciśn: %dhPa \007 Wilg: %d%% \007 Wiatr: %.1fkm/h, %s";
+    const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Odcz: %.1f\011C \007 Ciśn: %dhPa \007 Wilg: %d%% \007 Wiatr: %.0fkm/h, %s";
   #else
     const char       weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 Odcz: %.1f\011C \007 Ciśn: %dhPa \007 Wilg: %d%% \007 Wiatr: %.1fm/s, %s";
   #endif

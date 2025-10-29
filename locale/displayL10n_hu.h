@@ -79,7 +79,7 @@ const char weatherFmt[] PROGMEM = "%.1f\011C  \007  %d hPa  \007  %d%% RH";
 #else
 #if EXT_WEATHER
   #ifdef WEATHER_WIND_UNITS_KPH
-    const char weatherFmt[] PROGMEM = "%s, %.1f\011C \007 hőérzet: %.1f\011C \007 légnyomás: %d hPa \007 páratartalom: %d%% \007 szélsebesség: %.1f km/h/s [%s]";
+    const char weatherFmt[] PROGMEM = "%s, %.1f\011C \007 hőérzet: %.1f\011C \007 légnyomás: %d hPa \007 páratartalom: %d%% \007 szélsebesség: %.0f km/h/s [%s]";
   #else
     const char weatherFmt[] PROGMEM = "%s, %.1f\011C \007 hőérzet: %.1f\011C \007 légnyomás: %d hPa \007 páratartalom: %d%% \007 szélsebesség: %.1f m/s [%s]";
   #endif

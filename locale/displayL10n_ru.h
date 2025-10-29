@@ -73,7 +73,7 @@ const char       bootstrFmt[]    PROGMEM = "Соединяюсь с %s";
 const char        apSettFmt[]    PROGMEM = "НАСТРОЙКИ: HTTP://%s/";
 #if EXT_WEATHER
   #ifdef WEATHER_WIND_UNITS_KPH
-    const char   weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 ощущается: %.1f\011C \007 давление: %d hPa \007 влажность: %d%% \007 ветер: %.1f km/h [%s]";
+    const char   weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 ощущается: %.1f\011C \007 давление: %d hPa \007 влажность: %d%% \007 ветер: %.0f km/h [%s]";
   #else
     const char   weatherFmt[]    PROGMEM = "%s, %.1f\011C \007 ощущается: %.1f\011C \007 давление: %d hPa \007 влажность: %d%% \007 ветер: %.1f м/с [%s]";
   #endif
