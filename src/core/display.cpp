@@ -269,6 +269,17 @@ void Display::_buildPager(){
   for(const auto& p: pages) _pager->addPage(p);
 }
 
+ScrollWidget* Display::getScrollPtr(uint8_t num) {
+  switch(num) {
+    default : return NULL;
+    case 1  : return _meta;
+    case 2  : return _title1;
+    case 3  : return _title2;
+    case 4  : return _weather;
+    case 5  : return _nameday;
+  }
+}
+
 void Display::_apScreen() {
   if(_boot) _pager->removePage(_boot);
   #ifndef DSP_LCD

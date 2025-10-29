@@ -972,10 +972,13 @@ void Config::setBrightness(uint8_t value, bool dosave){
 }
 
 void Config::setDspOn(bool dspon, bool saveval){
+  static bool currstate;
   if(saveval){
     store.dspon = dspon;
     saveValue(&store.dspon, store.dspon, true, true);
   }
+  if(dspon == currstate) return;
+  currstate = dspon;
 #ifdef USE_NEXTION
   if(!dspon) nextion.sleep();
   else nextion.wake();

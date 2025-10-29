@@ -46,6 +46,7 @@ class Display {
     void unlock() { _locked=false; }
     uint16_t width();
     uint16_t height();
+    ScrollWidget *getScrollPtr(uint8_t num);
   private:
     ScrollWidget *_meta, *_title1, *_plcurrent, *_weather, *_title2, *_nameday;
     PlayListWidget *_plwidget;

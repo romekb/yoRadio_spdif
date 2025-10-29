@@ -210,9 +210,14 @@ void ScrollWidget::setText(const char* txt, const char *format){
   setText(buf);
 }
 
+#include "../../core/display.h"
 void ScrollWidget::loop() {
   if(_locked) return;
-  if (!_doscroll || _config.textsize == 0 /*|| (dsp.getScrollId() != NULL && dsp.getScrollId() != this)*/) return;
+  if (!_doscroll || _config.textsize == 0) return;
+#ifdef HIDE_TITLE2
+  if (dsp.getScrollId() == display.getScrollPtr(1) && this == display.getScrollPtr(2)) return;
+  if (dsp.getScrollId() == display.getScrollPtr(2) && this == display.getScrollPtr(1)) return;
+#endif
   uint16_t fbl = _fb->ready()?0:_config.left;
   if (_checkDelay(_x == fbl ? _startscrolldelay : _scrolltime, _scrolldelay)) {
     _calcX();
@@ -290,10 +295,8 @@ void ScrollWidget::_calcX() {
   uint16_t fbl = _fb->ready()?0:_config.left;
   if (-_x > _textwidth + _sepwidth - fbl) {
     _x = fbl;
-    dsp.setScrollId(NULL);
-  } else {
-    dsp.setScrollId(this);
-  }
+    if(this == display.getScrollPtr(1) || this == display.getScrollPtr(2)) dsp.setScrollId(NULL);
+  } else if(this == display.getScrollPtr(1) || this == display.getScrollPtr(2)) dsp.setScrollId(this);
 }
 
 bool ScrollWidget::_checkDelay(int m, uint32_t &tstamp) {
