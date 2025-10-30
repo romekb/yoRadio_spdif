@@ -326,6 +326,7 @@ void Config::_initHW(){
   #if BRIGHTNESS_PIN!=255
     pinMode(BRIGHTNESS_PIN, OUTPUT);
     setBrightness(0); //store.brightness, false);
+    ledcOutputInvert(BRIGHTNESS_PIN, BRIGHTNESS_INVERTED);
   #endif
 }
 

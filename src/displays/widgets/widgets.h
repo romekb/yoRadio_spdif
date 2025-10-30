@@ -161,8 +161,8 @@ class VuWidget: public Widget {
     using Widget::init;
     void init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumidcolor, uint16_t vumincolor, uint16_t bgcolor);
     void loop();
-    static void setLabelsDrawn(bool value); // Módosítás
-    static bool isLabelsDrawn(); // Módosítás
+//    static void setLabelsDrawn(bool value); // Módosítás
+//    static bool isLabelsDrawn(); // Módosítás
   protected:
     #if !defined(DSP_LCD) //&& !defined(DSP_OLED)
       Canvas *_canvas;

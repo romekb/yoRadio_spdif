@@ -69,9 +69,9 @@ const BitrateConfig fullbitrateConf PROGMEM = {{25, 148, 2, WA_RIGHT}, 60};
 
 /* BANDS { onebandwidth (width), onebandheight (height), bandsHspace (space), bandsVspace (vspace), numofbands (perheight), fadespeed (fadespeed)} */
 #ifdef BOOMBOX_STYLE
-  const VUBandsConfig bandsConf PROGMEM = {200, 7, 4, 2, 20, 10}; // 29
+  const VUBandsConfig bandsConf PROGMEM = {200, 9, 4, 2, 20, 10};
 #else
-  const VUBandsConfig bandsConf PROGMEM = {400, 7, 4, 2, 30, 9}; //
+  const VUBandsConfig bandsConf PROGMEM = {400, 7, 4, 2, 30, 9};
 #endif
 
 /* STRINGS  */

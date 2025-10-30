@@ -398,13 +398,13 @@ void VuWidget::init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor
 A  BitrateWidget::_clear() -ben kap false értéket.*/
 bool VuWidget::_labelsDrawn = false; // Módosítás
 
-void VuWidget::setLabelsDrawn(bool value) { // Saját
-  _labelsDrawn = value;
-}
+//void VuWidget::setLabelsDrawn(bool value) { // Saját
+//  _labelsDrawn = value;
+//}
 
-bool VuWidget::isLabelsDrawn() { // Saját
-  return _labelsDrawn;
-}
+//bool VuWidget::isLabelsDrawn() { // Saját
+//  return _labelsDrawn;
+//}
 
 void VuWidget::_draw() {
   if (!_active || _locked) return;
@@ -608,20 +608,20 @@ void VuWidget::_draw() {
     int center_left = (dsp.width() - total_width) / 2;
     // bal és jobb címke pozíció
     int label_left_L = center_left;
-    int label_left_R = center_left + label_width + 6;
+    int label_left_R = center_left + label_width + _bands.space + 2;
 
     // Bal (L) téglalap
-    dsp.fillRect(label_left_L, _config.top - 4, label_width, label_height, 0x7BEF);
+    dsp.fillRect(label_left_L, _config.top - _bands.height + 3, label_width, label_height, 0x7BEF);
     dsp.setTextSize(1);
     dsp.setFont();
     dsp.setTextColor(0xFFFF);
     int text_x_L = label_left_L + (label_width - 6) / 2;
-    int text_y = (_config.top - 2) + (label_height - 10) / 2;
+    int text_y = (_config.top - _bands.height + 5) + (label_height - 10) / 2;
     dsp.setCursor(text_x_L, text_y);
     dsp.print("L");
 
     // Jobb (R) téglalap
-    dsp.fillRect(label_left_R, _config.top - 4, label_width, label_height, 0x7BEF);
+    dsp.fillRect(label_left_R, _config.top - _bands.height + 3, label_width, label_height, 0x7BEF);
     int text_x_R = label_left_R + (label_width - 6) / 2;
     dsp.setCursor(text_x_R, text_y);
     dsp.print("R");
@@ -640,10 +640,19 @@ void VuWidget::_clear() {
   // dsp.fillRect(_config.left, _config.top, _bands.width * 2 + _bands.space, _bands.height, _bgcolor);
   // dsp.fillRect(0, _config.top - 4, 479, 24, _bgcolor);
 #ifndef BOOMBOX_STYLE
-  dsp.fillRect(0, _config.top-2, _bands.width, _bands.height * 2 + _bands.space + 4, _bgcolor);
+  uint16_t _xsiz = _bands.width + _labelsDrawn*(_bands.height + 10) + _config.left;
+  uint16_t _ysiz = _bands.height * 2 + _bands.space + 8*_labelsDrawn;
+ #ifdef VU_PEAK
+  _xsiz += 3;
+ #endif
 #else
-  dsp.fillRect(0, _config.top-2, _bands.width * 2 + _bands.space, _bands.height + 4, _bgcolor);
+  uint16_t _xsiz = _bands.width * 2 + _bands.space + _config.left;
+  uint16_t _ysiz = _bands.height + (_bands.height + 8)*_labelsDrawn;
+ #ifdef VU_PEAK
+  _xsiz += 6;
+ #endif
 #endif
+  dsp.fillRect(0, _config.top - (_bands.height-3)*_labelsDrawn, _xsiz, _ysiz, _bgcolor);  
   _labelsDrawn = false; // L és R meg keljen rajzolni. Módosítás.
 }
 #else // DSP_LCD
@@ -1149,7 +1158,7 @@ void BitrateWidget::_clear() {
 #else
   dsp.fillRect(_config.left, _config.top, _dimension, _dimension, _bgcolor);
 #endif
-  VuWidget::setLabelsDrawn(false); // Módosítás! (false) esetén újrarajzolja az L R címkét.
+//  VuWidget::setLabelsDrawn(false); // Módosítás! (false) esetén újrarajzolja az L R címkét.
 }
 
 
