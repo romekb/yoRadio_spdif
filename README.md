@@ -13,7 +13,7 @@ Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pami�
 Co nowego lub się zmieniło:
 - Poprawione migotanie czasu podczas pobierania czasu z NTP jeśli użyty jest moduł RTC.
 - Odblokowany VU widget na OLED'ach 128x64
-- Funkcja przewijania utworu odtwarzanego z karty SD przy pomocy enkodera 1. Wciśnij enkoder i obróć wciśnięty. Można puścić przycisk, i teraz obracając enkoder przewijamy utwór w przód/tył. Po 2 sekundach bezruchu enkoder wraca do standardowego trybu.
+- Funkcja przewijania utworu odtwarzanego z karty SD przy pomocy enkodera 1. Wciśnij enkoder i obróć wciśnięty. Można puścić przycisk, i teraz obracając enkoder przewijamy utwór w przód/tył. Po 5 sekundach bezruchu enkoder wraca do standardowego trybu.
 - Przetestowane na oledach SSD1306/SH1106 128x64. Poprawione ekrany na tych oledach, wyświetlany jest widżet bitrate + parę innych poprawek.
 - Dodane dwa przyciski na pilocie IR. Dedykowany włącz/wyłącz, oraz przycisk MUTE. Należy wgrać ponownie do esp zawartość folderu "data/www" po czym odświerzyć cache przeglądarki. W IR Record powinny być widoczne dodatkowe przyciski. Następnie na nowo trzeba ustawić kody przycisków pilota.
 - Radykalnie poprawiona dokładność zegarka
@@ -64,7 +64,7 @@ Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported. PSRA
 What's new or changed:
 - Fixed time flickering when getting time from NTP if RTC module is used.
 - Now VU widget work on 128x64 OLED's too.
-- Seek function for a song played from an SD card using the encoder 1. Press the encoder and rotate it. Now You can release the button and turn the encoder to fast forward/backward the song. After 2 seconds of inactivity, the encoder returns to standard mode.
+- Seek function for a song played from an SD card using the encoder 1. Press the encoder and rotate it. Now You can release the button and turn the encoder to fast forward/backward the song. After 5 seconds of inactivity, the encoder returns to standard mode.
 - Tested on SSD1306/SH1106 128x64 OLEDs. Improved screens on these OLEDs, bitrate widget is displayed + a few other corrections.
 - Two buttons have been added to the IR remote: a dedicated on/off button and a mute button. The contents of the "data/www" folder need to be re-uploaded to the ESP and then the browser cache needs to be refreshed. The additional buttons should now be visible in IR Record page. The remote's button codes need to be re-learned.
 - Radically improved clock accuracy
