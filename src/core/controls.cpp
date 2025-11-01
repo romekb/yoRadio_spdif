@@ -210,8 +210,8 @@ void encodersLoop(yoEncoder *enc, bool first){
     }
 #   endif
   }
-  if(_seekMode && millis()-_seekReturnTout > 2000) {
-    _seekMode = false;                // turn off seek mode after 2sec of encoder inactivity
+  if(_seekMode && millis()-_seekReturnTout > 5000) {
+    _seekMode = false;                // turn off seek mode after 5sec of encoder inactivity
     display.putRequest(DRAWVOL, 0);   // timeout visual feedback
   }
 }
@@ -504,7 +504,7 @@ void onBtnClick(int id) {
         break;
       }
     case EVT_ENCBTNB:
-        if(_seekMode) {/* _seekMode = false;*/ break; }
+        if(_seekMode) { _seekMode = false; break; }
     case EVT_BTNCENTER:
     case EVT_ENC2BTNB: {
         if (display.mode() == NUMBERS) {
