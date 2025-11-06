@@ -298,6 +298,7 @@ wkup:
             case IR_PWR: {
               player.lockOutput = true;
               player.sendCommand({PR_STOP, 0});
+              delay(200);
               display.putRequest(NEWMODE, SCREENBLANK);
               break;
             }
@@ -314,6 +315,7 @@ wkup:
                 irBlink();
                 if (display.mode() == NUMBERS) {
                   display.putRequest(NEWMODE, PLAYER);
+                  if(display.numOfNextStation == 0) break;
                   player.sendCommand({PR_PLAY, display.numOfNextStation});
                   display.numOfNextStation = 0;
                   break;
@@ -321,8 +323,26 @@ wkup:
                 onBtnClick(1);
                 break;
               }
-            case IR_PREV: {player.prev();  break; }
-            case IR_NEXT: { player.next(); break; }
+            case IR_PREV: {
+                if(display.mode() == NUMBERS) { 
+                  if(display.numOfNextStation > 1) { 
+                    display.numOfNextStation--; 
+                    display.putRequest(NEWMODE, NUMBERS);
+                    display.putRequest(NEXTSTATION, display.numOfNextStation);
+                  }
+                } else player.prev(); 
+                break; 
+              }
+            case IR_NEXT: { 
+                if(display.mode() == NUMBERS) { 
+                  if(display.numOfNextStation < config.playlistLength()) {
+                    display.numOfNextStation++; 
+                    display.putRequest(NEWMODE, NUMBERS);
+                    display.putRequest(NEXTSTATION, display.numOfNextStation);
+                  }
+                } else player.next(); 
+                break; 
+              }
             case IR_UP: {
                 controlsEvent(display.mode() == STATIONS ? false : true, 0, true);
                 irVolRepeat = 1;
@@ -352,7 +372,15 @@ wkup:
             case IR_7: { irNumber(7); break; }
             case IR_8: { irNumber(8); break; }
             case IR_9: { irNumber(9); break; }
-            case IR_AST: { onBtnClick(EVT_BTNMODE); break; }
+            case IR_AST: { 
+                if(display.mode() == NUMBERS) {
+                  display.numOfNextStation /= 10;
+                  display.putRequest(NEXTSTATION, display.numOfNextStation);
+                  break;
+                }
+                onBtnClick(EVT_BTNMODE); 
+                break; 
+              }
           } /* switch (target) */
           //target=19;
           break;
@@ -390,7 +418,11 @@ void onBtnLongPressStart(int id) {
       }
     case EVT_BTNMODE: {
         //config.doSleepW();
-        display.putRequest(NEWMODE, SLEEPING);
+        //display.putRequest(NEWMODE, SLEEPING);
+        player.lockOutput = true;                 // longpress -> power off
+        player.sendCommand({PR_STOP, 0});
+        delay(200);
+        display.putRequest(NEWMODE, SCREENBLANK);
         break;
       }
     default: break;

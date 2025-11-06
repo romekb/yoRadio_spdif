@@ -40,12 +40,8 @@ class DspCore: public yoDisplay {
     }
     #else
       #ifndef DSP_LCD
-        #if DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270
-          void loop(bool force=false) { tftUpdate(); }
-        #else  
-          inline void loop(bool force=false){}
-        #endif
-      inline void drawLogo(uint16_t top){ drawRGBBitmap((width() - LOGO_WIDTH) / 2, top, logo, LOGO_WIDTH, LOGO_HEIGHT); }
+        inline void loop(bool force=false){}
+        inline void drawLogo(uint16_t top){ drawRGBBitmap((width() - LOGO_WIDTH) / 2, top, logo, LOGO_WIDTH, LOGO_HEIGHT); }
       #endif
     #endif
     #ifdef DSP_LCD

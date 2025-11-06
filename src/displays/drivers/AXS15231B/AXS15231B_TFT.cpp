@@ -1,5 +1,5 @@
 #include "../../../core/options.h"
-#if(DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270)
+#if(DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_180)
 #include "AXS15231B_TFT.h"
 
 //#define AXS_WRTIM_DEBUG
@@ -13,6 +13,7 @@ typedef struct {
 
 static const axs15231b_lcd_init_cmd_t init_seq[] = {
     {0x22, (uint8_t[]){0x00}, 0, 0},
+/*    
     {0xBB, (uint8_t[]){0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5A, 0xA5}, 8, 0},
     {0xA0, (uint8_t[]){0xC0, 0x10, 0x00, 0x02, 0x00, 0x00, 0x04, 0x3F, 0x20, 0x05, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}, 17, 0},
     {0xA2, (uint8_t[]){0x30, 0x3C, 0x24, 0x14, 0xD0, 0x20, 0xFF, 0xE0, 0x40, 0x19, 0x80, 0x80, 0x80, 0x20, 0xf9, 0x10, 0x02, 0xff, 0xff, 0xF0, 0x90, 0x01, 0x32, 0xA0, 0x91, 0xE0, 0x20, 0x7F, 0xFF, 0x00, 0x5A}, 31, 0},
@@ -42,6 +43,7 @@ static const axs15231b_lcd_init_cmd_t init_seq[] = {
     {0xA4, (uint8_t[]){0x85, 0x85, 0x95, 0x82, 0xAF, 0xAA, 0xAA, 0x80, 0x10, 0x30, 0x40, 0x40, 0x20, 0xFF, 0x60, 0x30}, 16, 0},
     {0xA4, (uint8_t[]){0x85, 0x85, 0x95, 0x85}, 4, 0},
     {0xBB, (uint8_t[]){0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, 0},
+*/    
     {0x13, (uint8_t[]){0x00}, 0, 0},
     {0x11, (uint8_t[]){0x00}, 0, 200},
     {0x29, (uint8_t[]){0x00}, 0, 200},
@@ -49,9 +51,13 @@ static const axs15231b_lcd_init_cmd_t init_seq[] = {
 };
 
 static spi_device_handle_t spi;
-static volatile bool _needRefresh = true;
 static uint16_t *frameBuffer = NULL;
+static uint16_t *frameBuffer2 = NULL;
+static volatile bool cmdreq, inSleep;
+static uint32_t _buflen;
 SemaphoreHandle_t mutex_tft;
+spi_transaction_ext_t t;
+void tftSendChunk(uint8_t chunk);
 
 //=================================================================================
 
@@ -59,18 +65,46 @@ AXS15231B_TFT::AXS15231B_TFT(int16_t w, int16_t h) : Adafruit_GFX(w, h) {
     _dispHeight = h;  _dispWidth = w;
     _buflen = w*h;
     frameBuffer = (uint16_t *)heap_caps_aligned_alloc(16, _buflen*2, MALLOC_CAP_SPIRAM);
-    _initialized = 0;
+    frameBuffer2 = (uint16_t *)heap_caps_aligned_alloc(16, _buflen*2, MALLOC_CAP_SPIRAM);
+    if(!frameBuffer || !frameBuffer2) {
+        Serial.println("##[AXS display driver]#: Out of PSRAM !");
+        ESP.restart();
+    }
 }
 
 AXS15231B_TFT::~AXS15231B_TFT(void) {
   if(frameBuffer) heap_caps_free(frameBuffer);
+  if(frameBuffer2) heap_caps_free(frameBuffer2);
   frameBuffer = NULL;
+  frameBuffer2 = NULL;
 }
 
 //=================================================================================
 
+static void AxsTask(void * pvParameters){
+  static uint8_t chunk;
+  spi_transaction_t *res;
+
+  while(true) {
+    if(mutex_tft && !inSleep && !cmdreq && xSemaphoreTake(mutex_tft, 10) == pdTRUE) {
+        tftSendChunk(chunk);
+        while(spi_device_get_trans_result(spi, &res, 1) != ESP_OK) yield();
+        xSemaphoreGive(mutex_tft);
+        if(++chunk >= 10) { 
+            vTaskDelay(7); 
+            chunk = 0; 
+            memcpy(frameBuffer2, frameBuffer, _buflen*2); 
+        }
+    } else {
+        if(cmdreq || inSleep) chunk = 0;
+        vTaskDelay(10);
+    }
+  }
+  vTaskDelete( NULL );
+}
+
 void AXS15231B_TFT::begin(void) {
-    mutex_tft = xSemaphoreCreateRecursiveMutex();
+    mutex_tft = xSemaphoreCreateMutex();
     pinMode(TFT_CS, OUTPUT);
     TFT_CS_H;
 #if TFT_RST >= 0    
@@ -102,7 +136,6 @@ void AXS15231B_TFT::begin(void) {
     ESP_ERROR_CHECK(ret);
     ret = spi_bus_add_device(TFT_SPI_HOST, &devcfg, &spi);
     ESP_ERROR_CHECK(ret);
-    _initialized = 1;
 #if TFT_RST == -1
     tftSendCmd(TFT_SWRST, NULL, 0);    // soft reset
 #endif
@@ -111,10 +144,12 @@ void AXS15231B_TFT::begin(void) {
     for (int i = 0; i < initSize; i++) {
         tftSendCmd(init_seq[i].cmd, (uint8_t *)init_seq[i].data, init_seq[i].data_bytes);
         if(init_seq[i].delay_ms) delay(init_seq[i].delay_ms);
-    }   
-    dumySetAddrWindow();
-    _inSleep = false;
-    _initialized = 2;
+    }
+    uint16_t wh = _dispHeight-1;
+    uint8_t tr[] = {0, 0, (uint8_t)(wh>>8), (uint8_t)(wh & 0xFF)};
+    tftSendCmd(TFT_CASET, tr, 4); 
+    inSleep = false;
+    xTaskCreatePinnedToCore(AxsTask, "AXSTask", 4096, NULL, 5, NULL, 0);
 }
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::setRotation(uint8_t r) {
@@ -132,18 +167,16 @@ void AXS15231B_TFT::setRotation(uint8_t r) {
     tftSendCmd(TFT_MADCTL, &gbr, 1);
 }
 //---------------------------------------------------------------------------------
-void AXS15231B_TFT::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t lx, uint16_t ly) {
-    if(x1+lx > _dispWidth || y1+ly > _dispHeight) {
-        _gx=0; _gy=0, _gw=0; _gh=0;
-    } else {    
-        _gx=x1; _gy=y1, _gw=lx; _gh=ly;
-    }
+void AXS15231B_TFT::setAddrWindow(uint32_t x1, uint32_t y1, uint32_t lx, uint32_t ly) {
+    if(lx==0 || ly==0) return;
+    if(x1+lx > _dispWidth)  lx = _dispWidth-x1;   // clipping
+    if(y1+ly > _dispHeight) ly = _dispHeight-y1;
+    _gx=x1; _gy=y1, _gw=lx; _gh=ly;
 }
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::drawPixel(int16_t x, int16_t y, uint16_t color) {
-    if(x<0 || y<0 || x>=_dispWidth || y>=_dispHeight) return;
-    frameBuffer[(_dispWidth-1-x) * _dispHeight + y] = (color<<8) | (color>>8); 
-    _needRefresh = true;
+    uint32_t addr = (_dispWidth-1-x) * _dispHeight + y;
+    if(addr < _buflen) frameBuffer[addr] = __builtin_bswap16(color);
 }
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::writePixels(uint16_t *data, uint32_t len) {
@@ -152,20 +185,24 @@ void AXS15231B_TFT::writePixels(uint16_t *data, uint32_t len) {
     uint16_t newY = _gx;
     if(len > _buflen) return;
     while(len--) {
-        frameBuffer[(_dispWidth-1-newY)*_dispHeight + newX] = (*p<<8) | (*p>>8);
-        p++;
+        frameBuffer[(_dispWidth-1-newY)*_dispHeight + newX] = __builtin_bswap16(*p++);
         if(++newY >= _gx+_gw) { newY = _gx; if(++newX >= _gy+_gh) newX = _gy; }   
     }
-    _needRefresh = true;
 }
 //---------------------------------------------------------------------------------
-void AXS15231B_TFT::writeFillRect(int16_t xsta, int16_t ysta, int16_t w, int16_t h, uint16_t color) {
-    if(xsta<0 || ysta<0 || xsta+w > _dispWidth || ysta+h > _dispHeight || w==0 || h==0) return;
-    color = (color<<8) | (color>>8);
+void AXS15231B_TFT::fillRect(int16_t xsta, int16_t ysta, int16_t w, int16_t h, uint16_t color) {
+//    if(xsta<0 || ysta<0 || xsta+w > _dispWidth || ysta+h > _dispHeight || w==0 || h==0) return;
+    if(w==0 || h==0) return;
+    if(xsta < 0) xsta = 0;
+    if(ysta < 0) ysta = 0;
+    if(xsta+w > _dispWidth)  w = _dispWidth-xsta;   // clipping
+    if(ysta+h > _dispHeight) h = _dispHeight-ysta;
+    color = __builtin_bswap16(color);
+    xsta = _dispWidth-1 - xsta;
     for(int i=0; i<w; ++i) {
-        for(int j=0; j<h; ++j) frameBuffer[(_dispWidth-1 - xsta - i) * _dispHeight + ysta + j] = color;
+        uint32_t xx = (xsta - i) * _dispHeight + ysta;
+        for(int j=0; j<h; ++j) frameBuffer[xx + j] = color;
     }
-    _needRefresh = true;
 }
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::setInvert(bool invert) {
@@ -173,7 +210,7 @@ void AXS15231B_TFT::setInvert(bool invert) {
 }
 //---------------------------------------------------------------------------------
 void AXS15231B_TFT::tftSleep(bool sleepin) {
-    _inSleep = sleepin;
+    inSleep = sleepin;
     tftSendCmd(sleepin ? TFT_SLPIN:TFT_SLPOUT, NULL, 0);
     delay(200);
 }
@@ -181,106 +218,62 @@ void AXS15231B_TFT::tftSleep(bool sleepin) {
 void AXS15231B_TFT::tftClearScreen(uint16_t color) {
     if(color==0) {
         memset(frameBuffer, 0, _buflen*2);
+        memset(frameBuffer2, 0, _buflen*2);
         tftSendCmd(TFT_PIXELS_OFF, NULL, 0);
         delay(10);
     } else {
-        color = (color<<8) | (color>>8);
-        for(int i=0; i<_buflen; ++i) frameBuffer[i] = color;
-        _needRefresh = true;
-    }
-}
-//---------------------------------------------------------------------------------
-void AXS15231B_TFT::tftUpdate(bool force) {
-#ifdef AXS_WRTIM_DEBUG    
-    static uint32_t tim, oldtim;
-    static uint16_t cnt;
-#endif
-    if(!_inSleep && _initialized > 1 && ((_needRefresh && millis() - _lastUpdateTime >= 60) || force)) {
-#ifdef AXS_WRTIM_DEBUG
-        oldtim = micros();
-#endif
-        _needRefresh = false;
-        _lastUpdateTime = millis();
-        tftSendPixels(frameBuffer, _buflen);
-#ifdef AXS_WRTIM_DEBUG
-        tim += micros()-oldtim;
-        if(++cnt >= 16) {
-            tim >>= 4;
-            Serial.printf("Stim= %lu us\r\n", tim);
-            tim = 0;
-            cnt = 0;
-        }
-#endif
+        color = __builtin_bswap16(color);
+        for(int i=0; i<_buflen; ++i) {frameBuffer[i] = color; frameBuffer2[i] = color;}
     }
 }
 
 //=================================================================================
 
 void AXS15231B_TFT::tftSendCmd(uint32_t cmd, uint8_t *dat, uint32_t len) {
-    if(!_initialized || mutex_tft == NULL || !xSemaphoreTakeRecursive(mutex_tft, 50)) return;
-    TFT_CS_L;
-    spi_transaction_t t = {0};
-    //memset(&t, 0, sizeof(t));
-    t.cmd = 0x02;
-    t.addr = cmd << 8;
-    if (len != 0) {
-        t.tx_buffer = dat; 
-        t.length = 8 * len;
-    } else {
-        t.tx_buffer = NULL;
-        t.length = 0;
-    }
-    spi_device_polling_transmit(spi, &t);
-    TFT_CS_H;
-    xSemaphoreGiveRecursive(mutex_tft);
-}
-//---------------------------------------------------------------------------------
-void AXS15231B_TFT::tftSendPixels(uint16_t *data, uint32_t len)
-{
-    if(_initialized < 2 || mutex_tft == NULL || !xSemaphoreTakeRecursive(mutex_tft, 5)) return;
-    esp_err_t ret;
-    bool first_send = 1;
-    uint16_t *p = (uint16_t *)data;
-    TFT_CS_L;
-    do {
-        size_t chunk_size = len;
-        spi_transaction_ext_t t = {0};
-        //memset(&t, 0, sizeof(t));
-        if (first_send) {
-            t.base.flags = SPI_TRANS_MODE_QIO;
-            t.base.cmd  = 0x32;
-            t.base.addr = 0x002C00;
-            first_send  = 0;
+    cmdreq = true;
+    if(mutex_tft && xSemaphoreTake(mutex_tft, 50) == pdTRUE) {
+        TFT_CS_H;
+        spi_transaction_t t = {0};
+        t.cmd = 0x02;
+        t.addr = cmd << 8;
+        TFT_CS_L;
+        if (len != 0) {
+            t.tx_buffer = dat; 
+            t.length = 8 * len;
         } else {
-            t.base.flags = SPI_TRANS_MODE_QIO | SPI_TRANS_VARIABLE_CMD |
-                           SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_DUMMY;
-            t.command_bits = 0;
-            t.address_bits = 0;
-            t.dummy_bits   = 0;
+            t.tx_buffer = NULL;
+            t.length = 0;
         }
-        if (chunk_size > SEND_BUF_SIZE) chunk_size = SEND_BUF_SIZE;
-        t.base.tx_buffer = p;
-        t.base.length = chunk_size * 16;    // in bits
-        ret = spi_device_queue_trans(spi, (spi_transaction_t *)&t, 5);    // DMA write
-        ESP_ERROR_CHECK(ret);
-        spi_transaction_t *rtrans;
-        while(1) {
-            if(spi_device_get_trans_result(spi, &rtrans, 0) == ESP_OK) break; // wait for DMA complata - faster than pooling method
-            delay(1);
-//            yield();         // allow other task to do during wait
-        }
-        len -= chunk_size;
-        p += chunk_size;
-    } while (len > 0);
-    TFT_CS_H;
-    xSemaphoreGiveRecursive(mutex_tft);
+        spi_device_polling_transmit(spi, &t);
+        TFT_CS_H;
+        xSemaphoreGive(mutex_tft);
+    }
+    cmdreq = false;
 }
 //---------------------------------------------------------------------------------
-void AXS15231B_TFT::dumySetAddrWindow() {
-    uint16_t wh = _dispHeight-1;
-    uint8_t tr[] = {0, 0, (uint8_t)(wh>>8), (uint8_t)(wh & 0xFF)};
-    tftSendCmd(TFT_CASET, tr, 4);
+void tftSendChunk(uint8_t chunk)
+{
+    esp_err_t ret;
+    uint16_t *p = (uint16_t *)frameBuffer2 + chunk*SEND_BUF_SIZE;
+    if (chunk == 0) {
+        TFT_CS_H;
+        t.base.flags = SPI_TRANS_MODE_QIO;
+        t.base.cmd  = 0x32;
+        t.base.addr = 0x002C00;
+        TFT_CS_L;
+    } else {
+        t.base.flags = SPI_TRANS_MODE_QIO | SPI_TRANS_VARIABLE_CMD |
+                        SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_DUMMY;
+        t.command_bits = 0;
+        t.address_bits = 0;
+        t.dummy_bits   = 0;
+    }
+    t.base.tx_buffer = p;
+    t.base.length = SEND_BUF_SIZE * 16;    // in bits
+    ret = spi_device_queue_trans(spi, (spi_transaction_t *)&t, 5);    // DMA write
+    ESP_ERROR_CHECK(ret);
 }
+//---------------------------------------------------------------------------------
 
 #endif
 

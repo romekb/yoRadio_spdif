@@ -185,11 +185,11 @@ void TimeKeeper::_upClock(){
     localtime_r(&now, &network.timeinfo);
   }
 #else
-  if(network.timeinfo.tm_year>100 || network.status == SDREADY) {
+//  if(network.timeinfo.tm_year>100 || network.status == SDREADY) {
     time_t now;
     time(&now);
     localtime_r(&now, &network.timeinfo);
-  }
+//  }
 #endif
   if(display.ready()) display.putRequest(CLOCK);
 }

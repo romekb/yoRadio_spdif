@@ -1,10 +1,10 @@
 //v0.9.720
 #include "../core/options.h"
-#if DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_180
+#if DSP_MODEL==DSP_NV3041A
 #include "dspcore.h"
 #include "../core/config.h"
 
-DspCore::DspCore(): AXS15231B_TFT(DSP_WIDTH, DSP_HEIGHT) {}
+DspCore::DspCore(): NV3041A(DSP_WIDTH, DSP_HEIGHT) {}
 
 void DspCore::initDisplay() {
   begin();
@@ -13,7 +13,8 @@ void DspCore::initDisplay() {
   flip();
   setTextWrap(false);
   setTextSize(1);
-  fillScreen(0x0000);
+  //fillScreen(0x0000);
+  clearDsp(0);
 }
 
 void DspCore::clearDsp(bool black){ tftClearScreen( black ? 0 : config.theme.background); }

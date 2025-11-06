@@ -81,8 +81,8 @@ Page *pages[] = { new Page(), new Page(), new Page(), new Page() };
 
 #if !((DSP_MODEL==DSP_ST7735 && DTYPE==INITR_BLACKTAB) || DSP_MODEL==DSP_ST7789 || DSP_MODEL==DSP_ST7796 || \
        DSP_MODEL==DSP_ILI9488 || DSP_MODEL==DSP_ILI9486 || DSP_MODEL==DSP_ILI9341 || DSP_MODEL==DSP_ILI9225 || \
-       DSP_MODEL==DSP_ST7789_170 || DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270 || \
-       DSP_MODEL==DSP_SSD1306 || DSP_MODEL==DSP_SH1106 || DSP_MODEL==DSP_ST7920)
+       DSP_MODEL==DSP_ST7789_170 || DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_180 || \
+       DSP_MODEL==DSP_SSD1306 || DSP_MODEL==DSP_SH1106 || DSP_MODEL==DSP_ST7920 || DSP_MODEL==DSP_NV3041A)
   #undef  BITRATE_FULL
   #define BITRATE_FULL     false
 #endif
@@ -204,7 +204,7 @@ void Display::_buildPager(){
     _vuwidget = new VuWidget(vuConf, bandsConf, config.theme.vumax, config.theme.vumid, config.theme.vumin, config.theme.background);
   #endif
   #ifndef HIDE_VOLBAR
-    _volbar = new SliderWidget(volbarConf, config.theme.volbarin, config.theme.background, 254, config.theme.volbarout);
+    _volbar = new SliderWidget(volbarConf, config.theme.volbarin, config.theme.background, 200, config.theme.volbarout);
   #endif
   #ifndef HIDE_HEAPBAR
     _heapbar = new SliderWidget(heapbarConf, config.theme.buffer, config.theme.background, psramInit()?300000:1600 * config.store.abuff);
@@ -244,9 +244,6 @@ void Display::_buildPager(){
   #endif
   if(_vuwidget) pages[PG_PLAYER]->addWidget( _vuwidget);
   pages[PG_PLAYER]->addWidget(_clock);
-#ifdef NAMEDAYS_FILE
-  _clock->setNamedayFont(namedayConf.widget.textsize);
-#endif  
   pages[PG_SCREENSAVER]->addWidget(_clock);
   pages[PG_PLAYER]->addPage(_footer);
 
@@ -365,7 +362,6 @@ void Display::_swichMode(displayMode_e newmode) {
     nextion.putRequest({NEWMODE, newmode});
   #endif
   if (newmode == _mode || (network.status != CONNECTED && network.status != SDREADY)) return;
-  _mode = newmode;
   dsp.setScrollId(NULL);
   if (newmode == PLAYER) {
     if(player.isRunning())
@@ -383,14 +379,11 @@ void Display::_swichMode(displayMode_e newmode) {
     _meta->setText(config.station.name);
     _nums->setText("");	
 #ifdef WAKEUP_REBOOT
-    if(allowReboot && config.isScreensaver && config.store.screensaverBlank && player.status() == STOPPED) {
+    if(allowReboot && _mode == SCREENBLANK && player.status() == STOPPED) {
     #ifndef DUMMYDISPLAY
       dsp.wake();
       dsp.clearDsp(true);
       dsp.drawLogo(bootLogoTop);
-      #if(DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_270)
-        dsp.tftUpdate(true);
-      #endif
       config.setBrightness(config.store.brightness, false);   // fast visual feedback
       delay(250);
     #endif
@@ -399,7 +392,7 @@ void Display::_swichMode(displayMode_e newmode) {
     allowReboot = false;
 #else    
     // force update time & weather after out from screensaver
-    if(config.isRTCFound() && config.isScreensaver && player.status() == STOPPED) {
+    if(!config.isRTCFound() && _mode == SCREENBLANK && player.status() == STOPPED) {
       timekeeper.forceTimeSync = true;
       timekeeper.forceWeather = true;
     }
@@ -411,13 +404,14 @@ void Display::_swichMode(displayMode_e newmode) {
   }
   if (newmode == SCREENSAVER || newmode == SCREENBLANK) {
     config.isScreensaver = true;
-    _pager->setPage( pages[PG_SCREENSAVER]);
+//    _pager->setPage( pages[PG_SCREENSAVER]);
     if (newmode == SCREENBLANK) {
       //dsp.clearClock();
+      if(!player.isRunning()) offAnimation();
       _clock->clear();
       config.setDspOn(false, false);
       player.lockOutput = false;
-    }
+    } else _pager->setPage( pages[PG_SCREENSAVER]);
   }else{
     config.screensaverTicks=SCREENSAVERSTARTUPDELAY;
     config.screensaverPlayingTicks=SCREENSAVERSTARTUPDELAY;
@@ -445,7 +439,7 @@ void Display::_swichMode(displayMode_e newmode) {
     currentPlItem = config.lastStation();
     _drawPlaylist();
   }
-  
+  _mode = newmode;
 }
 
 void Display::resetQueue(){
@@ -605,11 +599,11 @@ void Display::loop() {
     if(_volbar) {
       int32_t curr = player.getFilePos()-player.inBufferFilled()-player.sd_min;
       if(curr < 0) curr = 0;
-      int32_t step = (player.sd_max - player.sd_min) / 254;
+      int32_t step = (player.sd_max - player.sd_min) / 200;
       if(step) {
         curr /= step;
         if(curr < 0) curr = 0;
-        if(curr > 254) curr = 254;
+        if(curr > 200) curr = 200;
         #ifdef COLOR_PROGRESSBAR
         if(config.theme.volbarin != 0x0001) {          // fix for monochrome displays
           _volbar->setColor(config.color565(COLOR_PROGRESSBAR)); 
@@ -715,10 +709,8 @@ void Display::_time(bool redraw) {
     _clock->moveTo({lt, ft, 0});
   }
   #ifdef NAMEDAYS_FILE
-    static char bday[30];
-    if(strcmp(_clock->gNameDay(), bday) != 0) {
-      strlcpy(bday, _clock->gNameDay(), sizeof(bday));
-      _nameday->setText(bday);
+    if(_nameday && network.timeinfo.tm_year > 100) {
+      if( _nameday->getNamedayUpper() ) _nameday->setText( _nameday->gNameDay() );
     }
   #endif
   _clock->draw(redraw);
@@ -729,12 +721,10 @@ void Display::_time(bool redraw) {
 
 void Display::_volume() {
   if (_volbar) {                                
-    uint16_t vol = (config.store.volume * 254) / 100;
-    if (vol > 254) vol = 254;
     #ifdef COLOR_PROGRESSBAR
      _volbar->setColor(config.theme.volbarin);
     #endif
-    _volbar->setValue(vol);
+    _volbar->setValue(2*config.store.volume);
     #ifndef HIDE_VOL
       if(_voltxt) _voltxt->setText(config.store.volume, voltxtFmt);
     #endif
@@ -779,6 +769,37 @@ void Display::wakeup(){
 #if defined(LCD_I2C) || defined(DSP_OLED) || BRIGHTNESS_PIN!=255
   dsp.wake();
 #endif
+}
+
+void Display::offAnimation() {
+#if !(defined(LCD_I2C) || defined(DSP_LCD))
+  uint16_t currx=0, curry=0;
+  uint8_t delta = 1;
+  if(height() > 120) delta = 2;
+  if(height() > 200) delta = 3;
+  if(height() > 300) delta = 5;
+  uint16_t col=0xFFFF;
+#ifdef TFT_FG
+  col = TFT_FG;
+#endif
+
+  while(currx <= width()/2) {
+    if(curry <= height()/2-delta) {
+      dsp.fillRect(0, curry, width(), delta, 0);                    // top
+      dsp.fillRect(0, height()-delta-curry, width(), delta, 0);     // bottom
+      curry += delta;
+    } else {
+      currx += 1;
+      dsp.fillRect(currx+1, curry+2, width()-2*currx-1, delta+1, col);
+    }
+    dsp.fillRect(currx, 0, delta+1, height(), 0);               // left
+    dsp.fillRect(width()-delta-currx, 0, delta+1, height(), 0); // right
+    dsp.loop();
+    delay(15);
+    currx += delta;
+  }
+  dsp.clearDsp(true);
+#endif  
 }
 //============================================================================================================================
 #else // !DUMMYDISPLAY

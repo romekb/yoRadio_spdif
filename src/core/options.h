@@ -56,8 +56,9 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #define DSP_2002        26    // 20x2           https://aliexpress.com/item/32812259852.html
 #define DSP_2002I2C     27    // 20x2           https://aliexpress.com/item/32812259852.html
 #define DSP_ST7789_170  28    // 320x170  1.9'  https://aliexpress.com/item/1005008723378017.html
-#define DSP_AXS15231B   29    // 320x480  3.5'  https://spotpear.com/ESP32-S3-3.5-inch-LCD-Captive-TouchScreen-Display-480x320-Tablet-MP3-Video-Weather-Clock/forum-answer/317.html
-#define DSP_AXS15231B_270 30    // 270x480  4''  
+#define DSP_AXS15231B   50    // 320x480  3.5'  https://spotpear.com/ESP32-S3-3.5-inch-LCD-Captive-TouchScreen-Display-480x320-Tablet-MP3-Video-Weather-Clock/forum-answer/317.html
+#define DSP_AXS15231B_180 51  // 180x640  3.4'  T-Display S3 Long
+#define DSP_NV3041A     52    // 270x480  4.3''  
 #define DSP_CUSTOM      101   // your display
 
 #ifndef DSP_MODEL

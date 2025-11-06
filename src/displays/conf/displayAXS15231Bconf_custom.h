@@ -23,18 +23,18 @@
 
 /* SROLLS  */                            /* {{ left, top, fontsize, align }, buffsize, uppercase, width, scrolldelay, scrolldelta, scrolltime } */
 #ifdef HIDE_TITLE2
-const ScrollConfig metaConf      PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 5, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 9, 50 };
-const ScrollConfig title1Conf    PROGMEM = {{ TFT_FRAMEWDT, 66, 5, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 50};
+const ScrollConfig metaConf      PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 5, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 7, 30 };
+const ScrollConfig title1Conf    PROGMEM = {{ TFT_FRAMEWDT, 66, 5, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 30};
 #else
-const ScrollConfig metaConf      PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 9, 50 };
-const ScrollConfig title1Conf    PROGMEM = {{ TFT_FRAMEWDT, 55, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 50};
+const ScrollConfig metaConf      PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_LEFT }, 140, true, MAX_WIDTH, 5000, 6, 30 };
+const ScrollConfig title1Conf    PROGMEM = {{ TFT_FRAMEWDT, 55, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 4, 30};
 #endif
-const ScrollConfig title2Conf    PROGMEM = {{ TFT_FRAMEWDT, 85, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 7, 50};
-const ScrollConfig playlistConf  PROGMEM = {{ TFT_FRAMEWDT, 146, 4, WA_LEFT }, 140, true, MAX_WIDTH, 1000, 7, 50 };
-const ScrollConfig apTitleConf   PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_CENTER }, 140, false, MAX_WIDTH, 0, 7, 50 };
-const ScrollConfig apSettConf    PROGMEM = {{ TFT_FRAMEWDT, 320-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 7, 50 };
-const ScrollConfig weatherConf   PROGMEM = {{ TFT_FRAMEWDT, 117, 3, WA_CENTER }, 140, false, MAX_WIDTH, 5000, 6, 50 };
-const ScrollConfig namedayConf   PROGMEM = {{ TFT_FRAMEWDT, 208, 3, WA_LEFT }, 80, true, 161, 0, 3, 50 };
+const ScrollConfig title2Conf    PROGMEM = {{ TFT_FRAMEWDT, 85, 3, WA_LEFT}, 140, true, MAX_WIDTH, 5000, 4, 30};
+const ScrollConfig playlistConf  PROGMEM = {{ TFT_FRAMEWDT, 146, 4, WA_LEFT }, 140, true, MAX_WIDTH, 1000, 8, 30 };
+const ScrollConfig apTitleConf   PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_CENTER }, 140, false, MAX_WIDTH, 0, 6, 30 };
+const ScrollConfig apSettConf    PROGMEM = {{ TFT_FRAMEWDT, 320-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 7, 30 };
+const ScrollConfig weatherConf   PROGMEM = {{ TFT_FRAMEWDT, 117, 3, WA_CENTER }, 140, false, MAX_WIDTH, 5000, 7, 30 };
+const ScrollConfig namedayConf   PROGMEM = {{ TFT_FRAMEWDT, 212, 3, WA_LEFT }, 80, true, 161, 0, 3, 30 };
 
 /* BACKGROUNDS  */                       /* {{ left, top, fontsize, align }, width, height, outlined } */
 #ifdef HIDE_TITLE2
@@ -65,7 +65,7 @@ const WidgetConfig bootWdtConf   PROGMEM = {0, 200, 2, WA_CENTER};
 const ProgressConfig bootPrgConf PROGMEM = {90, 14, 4};
 
 //{{ left, top, fontsize, align }dimension}
-const BitrateConfig fullbitrateConf PROGMEM = {{25, 148, 2, WA_RIGHT}, 60};
+const BitrateConfig fullbitrateConf PROGMEM = {{25, 148, 2, WA_LEFT}, 60};
 
 /* BANDS { onebandwidth (width), onebandheight (height), bandsHspace (space), bandsVspace (vspace), numofbands (perheight), fadespeed (fadespeed)} */
 #ifdef BOOMBOX_STYLE
@@ -75,10 +75,10 @@ const BitrateConfig fullbitrateConf PROGMEM = {{25, 148, 2, WA_RIGHT}, 60};
 #endif
 
 /* STRINGS  */
-const char numtxtFmt[] PROGMEM = "%d";
-const char rssiFmt[] PROGMEM = "WiFi %ddBm";
-const char iptxtFmt[] PROGMEM = "%s";
-const char voltxtFmt[] PROGMEM = "\023\025%d%%";
+const char numtxtFmt[]  PROGMEM = "%d";
+const char rssiFmt[]    PROGMEM = "WiFi %ddBm";
+const char iptxtFmt[]   PROGMEM = "%s";
+const char voltxtFmt[]  PROGMEM = "\023\025%d%%";
 const char bitrateFmt[] PROGMEM = "%d kBs";
 
 /* MOVES  */ /* { left, top, width } */

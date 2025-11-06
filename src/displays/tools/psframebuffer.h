@@ -45,8 +45,9 @@ class  psFrameBuffer : public Adafruit_GFX {
       if(!buffer) return;
       fillRect(0, 0, _ww, _hh, _bgcolor);
     }
-    int16_t width(){ return _ww; }
+    int16_t width() { return _ww; }
     int16_t height(){ return _hh; }
+    uint16_t *buff(){ return buffer; }
   private:
     int16_t _ll, _tt, _ww, _hh;
     yoDisplay *_dspl;

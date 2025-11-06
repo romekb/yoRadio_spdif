@@ -180,7 +180,7 @@ void Player::loop() {
       }
       #endif
       case PR_VUTONUS: {
-        if(config.vuThreshold>5) config.vuThreshold -=5;
+        if(config.vuThreshold>5) config.vuThreshold--;
         break;
       }
       case PR_BURL: {

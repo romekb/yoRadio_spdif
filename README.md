@@ -11,6 +11,11 @@ Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pami�
 ** nie testowałem tych modeli TFT ale powinny działać.
 
 Co nowego lub się zmieniło:
+- Dodana obsługa wyświetlaczy 480x272 na chipach NV3041A - Guition JC4827W543.
+- Jak jest włączona opcja "Numbered playlist" to numer stacji jest również wyświetlany na ekranie playera (np 12:RMF FM)
+- W trybie wpisywania numerów z pilota przycisk * kasuje ostatnią cyfrę, a Next/Prew zwieksza i zmniejsza wybrany numer
+- Fajna animacja wyłączania (wejscie w sleep, POWER z pilota, lub długie nacisniecie touchscreena w trybie STOP)
+- Napisany od nowa driver AXS15231B, poprawki widżetu imienin, troche poprawek błędów oraz ulepszeń.
 - Poprawione migotanie czasu podczas pobierania czasu z NTP jeśli użyty jest moduł RTC.
 - Odblokowany VU widget na OLED'ach 128x64
 - Funkcja przewijania utworu odtwarzanego z karty SD przy pomocy enkodera 1. Wciśnij enkoder i obróć wciśnięty. Można puścić przycisk, i teraz obracając enkoder przewijamy utwór w przód/tył. Po 5 sekundach bezruchu enkoder wraca do standardowego trybu.
@@ -62,6 +67,11 @@ Tested with ST7789 320x240 display and AXS15231B 480x320 from Guition module, ST
 Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported. PSRAM is required especially for AXS15231B display.
 
 What's new or changed:
+- Added support for 480x272 displays on NV3041A chips - Guition JC4827W543.
+- When the "Numbered playlist" option is enabled, the station number is also displayed on the player screen (e.g., 12:RMF FM).
+- When entering numbers using the remote, the * button deletes the last digit, and the Next/Prew button increases or decreases the selected number.
+- Cool shutdown animation (entering sleep mode, pressing POWER on the remote, or long-pressing the touchscreen in STOP mode).
+- Rewritten AXS15231B driver, fixes for the name day widget, and some bug fixes and improvements.
 - Fixed time flickering when getting time from NTP if RTC module is used.
 - Now VU widget work on 128x64 OLED's too.
 - Seek function for a song played from an SD card using the encoder 1. Press the encoder and rotate it. Now You can release the button and turn the encoder to fast forward/backward the song. After 5 seconds of inactivity, the encoder returns to standard mode.

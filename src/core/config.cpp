@@ -702,7 +702,8 @@ void Config::setTitle(const char* title) {
 
 void Config::setStation(const char* station) {
   memset(config.station.name, 0, BUFLEN);
-  strlcpy(config.station.name, station, BUFLEN);
+  if(store.numplaylist) sprintf(config.station.name, "%d:", config.lastStation());
+  strlcat(config.station.name, station, BUFLEN);
 //  u8fix(config.station.title);
   u8fix(config.station.name);
 }
@@ -767,7 +768,8 @@ bool Config::loadStation(uint16_t ls) {
   if (parseCSV(playlist.readStringUntil('\n').c_str(), tmpBuf, tmpBuf2, sOvol)) {
     memset(station.url, 0, BUFLEN);
     memset(station.name, 0, BUFLEN);
-    strncpy(station.name, tmpBuf, BUFLEN);
+    if(store.numplaylist) sprintf(station.name,"%d:", config.lastStation());
+    strlcat(station.name, tmpBuf, BUFLEN);
     strncpy(station.url, tmpBuf2, BUFLEN);
     station.ovol = sOvol;
     setLastStation(ls);
@@ -973,13 +975,15 @@ void Config::setBrightness(uint8_t value, bool dosave){
 }
 
 void Config::setDspOn(bool dspon, bool saveval){
-  static bool currstate;
+  static bool initialized=false, currstate;
+  
   if(saveval){
     store.dspon = dspon;
     saveValue(&store.dspon, store.dspon, true, true);
   }
-  if(dspon == currstate) return;
+  if(dspon == currstate && initialized) return;
   currstate = dspon;
+  initialized = true;
 #ifdef USE_NEXTION
   if(!dspon) nextion.sleep();
   else nextion.wake();

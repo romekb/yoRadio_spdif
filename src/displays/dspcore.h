@@ -106,9 +106,14 @@
   #define TIME_SIZE           70
   #include "displayAXS15231B.h"
 
-#elif DSP_MODEL==DSP_AXS15231B_270      
+#elif DSP_MODEL==DSP_AXS15231B_180      
   #define TIME_SIZE           52
   #include "displayAXS15231B.h"
+
+#elif DSP_MODEL==DSP_NV3041A    
+  #define TIME_SIZE           52
+  #define PSFBUFFER
+  #include "displayNV3041A.h"
 
 #endif
 

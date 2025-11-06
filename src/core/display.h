@@ -47,6 +47,7 @@ class Display {
     uint16_t width();
     uint16_t height();
     ScrollWidget *getScrollPtr(uint8_t num);
+    void offAnimation();
   private:
     ScrollWidget *_meta, *_title1, *_plcurrent, *_weather, *_title2, *_nameday;
     PlayListWidget *_plwidget;
@@ -109,6 +110,9 @@ class Display {
     void unlock() {}
     uint16_t width(){ return 0; }
     uint16_t height(){ return 0; }
+    ScrollWidget *getScrollPtr(uint8_t num) {return NULL;}
+    void offAnimation() {}
+    
   private:
     void _createDspTask();
 };

@@ -110,6 +110,10 @@ class ScrollWidget: public TextWidget {
     void loop();
     void setText(const char* txt);
     void setText(const char* txt, const char *format);
+  #ifdef NAMEDAYS_FILE
+    bool getNamedayUpper();
+    char *gNameDay(){ return _namedayBuf; }
+  #endif
   private:
     char *_sep;
     char *_window;
@@ -121,6 +125,7 @@ class ScrollWidget: public TextWidget {
     uint16_t _sepwidth, _startscrolldelay;
     uint8_t _charWidth;
     psFrameBuffer* _fb=nullptr;
+    char _namedayBuf[40] = {0};
   private:
     void _setTextParams();
     void _calcX();
@@ -161,8 +166,6 @@ class VuWidget: public Widget {
     using Widget::init;
     void init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumidcolor, uint16_t vumincolor, uint16_t bgcolor);
     void loop();
-//    static void setLabelsDrawn(bool value); // Módosítás
-//    static bool isLabelsDrawn(); // Módosítás
   protected:
     #if !defined(DSP_LCD) //&& !defined(DSP_OLED)
       Canvas *_canvas;
@@ -215,10 +218,6 @@ class ClockWidget: public Widget {
     void clear(){ _clearClock(); }
     inline uint16_t dateSize(){ return _space+ _dateheight; }
     inline uint16_t clockWidth(){ return _clockwidth; }
-    void setNamedayFont(uint8_t size);
-    #ifdef NAMEDAYS_FILE
-     char *gNameDay(){ return _namedayBuf; }
-    #endif
   private:
   #ifndef DSP_LCD
     Adafruit_GFX &getRealDsp();
@@ -229,7 +228,6 @@ class ClockWidget: public Widget {
     uint8_t _superfont;
     uint16_t _clockleft, _clockwidth, _timewidth, _dotsleft, _linesleft;
     uint8_t  _clockheight, _timeheight, _dateheight, _space, _namedayFont;
-    char     _namedayBuf[30];
     uint16_t _forceflag = 0;
     bool dots = true;
     bool _fullclock;
@@ -240,10 +238,6 @@ class ClockWidget: public Widget {
     void _getTimeBounds();
     void _printClock(bool force=false);
     void _clearClock();
-    #ifdef NAMEDAYS_FILE
-     void  _printNameday();        // Módosítás új sor.
-     void getNamedayUpper(char* dest, size_t len); // Módosítás
-    #endif
     bool _getTime();
     uint16_t _left();
     uint16_t _top();
@@ -277,6 +271,7 @@ class PlayListWidget: public Widget {
     inline uint16_t itemHeight(){ return _plItemHeight; }
     inline uint16_t currentTop(){ return _plYStart+_plCurrentPos*_plItemHeight; }
   private:
+    psFrameBuffer* _fb=nullptr;
     ScrollWidget* _current;
     uint16_t _plItemHeight, _plTtemsCount, _plCurrentPos;
     int _plYStart;

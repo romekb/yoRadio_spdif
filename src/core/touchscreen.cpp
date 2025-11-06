@@ -59,7 +59,11 @@ void TouchScreen::init(uint16_t w, uint16_t h){
   ts.setRotation(config.store.fliptouch?3:1);
 #elif TS_MODEL==TS_MODEL_GT911
   ts.begin();
+  #if DSP_MODEL == DSP_NV3041A
+  ts.setRotation(config.store.fliptouch?3:1);
+  #else
   ts.setRotation(config.store.fliptouch?0:2);
+  #endif
   ts.setResolution(_width, _height);
 #elif TS_MODEL==TS_MODEL_AXS15231B
   ts.begin();
@@ -93,9 +97,14 @@ tsDirection_e TouchScreen::_tsDirection(uint16_t x, uint16_t y) {
 void TouchScreen::flip(){
 #if TS_MODEL==TS_MODEL_XPT2046
   ts.setRotation(config.store.fliptouch?3:1);
-#endif
-#if (TS_MODEL==TS_MODEL_GT911) || (TS_MODEL==TS_MODEL_AXS15231B)
+#elif (TS_MODEL==TS_MODEL_GT911)
+  #if DSP_MODEL == DSP_NV3041A
+  ts.setRotation(config.store.fliptouch?3:1);
+  #else
   ts.setRotation(config.store.fliptouch?0:2);
+  #endif
+#elif (TS_MODEL==TS_MODEL_AXS15231B)
+  ts.setRotation(config.store.fliptouch?1:3);
 #endif
 }
 
@@ -212,7 +221,7 @@ void TouchScreen::loop(){
     if (wastouched) {/*     END TOUCH     */
       if (direct == TSD_REQUEST) {
         uint32_t pressTicks = millis()-touchLongPress;
-        if( pressTicks < BTN_PRESS_TICKS*2){
+        if( pressTicks < BTN_PRESS_TICKS*2) {
           if(pressTicks > 50) {
             if(display.mode()==PLAYER && _oldTouchY>(_height*2)/3) {
               if(_oldTouchX < _width/3)          { player.prev(); goto _exit; }     // Left-top - prevous
@@ -229,6 +238,7 @@ void TouchScreen::loop(){
           if(player.status() == STOPPED && display.mode() == PLAYER && display.mode() != SCREENSAVER) {
             player.lockOutput = true;                 // longpress during stop -> power off
             player.sendCommand({PR_STOP, 0});
+            delay(200);
             display.putRequest(NEWMODE, SCREENBLANK);
           } else {                                    // longpress during stations -> return
             display.allowReboot = true;               // longpress during sleep -> reboot

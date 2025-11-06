@@ -320,6 +320,27 @@ void ScrollWidget::_reset(){
   #endif
 }
 
+/*********************  NAMEDAYS *****************************/
+#ifdef NAMEDAYS_FILE
+bool ScrollWidget::getNamedayUpper() { // commongfx.h - ban van deklarálva.
+  static uint8_t oldday = 99;
+  const char *nameday = getNameDay(network.timeinfo.tm_mon + 1, network.timeinfo.tm_mday);
+  char        tmp[32];
+  strlcpy(tmp, nameday, sizeof(tmp));
+  for (int i = 0; tmp[i]; i++) tmp[i] = toupper((unsigned char)tmp[i]);
+  strlcpy(_namedayBuf, utf8To(tmp, true), sizeof(_namedayBuf));
+
+  dsp.setTextColor(config.theme.date, config.theme.background);
+  dsp.setCursor(_config.left, _config.top - 9*(_config.textsize - 1) - 4);
+  dsp.setTextSize(_config.textsize - 1);
+  if (!config.isScreensaver) dsp.print(utf8To(nameday_label, false));
+  if(oldday == network.timeinfo.tm_mday) return false;
+  oldday = network.timeinfo.tm_mday;
+  return true;
+}
+#endif //NAMEDAYS_FILE
+
+
 /************************
       SLIDER WIDGET
  ************************/
@@ -447,14 +468,14 @@ void VuWidget::_draw() {
     } else if (now - peakL_time > peak_hold_ms && peakL > 0) {
       peakL = (peakL > peak_decay_step) ? peakL - peak_decay_step : 0;
     }
-#else
+#else //BOOMBOX_STYLE
     if (measL < peakL) {
       peakL = measL;
       peakL_time = now;
     } else if (now - peakL_time > peak_hold_ms && peakL >= 0) {
       peakL = (peakL < dimension) ? peakL + peak_decay_step : 0;
     }
-#endif
+#endif //BOOMBOX_STYLE
 
     if (dimension - measR > peakR) {
       peakR = dimension - measR;
@@ -505,7 +526,7 @@ void VuWidget::_draw() {
       // bandColor = (i > _bands.width - (_bands.width / _bands.perheight) * 4) ? _vumaxcolor : _vumincolor;
       _canvas->fillRect(i, 0, h, _bands.height, bandColor); //
       _canvas->fillRect(i, _bands.height + _bands.space, h, _bands.height, bandColor);
-#else // Ha BOMBOX_STYLE van.
+#else // BOMBOX_STYLE
       /* Bal sáv színezése vörös - sárga - zöld */
       if (i < _bands.width - yellow_end)
         bandColor = _vumaxcolor;
@@ -522,7 +543,7 @@ void VuWidget::_draw() {
       else
         bandColor = _vumaxcolor;
       _canvas->fillRect(i + _bands.width + _bands.space, 0, h, _bands.height, bandColor); // jobb csatorna
-#endif
+#endif // BOMBOX_STYLE
     }
   }
 #ifndef BOOMBOX_STYLE
@@ -547,8 +568,12 @@ void VuWidget::_draw() {
   dsp.drawBitmap(_config.left, _config.top, (uint8_t*)_canvas->getBuffer(), 
                  _bands.width, _bands.height * 2 + _bands.space, 1, 0);
 #else
-  dsp.drawRGBBitmap(_config.left, _config.top, _canvas->getBuffer(),
-                    _bands.width, _bands.height * 2 + _bands.space);
+//  dsp.drawRGBBitmap(_config.left, _config.top, _canvas->getBuffer(),
+//                    _bands.width, _bands.height * 2 + _bands.space);
+  dsp.startWrite();
+  dsp.setAddrWindow(_config.left, _config.top, _bands.width, _bands.height * 2 + _bands.space);
+  dsp.writePixels((uint16_t *)_canvas->getBuffer(), (_bands.height * 2 + _bands.space) * _bands.width);
+  dsp.endWrite();
 #endif //DSP_OLED
 #else // BOOMBOX_STYLE
   // --- Visszatörlés a pillanatnyi szint alapján ---
@@ -571,9 +596,9 @@ void VuWidget::_draw() {
   dsp.setAddrWindow(_config.left + 4, _config.top + 10, _bands.width * 2 + _bands.space, _bands.height);
   dsp.writePixels((uint16_t *)_canvas->getBuffer(), (_bands.width * 2 + _bands.space) * _bands.height);
   dsp.endWrite();
-#endif
+#endif // BOOMBOX_STYLE
 
-  // --- L/R címkék rajzolása ---
+  // --- L/R labels ---
 #ifndef BOOMBOX_STYLE
   if (played && !_labelsDrawn) {
     // Serial.println("L/R rajzolás");
@@ -848,10 +873,6 @@ uint16_t ClockWidget::_top(){
   if(_fb->ready()) return _timeheight; else return _config.top;
 }
 
-void ClockWidget::setNamedayFont(uint8_t size) {
-  _namedayFont = size;
-}
-
 void ClockWidget::_getTimeBounds() {
   _timewidth = _textWidth(_timebuffer);
   uint8_t fs = _superfont>0?_superfont:TIME_SIZE;
@@ -939,27 +960,17 @@ void ClockWidget::_printClock(bool force){
               // Sor törlése teljes szélességben
               int dateY      = _config.top + 8;
               int lineHeight = _dateheight * 8;   // kb. 8 pixel per TextSize
-              dsp.fillRect(0, dateY, dsp.width(), lineHeight, config.theme.background); //szürke 0x8410
               strlcpy(_datebuf, utf8To(_tmp, false), sizeof(_datebuf));
               uint16_t _datewidth = strlen(_datebuf) * CHARWIDTH*_dateheight;
+              uint16_t _dateleft = dsp.width() - _datewidth - _config.left;
+              uint16_t maxdateLen = 24*CHARWIDTH*_dateheight;
+              dsp.fillRect(dsp.width()-maxdateLen-_config.left, dateY, maxdateLen, lineHeight, config.theme.background);
               dsp.setFont();
               dsp.setTextSize(_dateheight);
-              #if DSP_MODEL==DSP_GC9A01A
-                dsp.setCursor((dsp.width()-_datewidth)/2, _top() + _space);
-              #else
-                dsp.setCursor(_left()+_clockwidth-_datewidth, _top() + _space);
-              #endif
-              uint16_t _dateleft = dsp.width() - _datewidth - _config.left;
               dsp.setCursor(_dateleft, _config.top + 8);
               dsp.setTextColor(config.theme.date, config.theme.background);
               dsp.print(_datebuf);
           #endif // HIDE_DATE
-          // Mai névnap letöltése - csak ha engedélyezve van.
-          #ifdef NAMEDAYS_FILE
-            getNamedayUpper(_namedayBuf, sizeof(_namedayBuf));
-            //_namedayleft = 8;
-            if (!config.isScreensaver) _printNameday();
-          #endif //NAMEDAYS_FILE
         }
       }
     }
@@ -995,28 +1006,6 @@ void ClockWidget::_printClock(bool force){
   gfx.setFont();
   if(_fb->ready()) _fb->display();
 }
-
-/*********************  A névnapok kiírása. *****************************/
-#ifdef NAMEDAYS_FILE
-void ClockWidget::getNamedayUpper(char *dest, size_t len) { // commongfx.h - ban van deklarálva.
-  const char *nameday = getNameDay(network.timeinfo.tm_mon + 1, network.timeinfo.tm_mday);
-  char        tmp[32];
-  strlcpy(tmp, nameday, sizeof(tmp));
-  for (int i = 0; tmp[i]; i++) {
-    tmp[i] = toupper((unsigned char)tmp[i]);
-  }
-  strlcpy(dest, utf8To(tmp, true), len);
-}
-
-void ClockWidget::_printNameday() {
-  // Rajzold le a nyelvfüggő "Névnap:" szót fehér színnel.
-  dsp.setTextColor(config.theme.date, config.theme.background);
-  dsp.setCursor(_config.left, _config.top - 2 - 10*_namedayFont);
-  dsp.setTextSize(_namedayFont - 1);
-  if (!config.isScreensaver)
-    dsp.print(utf8To(nameday_label, false)); // <<< Itt már a headerből jön
-}
-#endif //NAMEDAYS_FILE
 
 void ClockWidget::_clearClock(){
 #ifdef PSFBUFFER
@@ -1092,14 +1081,18 @@ void BitrateWidget::init(BitrateConfig bconf, uint16_t fgcolor, uint16_t bgcolor
 }
 
 void BitrateWidget::setBitrate(uint16_t bitrate){
-  _bitrate = bitrate;
-  if(_bitrate>999) _bitrate=999;
-  _draw();
+  if(bitrate>999) bitrate=999;
+  if(_bitrate != bitrate) {
+    _bitrate = bitrate;
+    _draw();
+  }
 }
 
 void BitrateWidget::setFormat(BitrateFormat format){
-  _format = format;
-  _draw();
+  if(_format != format) {
+    _format = format;
+    _draw();
+  }
 }
 
 //TODO move to parent
@@ -1179,6 +1172,12 @@ void PlayListWidget::init(ScrollWidget* current){
   _plTtemsCount = PLMITEMS;
   _plCurrentPos = 1;
   #endif
+  #ifdef PSFBUFFER
+  if(_fb == NULL) {
+    _fb = new psFrameBuffer(dsp.width(), dsp.height());
+    _fb->begin(&dsp, 0, 0, dsp.width()-TFT_FRAMEWDT, _plItemHeight, config.theme.background);
+  }
+  #endif
 }
 
 uint8_t PlayListWidget::_fillPlMenu(int from, uint8_t count) {
@@ -1235,10 +1234,26 @@ void PlayListWidget::_printPLitem(uint8_t pos, const char* item){
     _current->setText(item);
   } else {
     uint8_t plColor = (abs(pos - _plCurrentPos)-1)>4?4:abs(pos - _plCurrentPos)-1;
-    dsp.setTextColor(config.theme.playlist[plColor], config.theme.background);
-    dsp.setCursor(TFT_FRAMEWDT, _plYStart + pos * _plItemHeight);
-    dsp.fillRect(0, _plYStart + pos * _plItemHeight - 2*playlistConf.widget.textsize, dsp.width(), _plItemHeight, config.theme.background);
-    dsp.print(utf8To(item, true));
+
+    if(_fb->ready()){
+    #ifdef PSFBUFFER
+      _fb->setTextSize(playlistConf.widget.textsize);
+      _fb->setTextColor(config.theme.playlist[plColor], config.theme.background);
+      _fb->setCursor(TFT_FRAMEWDT, 0);
+      _fb->fillRect(0, 0, dsp.width()-TFT_FRAMEWDT, _plItemHeight, config.theme.background);
+      _fb->print(utf8To(item, true));
+
+      dsp.startWrite();
+      dsp.setAddrWindow(0, _plYStart + pos * _plItemHeight, dsp.width()-TFT_FRAMEWDT, _plItemHeight);
+      dsp.writePixels((uint16_t*)_fb->buff(),  (dsp.width()-TFT_FRAMEWDT) * _plItemHeight);
+      dsp.endWrite();
+    #endif
+    }else{
+      dsp.setTextColor(config.theme.playlist[plColor], config.theme.background);
+      dsp.setCursor(TFT_FRAMEWDT, _plYStart + pos * _plItemHeight);
+      dsp.fillRect(0, _plYStart + pos * _plItemHeight - 2*playlistConf.widget.textsize, dsp.width(), _plItemHeight, config.theme.background);
+      dsp.print(utf8To(item, true));
+    }
   }
 }
 #else
