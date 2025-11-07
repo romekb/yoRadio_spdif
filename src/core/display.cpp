@@ -81,7 +81,7 @@ Page *pages[] = { new Page(), new Page(), new Page(), new Page() };
 
 #if !((DSP_MODEL==DSP_ST7735 && DTYPE==INITR_BLACKTAB) || DSP_MODEL==DSP_ST7789 || DSP_MODEL==DSP_ST7796 || \
        DSP_MODEL==DSP_ILI9488 || DSP_MODEL==DSP_ILI9486 || DSP_MODEL==DSP_ILI9341 || DSP_MODEL==DSP_ILI9225 || \
-       DSP_MODEL==DSP_ST7789_170 || DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_180 || \
+       DSP_MODEL==DSP_ST7789_76 || DSP_MODEL==DSP_ST7789_170 || DSP_MODEL==DSP_AXS15231B || DSP_MODEL==DSP_AXS15231B_180 || \
        DSP_MODEL==DSP_SSD1306 || DSP_MODEL==DSP_SH1106 || DSP_MODEL==DSP_ST7920 || DSP_MODEL==DSP_NV3041A)
   #undef  BITRATE_FULL
   #define BITRATE_FULL     false
@@ -577,7 +577,7 @@ void Display::loop() {
         }
         case DSPRSSI: if(_rssi){ _setRSSI(request.payload); } if (_heapbar && config.store.audioinfo) _heapbar->setValue(player.isRunning()?player.inBufferFilled():0); break;
         case PSTART: _layoutChange(true);   break;
-        case PSTOP:  _layoutChange(false);  break;
+        case PSTOP:   _volume(); _layoutChange(false);  break;
         case DSP_START: _start();  break;
         case NEWIP: {
           #ifndef HIDE_IP
@@ -784,7 +784,7 @@ void Display::offAnimation() {
 #endif
 
   while(currx <= width()/2) {
-    if(curry <= height()/2-delta) {
+    if(curry <= height()/2) {
       dsp.fillRect(0, curry, width(), delta, 0);                    // top
       dsp.fillRect(0, height()-delta-curry, width(), delta, 0);     // bottom
       curry += delta;

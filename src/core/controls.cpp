@@ -195,7 +195,13 @@ void encodersLoop(yoEncoder *enc, bool first){
         if(player.inBufferFilled() > 4096) player.SDSeekTo(encoderDelta);
         _seekReturnTout = millis();
       } else {
+#if ENC2_BTNL!=255        
         controlsEvent(encoderDelta > 0, encoderDelta);
+#else
+        if(display.mode() == PLAYER && player.status() == STOPPED && config.store.skipPlaylistUpDown) {
+          if(encoderDelta > 0) player.next(false); else player.prev(false);
+        } else controlsEvent(encoderDelta > 0, encoderDelta);
+#endif
       }
     }else{
       if (encBtnState == HIGH && display.mode() == PLAYER) {

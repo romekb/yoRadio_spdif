@@ -329,13 +329,14 @@ bool ScrollWidget::getNamedayUpper() { // commongfx.h - ban van deklarálva.
   strlcpy(tmp, nameday, sizeof(tmp));
   for (int i = 0; tmp[i]; i++) tmp[i] = toupper((unsigned char)tmp[i]);
   strlcpy(_namedayBuf, utf8To(tmp, true), sizeof(_namedayBuf));
-
+#if (DSP_MODEL != DSP_ST7789_76)
   dsp.setTextColor(config.theme.date, config.theme.background);
   dsp.setCursor(_config.left, _config.top - 9*(_config.textsize - 1) - 4);
   dsp.setTextSize(_config.textsize - 1);
   if (!config.isScreensaver) dsp.print(utf8To(nameday_label, false));
+#endif
   if(oldday == network.timeinfo.tm_mday) return false;
-  oldday = network.timeinfo.tm_mday;
+  oldday = network.timeinfo.tm_mday;  
   return true;
 }
 #endif //NAMEDAYS_FILE
@@ -419,14 +420,6 @@ void VuWidget::init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor
 A  BitrateWidget::_clear() -ben kap false értéket.*/
 bool VuWidget::_labelsDrawn = false; // Módosítás
 
-//void VuWidget::setLabelsDrawn(bool value) { // Saját
-//  _labelsDrawn = value;
-//}
-
-//bool VuWidget::isLabelsDrawn() { // Saját
-//  return _labelsDrawn;
-//}
-
 void VuWidget::_draw() {
   if (!_active || _locked) return;
 
@@ -473,7 +466,7 @@ void VuWidget::_draw() {
       peakL = measL;
       peakL_time = now;
     } else if (now - peakL_time > peak_hold_ms && peakL >= 0) {
-      peakL = (peakL < dimension) ? peakL + peak_decay_step : 0;
+      peakL = (peakL < dimension) ? peakL + peak_decay_step : dimension;
     }
 #endif //BOOMBOX_STYLE
 
@@ -481,7 +474,7 @@ void VuWidget::_draw() {
       peakR = dimension - measR;
       peakR_time = now;
     } else if (now - peakR_time > peak_hold_ms && peakR > 0) {
-      peakR = (peakR > peak_decay_step) ? peakR - peak_decay_step : dimension;
+      peakR = (peakR > peak_decay_step) ? peakR - peak_decay_step : 0;
     }
 #endif // VU_PEAK
   } else {
@@ -599,6 +592,7 @@ void VuWidget::_draw() {
 #endif // BOOMBOX_STYLE
 
   // --- L/R labels ---
+#if(DSP_MODEL != DSP_ST7789_76)
 #ifndef BOOMBOX_STYLE
   if (played && !_labelsDrawn) {
     // Serial.println("L/R rajzolás");
@@ -654,6 +648,7 @@ void VuWidget::_draw() {
     _labelsDrawn = true;
   }
 #endif
+#endif
 }
 
 void VuWidget::loop() {
@@ -667,17 +662,19 @@ void VuWidget::_clear() {
 #ifndef BOOMBOX_STYLE
   uint16_t _xsiz = _bands.width + _labelsDrawn*(_bands.height + 10) + _config.left;
   uint16_t _ysiz = _bands.height * 2 + _bands.space + 8*_labelsDrawn;
+  uint16_t _ypos = _config.top;
  #ifdef VU_PEAK
   _xsiz += 3;
  #endif
 #else
   uint16_t _xsiz = _bands.width * 2 + _bands.space + _config.left;
   uint16_t _ysiz = _bands.height + (_bands.height + 8)*_labelsDrawn;
+  uint16_t _ypos = _config.top+10;
  #ifdef VU_PEAK
   _xsiz += 6;
  #endif
 #endif
-  dsp.fillRect(0, _config.top - (_bands.height-3)*_labelsDrawn, _xsiz, _ysiz, _bgcolor);  
+  dsp.fillRect(0, _ypos - (_bands.height-3)*_labelsDrawn, _xsiz, _ysiz, _bgcolor);  
   _labelsDrawn = false; // L és R meg keljen rajzolni. Módosítás.
 }
 #else // DSP_LCD
@@ -1110,7 +1107,7 @@ void BitrateWidget::_draw(){  //Módosítás
   if(!_active) return;
   _clear();
   if(_format == BF_UNKNOWN || _bitrate==0) return;
-#ifdef NAMEDAYS_FILE
+#if defined(NAMEDAYS_FILE) || DSP_MODEL==DSP_ST7789_76
   dsp.drawRect(_config.left, _config.top, _dimension * 2, (_dimension / 2) - 1, _fgcolor);
   dsp.fillRect(_config.left + _dimension, _config.top, _dimension, (_dimension / 2) - 1, _fgcolor);
 #else
@@ -1128,7 +1125,7 @@ void BitrateWidget::_draw(){  //Módosítás
 //#endif
   dsp.print(_buf);
   dsp.setTextColor(_bgcolor, _fgcolor);
-#ifdef NAMEDAYS_FILE
+#if defined(NAMEDAYS_FILE) || DSP_MODEL==DSP_ST7789_76
   dsp.setCursor(_config.left + _dimension + _dimension / 2 - _charWidth * 3 / 2, _config.top + _dimension / 4 - _textheight / 2 + 1);
 #else
   dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2 + 1, _config.top + _dimension / 2 + _dimension / 4 - _textheight / 2 + 1);
@@ -1146,7 +1143,7 @@ void BitrateWidget::_draw(){  //Módosítás
 }
 
 void BitrateWidget::_clear() {
-#ifdef NAMEDAYS_FILE
+#if defined(NAMEDAYS_FILE) || DSP_MODEL==DSP_ST7789_76
   dsp.fillRect(_config.left, _config.top, _dimension * 2, _dimension / 2, _bgcolor);
 #else
   dsp.fillRect(_config.left, _config.top, _dimension, _dimension, _bgcolor);

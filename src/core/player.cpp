@@ -286,22 +286,31 @@ void Player::browseUrl(){
 }
 #endif
 
-void Player::prev() {
+void Player::prev(bool startPlay) {
   uint16_t lastStation = config.lastStation();
   if(config.getMode()==PM_WEB || !config.store.sdsnuffle){
     if (lastStation == 1) config.lastStation(config.playlistLength()); else config.lastStation(lastStation-1);
   }
-  sendCommand({PR_PLAY, config.lastStation()});
+  if(startPlay) sendCommand({PR_PLAY, config.lastStation()});
+  else{
+    config.sdResumePos = 0;
+    display.putRequest(NEXTSTATION, config.lastStation());
+  }
 }
 
-void Player::next() {
+void Player::next(bool startPlay) {
   uint16_t lastStation = config.lastStation();
   if(config.getMode()==PM_WEB || !config.store.sdsnuffle){
     if (lastStation == config.playlistLength()) config.lastStation(1); else config.lastStation(lastStation+1);
   }else{
     config.lastStation(random(1, config.playlistLength()));
   }
-  sendCommand({PR_PLAY, config.lastStation()});
+  config.sdResumePos = 0;
+  if(startPlay) sendCommand({PR_PLAY, config.lastStation()});
+  else {
+    config.sdResumePos = 0;
+    display.putRequest(NEXTSTATION, config.lastStation());
+  }
 }
 
 void Player::SDSeekTo(int16_t value) {

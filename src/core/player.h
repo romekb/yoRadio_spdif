@@ -59,8 +59,8 @@ class Player: public Audio {
     #endif
     bool remoteStationName = false;
     plStatus_e status() { return _status; }
-    void prev();
-    void next();
+    void prev(bool startPlay = true);
+    void next(bool startPlay = true);
     void SDSeekTo(int16_t value);
     void toggle();
     void stepVol(bool up);

@@ -129,9 +129,9 @@ const GFXglyph VT_DIGI_34x19Glyphs[] PROGMEM = {
   {   942,  19,  34,  27,    4,  -34 },   // 0x37 '7'
   {  1024,  19,  34,  27,    4,  -34 },   // 0x38 '8'
   {  1106,  19,  34,  27,    4,  -34 },   // 0x39 '9'
-  {  1188,   4,  34,  11,    4,  -34 }    // 0x3A ':'
+  {  1188,   4,  34,  11,    4,  -28 }    // 0x3A ':'
 };
 
 const GFXfont Clock_GFXfont_sec PROGMEM = {
-  (uint8_t  *)VT_DIGI_34x19Bitmaps,  
-  (GFXglyph *)VT_DIGI_34x19Glyphs, 0x20, 0x3A,   110 };
+  (uint8_t  *)VT_DIGI_34x19Bitmaps,   
+  (GFXglyph *)VT_DIGI_34x19Glyphs, 0x20, 0x3A,    110 };
