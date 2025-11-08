@@ -398,8 +398,8 @@ void Display::_swichMode(displayMode_e newmode) {
     }
 #endif    
     config.isScreensaver = false;
-    _pager->setPage( pages[PG_PLAYER]);
     config.setDspOn(config.store.dspon, false);
+    _pager->setPage( pages[PG_PLAYER]);
     pm.on_display_player();
   }
   if (newmode == SCREENSAVER || newmode == SCREENBLANK) {

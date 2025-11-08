@@ -19,7 +19,7 @@ void DspCore::initDisplay() {
 
 void DspCore::clearDsp(bool black){ tftClearScreen( black ? 0 : config.theme.background); }
 void DspCore::flip(){ setRotation(config.store.flipscreen?2:0); }
-void DspCore::invert(){ setInvert(config.store.invertdisplay); }
+void DspCore::invert(){ setInvert(!config.store.invertdisplay); }
 void DspCore::sleep(void){ tftSleep(true); }
 void DspCore::wake(void) { tftSleep(false); }
 

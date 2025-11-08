@@ -11,6 +11,8 @@ uint8_t initCmdsTab[][2] = {
     {0x3A, 0x01},   // 01---565，00---666
     {0x41, 0x03},   // 01--8bit, 03-16bit
     {0x43, 0x01},   // qspi_sbyte = 1    
+    {0x7d, 0x02},   // vdds_trim[2:0]
+/*
     {0x44, 0x15},   // VBP  ?????
     {0x45, 0x15},   // VFP  ?????
     {0x7d, 0x03},   // vdds_trim[2:0]
@@ -58,6 +60,7 @@ uint8_t initCmdsTab[][2] = {
     {0xD3, 0x42},   // avcl_mux_ed_e[7:0]
     {0xD4, 0x0a},   // vgh_mux_st[7:0]
     {0xD5, 0x32},   // vgh_mux_ed[7:0]
+*/
     {0x80, 0x04},   // gam_vrp0	    0	6bit
     {0xA0, 0x00},   // gam_VRN0		0-
     {0x81, 0x07},   // gam_vrp1	    1   6bit
@@ -95,7 +98,7 @@ uint8_t initCmdsTab[][2] = {
     {0x91, 0x0f},   // gam_PKP9		52	5bit
     {0xB1, 0x0f},   // gam_PKN9		52-
     {0x92, 0x16},   // gam_PKP10	58	5bit
-    {0xB2, 0x16},   // gam_PKN10	58-
+    {0xB2, 0x16},   // gam_PKN10	58-  
     {0xff, 0x00},
     {0x11, 0x00}
 };
@@ -287,14 +290,9 @@ void NV3041A::tftSendPixels(uint16_t *data, uint32_t len)
             if (chunk_size > SEND_BUF_SIZE) chunk_size = SEND_BUF_SIZE;
             t.base.tx_buffer = p;
             t.base.length = chunk_size * 16;    // in bits
-            ret = spi_device_transmit(spi, (spi_transaction_t *)&t);
+//            ret = spi_device_transmit(spi, (spi_transaction_t *)&t);
+            ret = spi_device_polling_transmit(spi, (spi_transaction_t *)&t);
             ESP_ERROR_CHECK(ret);
-    //        spi_transaction_t *rtrans;
-    //        while(1) {
-    //            if(spi_device_get_trans_result(spi, &rtrans, 1) == ESP_OK) break; // wait for DMA complata - faster than pooling method
-    //            delay(1);
-    //            yield();         // allow other task to do during wait
-    //        }
             len -= chunk_size;
             p += chunk_size;
         } while (len > 0);
