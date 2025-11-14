@@ -54,6 +54,7 @@
 // IR/Misc
 #define IR_PIN              6
 #define IR_TIMEOUT          15
+#define DECODE_HASH         false
 #define NO_VOLUME_SCREEN
 #define VU_PEAK
 

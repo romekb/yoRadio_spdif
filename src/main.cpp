@@ -26,6 +26,10 @@
 #include <ArduinoOTA.h>
 #endif
 
+#ifdef NEOPIXEL_LED
+  #include "plugins/NeoLED/NeoLED.h"
+#endif
+
 #if DSP_HSPI || TS_HSPI || VS_HSPI
 SPIClass  SPI2(HSPI);
 #endif
@@ -73,6 +77,9 @@ void setupOTA(){
 void setup() {
   Serial.begin(115200);
   if(REAL_LEDBUILTIN!=255) pinMode(REAL_LEDBUILTIN, OUTPUT);
+#ifdef NEOPIXEL_LED
+  pm.add(&neo_led);
+#endif
   if (yoradio_on_setup) yoradio_on_setup();
   pm.on_setup();
   config.init();

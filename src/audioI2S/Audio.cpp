@@ -2380,10 +2380,19 @@ uint16_t Audio::get_VUlevel(uint16_t dimension){
 //---------------------------------------------------------------------------------------------------------------------
 
 void Audio::loop() {
+    static uint32_t ms10tim;
     if(!m_f_running) {
       vuLeft=0; vuRight=0;
+      config.vuThreshold = 0;
       vTaskDelay(2);
       return;
+    }
+    if(millis()-ms10tim >= 10) {
+        ms10tim = millis();
+        if(++m_vuTimer >= 10) {
+            vuLeft=0; vuRight=0;
+            config.vuThreshold = 0;
+        }
     }
     if(m_playlistFormat != FORMAT_M3U8){ // normal process
         switch(getDatamode()){
@@ -4684,8 +4693,9 @@ bool Audio::playSample(int16_t sample[2]) {
 
     if(m_spdif_output) {
         bool wrok = spdif_write(sample);
-        if(m_sampleRate < 32000) {wrok &= spdif_write(sample);}
-        if(m_sampleRate < 16000) {wrok &= spdif_write(sample); wrok &= spdif_write(sample);}
+        if(m_sampleRate < 32000 && wrok) {wrok &= spdif_write(sample);}
+        if(m_sampleRate < 16000 && wrok) {wrok &= spdif_write(sample); if(wrok) wrok &= spdif_write(sample);}
+        m_vuTimer = 0;
         return wrok;
     }
     uint32_t s32 = (sample[RIGHTCHANNEL] << 16) | (sample[LEFTCHANNEL] & 0xffff);
@@ -4704,6 +4714,7 @@ bool Audio::playSample(int16_t sample[2]) {
         log_e("Can't stuff any more in I2S..."); // increase waitingtime or outputbuffer
         return false;
     }
+    m_vuTimer = 0;
     return true;
 }
 //---------------------------------------------------------------------------------------------------------------------

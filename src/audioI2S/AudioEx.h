@@ -595,6 +595,7 @@ private:
     int16_t         m_pesDataLength = 0;
     uint16_t        vuLeft, vuRight;
     bool            m_spdif_output;
+    uint8_t         m_vuTimer;
     float           m_limit_left, m_limit_right;
 };
 

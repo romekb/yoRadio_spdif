@@ -6,11 +6,15 @@ English version of Readme bellow.
 https://www.youtube.com/watch?v=0B93uhm7WAI<br>https://www.youtube.com/watch?v=uwM8PoyT15s
 
 Nowa wersja oparta na pliku yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip. 
-Działa z wyświetlaczem ST7789 320x240, ILI9341** 320x240, oraz 480x320 ILI9488**, ST7796** i AXS15231B (Guition), LCD ST7920 oraz oled SSD1306/SH1106.
+Działa z wyświetlaczem ST7789 320x240 i 272x76, ILI9341** 320x240, oraz 480x320 ILI9488**, ST7796**, AXS15231B i NV3041A (Guition), LCD ST7920 oraz oled SSD1306/SH1106.
 Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pamięć PSRAM) lub ESP32-S3. PSRAM wymagany.<br>
 ** nie testowałem tych modeli TFT ale powinny działać.
 
 Co nowego lub się zmieniło:
+- Pewniejszy odbiór sygnałów pilora IR - wyłączenie dekodowania HASH (w myoptions.h) oraz "max_skip" ustawiony na 4.
+- Dodany plugin obslugujacy diodę led WS2812 (np na płytkach SUPERMINI).
+- Poprawiony VU meter.
+- Długie przyciśnięcie enkodera 1 w stanie STOP wyłącza radio.
 - Dodana obsługa wyświetlaczy 480x272 na chipach NV3041A - Guition JC4827W543.
 - Jak jest włączona opcja "Numbered playlist" to numer stacji jest również wyświetlany na ekranie playera (np 12:RMF FM)
 - W trybie wpisywania numerów z pilota przycisk * kasuje ostatnią cyfrę, a Next/Prew zwieksza i zmniejsza wybrany numer
@@ -63,10 +67,14 @@ Testy przeprowadzono na radiach internetowych, korzystając ze strumieni AAC i M
 This is modified version of yoRadio (eRadio) project from: https://github.com/e2002/yoradio
 
 New version based on yoRadio_ESP32-S3_N16R8_ILI9488_v0.9.720_V-Tom_v04.2.zip.
-Tested with ST7789 320x240 display and AXS15231B 480x320 from Guition module, ST7920 LCD and oled's SSD1306/SH1106. Should work on ILI9341, ILI9488, ST7796 displays too.
+Tested with ST7789 320x240 and 272x76 displays, AXS15231B and NV3041A 480x320 from Guition modules, ST7920 LCD and oled's SSD1306/SH1106. Should work on ILI9341, ILI9488, ST7796 displays too.
 Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported. PSRAM is required especially for AXS15231B display.
 
 What's new or changed:
+- More reliable reception of IR remote control signals - disabling HASH decoding (in myoptions.h) and setting "max_skip" to 4.
+- Added a plugin that supports the WS2812 LED (e.g., on SUPERMINI boards).
+- Fixed VU meter.
+- Long press of encoder 1 in STOP state turns off the radio.
 - Added support for 480x272 displays on NV3041A chips - Guition JC4827W543.
 - When the "Numbered playlist" option is enabled, the station number is also displayed on the player screen (e.g., 12:RMF FM).
 - When entering numbers using the remote, the * button deletes the last digit, and the Next/Prew button increases or decreases the selected number.

@@ -787,7 +787,8 @@ char * Config::stationByNum(uint16_t num){
   index.readBytes((char *) &pos, 4);
   index.close();
   playlist.seek(pos, SeekSet);
-  strncpy(_stationBuf, playlist.readStringUntil('\t').c_str(), sizeof(_stationBuf));
+  if(store.numplaylist && display.mode() == PLAYER) sprintf(_stationBuf,"%d:", config.lastStation());
+  strlcat(_stationBuf, playlist.readStringUntil('\t').c_str(), sizeof(_stationBuf)-4);
   playlist.close();
   return _stationBuf;
 }

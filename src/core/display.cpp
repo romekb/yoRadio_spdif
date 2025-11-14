@@ -795,7 +795,7 @@ void Display::offAnimation() {
     dsp.fillRect(currx, 0, delta+1, height(), 0);               // left
     dsp.fillRect(width()-delta-currx, 0, delta+1, height(), 0); // right
     dsp.loop();
-    delay(15);
+    delay(10);
     currx += delta;
   }
   dsp.clearDsp(true);

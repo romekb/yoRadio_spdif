@@ -258,7 +258,7 @@ void irNumber(uint8_t num) {
 }
 
 void irLoop() {
-  if (irrecv.decode(&irResults, NULL, 0, 100)) {      // 100 is 100us filter for noisy IR reception
+  if (irrecv.decode(&irResults, NULL, 4, 100)) {      // 100 is 100us filter for noisy IR reception
     if(irResults.value<256) return;
     if (netserver.irRecordEnable) {
       Serial.print(resultToHumanReadableBasic(&irResults));
@@ -283,8 +283,8 @@ void irLoop() {
     for(int target=0; target<19; target++){
       for(int j=0; j<3; j++){
         if(config.ircodes.irVals[target][j]==irResults.value){
-          if (network.status != CONNECTED && network.status!=SDREADY && target!=IR_AST) return;
-          if(target!=IR_AST && display.mode()==LOST) return;
+          //if (network.status != CONNECTED && network.status!=SDREADY && (target!=IR_AST || target!=IR_PWR)) return;
+          //if((target!=IR_AST || target!=IR_PWR) && display.mode()==LOST) return;
           if (display.mode() == SCREENSAVER || display.mode() == SCREENBLANK) {
             if (player.status() == STOPPED && target != IR_PWR) {   // wakeup only via PWR key
               if(config.ircodes.irVals[IR_PWR][j] != 0) return;     // if PWR key is stored return
@@ -408,6 +408,10 @@ void onBtnLongPressStart(int id) {
       }
     case EVT_ENCBTNB:
         if(_seekMode) break;
+        if(config.store.numplaylist && display.mode() == PLAYER && player.status() == STOPPED) {
+          display.putRequest(NEWMODE, SCREENBLANK);
+          break;
+        }
     case EVT_BTNCENTER: {
 #       if defined(DUMMYDISPLAY) && !defined(USE_NEXTION)
         break;

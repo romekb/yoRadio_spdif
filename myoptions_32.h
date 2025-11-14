@@ -42,6 +42,7 @@
 #define SDC_CS			        5
 #define IR_PIN              35
 #define IR_TIMEOUT          15
+#define DECODE_HASH         false
 #define NO_VOLUME_SCREEN
 #define VU_PEAK
 #define CLOCK_TTS_ENABLED   false     // Enabled (true) or disabled (false)

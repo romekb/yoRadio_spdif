@@ -361,7 +361,7 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
   #define EXT_WEATHER       true   // Extended weather
 #endif
 #ifndef RSSI_DIGIT
-  #define RSSI_DIGIT       false   // Extended weather
+  #define RSSI_DIGIT       false   //
 #endif
 #ifndef RSSI_STEPS
   #define RSSI_STEPS       -50,-60,-70,-80
