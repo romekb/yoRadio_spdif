@@ -2281,7 +2281,11 @@ bool Audio::playChunk() {
                     sample[LEFTCHANNEL] = xy;
                     sample[RIGHTCHANNEL] = xy;
                 }
-                playSample(sample);
+                if(!playSample(sample)) {
+                    log_e("can't send");
+                    xSemaphoreGive(mutex_audioTask);
+                    return false;
+                } // Can't send
                 m_validSamples--;
                 m_curSample++;
             }
@@ -2367,7 +2371,7 @@ void Audio::_computeVUlevel(int16_t sample[2]) {
 
 uint16_t Audio::get_VUlevel(uint16_t dimension){
   if(dimension > 255) dimension = 255;                      // guard, return value is 2x 8-bit, dimension must be < 256
-  if(!config.store.vumeter || config.vuThreshold==0) {
+  if(!config.store.vumeter || config.vuThreshold==0 || (vuLeft==0 && vuRight==0)) {
     return ((dimension<<8) | (dimension & 0xFF));           // fix -> return minimum value
   }
 //  config.vuThreshold = 200;
@@ -2383,15 +2387,16 @@ void Audio::loop() {
     static uint32_t ms10tim;
     if(!m_f_running) {
       vuLeft=0; vuRight=0;
-      config.vuThreshold = 0;
+//      config.vuThreshold = 0;
       vTaskDelay(2);
       return;
     }
     if(millis()-ms10tim >= 10) {
         ms10tim = millis();
         if(++m_vuTimer >= 10) {
+            m_vuTimer = 200;
             vuLeft=0; vuRight=0;
-            config.vuThreshold = 0;
+//           config.vuThreshold = 0;
         }
     }
     if(m_playlistFormat != FORMAT_M3U8){ // normal process
