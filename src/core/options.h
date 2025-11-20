@@ -323,6 +323,9 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #ifndef BRIGHTNESS_INVERTED
   #define BRIGHTNESS_INVERTED false
 #endif
+#ifndef PWR_SWITCH_PIN
+  #define PWR_SWITCH_PIN  255   // power ON/OFF output pin for external devices (eg amplifier) 0..99 -> ON=HIGH, 100-199 -> ON=LOW
+#endif  
 #ifndef PLAYER_FORCE_MONO
   #define PLAYER_FORCE_MONO      false  // mono option - false stereo, true mono
 #endif

@@ -146,7 +146,7 @@ class SliderWidget: public Widget {
     using Widget::init;
     void init(FillConfig conf, uint16_t fgcolor, uint16_t bgcolor, uint32_t maxval, uint16_t oucolor=0);
     void setValue(uint32_t val);
-    void setColor(uint16_t color);
+    void setColor(uint16_t color, bool outline = true);
   protected:
     uint16_t _height, _oucolor, _oldvalwidth;
     uint32_t _max, _value;

@@ -237,6 +237,7 @@ class Config {
     void sleepForAfter(uint16_t sleepfor, uint16_t sleepafter=0);
     void bootInfo();
     void doSleepW();
+    void powerSwitch(bool pwron);
     void setSnuffle(bool sn);
     uint8_t getMode() { return store.play_mode/* & 0b11*/; }
     void initPlaylistMode();

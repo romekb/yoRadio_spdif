@@ -329,7 +329,7 @@ bool ScrollWidget::getNamedayUpper() { // commongfx.h - ban van deklarálva.
   strlcpy(tmp, nameday, sizeof(tmp));
   for (int i = 0; tmp[i]; i++) tmp[i] = toupper((unsigned char)tmp[i]);
   strlcpy(_namedayBuf, utf8To(tmp, true), sizeof(_namedayBuf));
-#if (DSP_MODEL != DSP_ST7789_76)
+#ifndef HIDE_NAMEDAYS_LABEL
   dsp.setTextColor(config.theme.date, config.theme.background);
   dsp.setCursor(_config.left, _config.top - 9*(_config.textsize - 1) - 4);
   dsp.setTextSize(_config.textsize - 1);
@@ -356,10 +356,10 @@ void SliderWidget::setValue(uint32_t val) {
   if (_active && !_locked) _drawslider();
 }
 
-void SliderWidget::setColor(uint16_t color) {
+void SliderWidget::setColor(uint16_t color, bool outline) {
   if(color != _fgcolor) {
     _fgcolor = color;
-    _oucolor = color;
+    if(outline) _oucolor = color;
     _draw();
   }
 }
@@ -657,27 +657,38 @@ void VuWidget::loop() {
 }
 
 void VuWidget::_clear() {
-  // dsp.fillRect(_config.left, _config.top, _bands.width * 2 + _bands.space, _bands.height, _bgcolor);
-  // dsp.fillRect(0, _config.top - 4, 479, 24, _bgcolor);
 #ifndef BOOMBOX_STYLE
-  uint16_t _xsiz = _bands.width + _labelsDrawn*(_bands.height + 10) + _config.left;
-  uint16_t _ysiz = _bands.height * 2 + _bands.space + 8*_labelsDrawn;
-  uint16_t _ypos = _config.top;
+  uint16_t _xsiz = _bands.width;
  #ifdef VU_PEAK
   _xsiz += 3;
  #endif
+  dsp.fillRect(_config.left, _config.top, _xsiz, _bands.height * 2 + _bands.space, _bgcolor);
+  if(_labelsDrawn) {
+    int label_width = _bands.height + 10;
+    int label_height = 2*(_bands.height + 4) + _bands.space;
+    int label_left = _config.left - label_width - 3;
+    if (label_left >= 0) dsp.fillRect(label_left, _config.top - 4, label_width, label_height, _bgcolor);
+  }
 #else
-  uint16_t _xsiz = _bands.width * 2 + _bands.space + _config.left;
-  uint16_t _ysiz = _bands.height + (_bands.height + 8)*_labelsDrawn;
-  uint16_t _ypos = _config.top+10;
+  uint16_t _xsiz = _bands.width * 2 + _bands.space;
+  uint16_t _xpos = _config.left;
  #ifdef VU_PEAK
   _xsiz += 6;
+  if(_xpos >= 3) _xpos -= 3;
  #endif
+  dsp.fillRect(_xpos, _config.top+10, _xsiz, _bands.height, _bgcolor);  
+  if(_labelsDrawn) {
+    int label_width = 2*(_bands.height + 15 + _bands.space);
+    int label_height = _bands.height + 4;
+    int label_left = (dsp.width() - label_width) / 2;
+    dsp.fillRect(label_left, _config.top - _bands.height + 4, label_width, label_height, _bgcolor);
+  }
 #endif
-  dsp.fillRect(0, _ypos - (_bands.height-3)*_labelsDrawn, _xsiz, _ysiz, _bgcolor);  
-  _labelsDrawn = false; // L és R meg keljen rajzolni. Módosítás.
+  _labelsDrawn = false;
 }
+
 #else // DSP_LCD
+
 VuWidget::~VuWidget() {}
 void VuWidget::init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumidcolor, uint16_t vumincolor, uint16_t bgcolor) {
   Widget::init(wconf, bgcolor, bgcolor);

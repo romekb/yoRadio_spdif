@@ -264,6 +264,7 @@ void Display::_buildPager(){
   pages[PG_PLAYLIST]->addWidget(_plcurrent);
   pages[PG_PLAYLIST]->addWidget(_plwidget);
   for(const auto& p: pages) _pager->addPage(p);
+  playerpage = pages[PG_PLAYER];
 }
 
 ScrollWidget* Display::getScrollPtr(uint8_t num) {
@@ -772,6 +773,7 @@ void Display::wakeup(){
 }
 
 void Display::offAnimation() {
+  config.powerSwitch(false);
 #if !(defined(LCD_I2C) || defined(DSP_LCD))
   uint16_t currx=0, curry=0;
   uint8_t delta = 1;

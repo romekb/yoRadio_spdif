@@ -11,6 +11,9 @@ Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pami�
 ** nie testowałem tych modeli TFT ale powinny działać.
 
 Co nowego lub się zmieniło:
+- Dodany plugin monitorowania napięcia baterii (ikona stanu baterii) - w myoptions.h definiuje się pin ADC (#define BATT_MON_PIN) a resztę konfiguruje się w BattMon.h (w folderze plugins).
+- Poprawki kasowania VU metra
+- Dodano wyjście do załączania zewnętrznego wzmacniacza (#define PWR_SWITCH_PIN)
 - Pewniejszy odbiór sygnałów pilora IR - wyłączenie dekodowania HASH (w myoptions.h) oraz "max_skip" ustawiony na 4.
 - Dodany plugin obslugujacy diodę led WS2812 (np na płytkach SUPERMINI).
 - Poprawiony VU meter.
@@ -71,6 +74,9 @@ Tested with ST7789 320x240 and 272x76 displays, AXS15231B and NV3041A 480x320 fr
 Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported. PSRAM is required especially for AXS15231B display.
 
 What's new or changed:
+- Added a battery voltage monitoring plugin (battery status icon) - the ADC pin is defined in myoptions.h (#define BATT_MON_PIN) and the rest is configured in BattMon.h (in the plugins folder).
+- Fixes for clearing the VU meter
+- Added an output for switching an external amplifier (#define PWR_SWITCH_PIN)
 - More reliable reception of IR remote control signals - disabling HASH decoding (in myoptions.h) and setting "max_skip" to 4.
 - Added a plugin that supports the WS2812 LED (e.g., on SUPERMINI boards).
 - Fixed VU meter.

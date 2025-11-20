@@ -29,6 +29,9 @@
 #ifdef NEOPIXEL_LED
   #include "plugins/NeoLED/NeoLED.h"
 #endif
+#ifdef BATT_MON_PIN
+  #include "plugins/BattMon/BattMon.h"
+#endif
 
 #if DSP_HSPI || TS_HSPI || VS_HSPI
 SPIClass  SPI2(HSPI);
@@ -79,6 +82,9 @@ void setup() {
   if(REAL_LEDBUILTIN!=255) pinMode(REAL_LEDBUILTIN, OUTPUT);
 #ifdef NEOPIXEL_LED
   pm.add(&neo_led);
+#endif
+#ifdef BATT_MON_PIN
+  pm.add(&battMonitor);
 #endif
   if (yoradio_on_setup) yoradio_on_setup();
   pm.on_setup();

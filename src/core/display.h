@@ -25,6 +25,7 @@ class Display {
     uint16_t numOfNextStation;
     displayMode_e _mode;
     bool allowReboot=false;
+    Page *playerpage;
   public:
     Display() {};
     ~Display();

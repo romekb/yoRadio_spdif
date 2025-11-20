@@ -15,6 +15,7 @@
 
 #define BOOMBOX_STYLE 
 #define HIDE_VOL
+#define HIDE_NAMEDAYS_LABEL
 
 #define bootLogoTop     8
 

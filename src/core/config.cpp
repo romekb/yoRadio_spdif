@@ -328,6 +328,10 @@ void Config::_initHW(){
     setBrightness(0); //store.brightness, false);
     ledcOutputInvert(BRIGHTNESS_PIN, BRIGHTNESS_INVERTED);
   #endif
+  #if (PWR_SWITCH_PIN != 255)
+    if(PWR_SWITCH_PIN < 100) pinMode(PWR_SWITCH_PIN, OUTPUT); else pinMode(PWR_SWITCH_PIN-100, OUTPUT);
+    powerSwitch(true);
+  #endif
 }
 
 uint16_t Config::color565(uint8_t r, uint8_t g, uint8_t b)
@@ -990,8 +994,9 @@ void Config::setDspOn(bool dspon, bool saveval){
   else nextion.wake();
 #endif
   if(!dspon){
+    powerSwitch(false);
 #if BRIGHTNESS_PIN!=255
-  analogWrite(BRIGHTNESS_PIN, 0);
+    analogWrite(BRIGHTNESS_PIN, 0);
 #endif
     display.deepsleep();
 #if POWER_SAVE==1    
@@ -1002,6 +1007,7 @@ void Config::setDspOn(bool dspon, bool saveval){
     WiFi.setSleep(false); // Wakeup
 #endif
     display.wakeup();
+    powerSwitch(true);
 #if BRIGHTNESS_PIN!=255
   analogWrite(BRIGHTNESS_PIN, map(store.brightness, 0, 100, 0, 255));
 #endif
@@ -1037,6 +1043,16 @@ void Config::sleepForAfter(uint16_t sf, uint16_t sa){
   sleepfor = sf;
   if(sa > 0) timekeeper.waitAndDo(sa * 60, doSleep);
   else doSleep();
+}
+
+void Config::powerSwitch(bool pwron) {
+#if (PWR_SWITCH_PIN != 255)
+  if(pwron) {
+    if(PWR_SWITCH_PIN < 100) digitalWrite(PWR_SWITCH_PIN, HIGH); else digitalWrite(PWR_SWITCH_PIN-100, LOW);
+  } else {
+    if(PWR_SWITCH_PIN < 100) digitalWrite(PWR_SWITCH_PIN, LOW); else digitalWrite(PWR_SWITCH_PIN-100, HIGH);
+  }
+#endif
 }
 
 void Config::bootInfo() {
