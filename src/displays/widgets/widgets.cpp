@@ -1089,7 +1089,7 @@ void BitrateWidget::init(BitrateConfig bconf, uint16_t fgcolor, uint16_t bgcolor
 }
 
 void BitrateWidget::setBitrate(uint16_t bitrate){
-  if(bitrate>999) bitrate=999;
+//  if(bitrate>999) bitrate=999;
   if(_bitrate != bitrate) {
     _bitrate = bitrate;
     _draw();
@@ -1128,7 +1128,8 @@ void BitrateWidget::_draw(){  //Módosítás
   dsp.setFont();
   dsp.setTextSize(_config.textsize);
   dsp.setTextColor(_fgcolor, _bgcolor);
-  snprintf(_buf, 6, "%d", _bitrate);
+  if(_bitrate>999) snprintf(_buf, 6, "%d.%d", (_bitrate+50)/1000, ((_bitrate+50)%1000)/100);
+  else             snprintf(_buf, 6, "%d", _bitrate);
 //#ifdef NAMEDAYS_FILE
   dsp.setCursor(_config.left + _dimension / 2 - _charWidth * strlen(_buf) / 2 + 1, _config.top + _dimension / 4 - _textheight / 2 + 1);
 //#else
