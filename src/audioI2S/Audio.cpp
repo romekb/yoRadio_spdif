@@ -3055,6 +3055,11 @@ void Audio::processWebStream() {
     if(f_tmr_1s){
         cnt_slow ++;
         if(cnt_slow > 50){cnt_slow = 0; f_tmr_1s = false; AUDIO_INFO("slow stream, dropouts are possible");}
+        if(m_f_tts && !availableBytes) {
+            m_f_tts = false;
+            delay(400);
+            setDefaults();
+        }
     }
     // if the buffer can't filled for several seconds try a new connection - - - - - - - - - - - - - - - - - - - - - - -
     if(f_stream && !availableBytes){
@@ -4641,8 +4646,8 @@ bool Audio::setBitrate(int br){
     return false;
 }
 uint32_t Audio::getBitRate(bool avg){
-    if (avg)
-        return m_avr_bitrate;
+    if(m_f_tts) return 0;
+    if(avg) return m_avr_bitrate;
     return m_bitRate;
 }
 //---------------------------------------------------------------------------------------------------------------------

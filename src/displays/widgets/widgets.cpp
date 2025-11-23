@@ -356,12 +356,12 @@ void SliderWidget::setValue(uint32_t val) {
   if (_active && !_locked) _drawslider();
 }
 
-void SliderWidget::setColor(uint16_t color, bool outline) {
-  if(color != _fgcolor) {
-    _fgcolor = color;
-    if(outline) _oucolor = color;
-    _draw();
-  }
+void SliderWidget::setColor(int32_t fgcolor, int32_t oucolor, int32_t bgcolor) {
+  bool update = false;
+  if(fgcolor >= 0 && fgcolor != _fgcolor) {_fgcolor = fgcolor; update = true;}
+  if(oucolor >= 0 && oucolor != _oucolor) {_oucolor = oucolor; update = true;}
+  if(bgcolor >= 0 && bgcolor != _bgcolor) {_bgcolor = bgcolor; update = true;}
+  if(update) _draw();
 }
 
 void SliderWidget::_drawslider() {

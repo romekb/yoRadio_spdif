@@ -607,7 +607,7 @@ void Display::loop() {
         if(curr > 200) curr = 200;
         #ifdef COLOR_PROGRESSBAR
         if(config.theme.volbarin != 0x0001) {          // fix for monochrome displays
-          _volbar->setColor(config.color565(COLOR_PROGRESSBAR)); 
+          _volbar->setColor(config.color565(COLOR_PROGRESSBAR), config.color565(COLOR_PROGRESSBAR)); 
         }
         #endif
         _volbar->setValue(curr);
@@ -669,6 +669,7 @@ void Display::_title() {
     char tmpbuf[strlen(config.station.title)+1];
     strlcpy(tmpbuf, config.station.title, strlen(config.station.title)+1);
     char *stitle = split(tmpbuf, " - ");
+    if(stitle == NULL) stitle = split(tmpbuf, " / ");
     if(stitle && _title2){
       _title1->setText(tmpbuf);
       _title2->setText(stitle);
@@ -723,7 +724,7 @@ void Display::_time(bool redraw) {
 void Display::_volume() {
   if (_volbar) {                                
     #ifdef COLOR_PROGRESSBAR
-     _volbar->setColor(config.theme.volbarin);
+     _volbar->setColor(config.theme.volbarin, config.theme.volbarout);
     #endif
     _volbar->setValue(2*config.store.volume);
     #ifndef HIDE_VOL
