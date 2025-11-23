@@ -11,11 +11,15 @@
 #include "../../displays/widgets/pages.h"
 #include "../../core/config.h"
 
-#define BATT_EMPTY  1790        // set to ADC value at about 3.1V for single LiIon cell
-#define BATT_FULL   2300        // set to ADC value at about 3.9V for single LiIon cell
-#define BATT_FILTER 0.02f
-#define BATT_EMPTY_INTERVAL     60*5  // 5min
-#define BATT_CRITICAL_INTERVAL  60*1  // 1min
+#define BATT_EMPTY      3100          // batt empty (critical) theshold in mV
+#define BATT_FULL       4000          // batt full voltage in mV
+#define BATT_FILTER     0.02f         // ADC filter coefficient
+#define BATT_ADC_SCALE  1.74f         // ADC scale fatcor -> set to: (measured batt voltage in mV) / (adc filtered value)
+                                      // add "#define ADC_RAW_DEBUG" to myoptions.h file to get ADC reading in debug terminal
+
+#define BATT_EMPTY_INTERVAL     60*5      // in seconds = 5min (set to 0 for disable voice empty warning)
+#define BATT_CRITICAL_INTERVAL  60*1      // in seconds = 1min (set to 0 for disable voice critical warning)
+#define BATT_ICON_POS           285,193   // X,Y for 320x240 displays. For other, need adjust
 
 class battMon : public Plugin {
   public:
@@ -29,20 +33,20 @@ class battMon : public Plugin {
     const uint16_t battIconOutEmpty   = config.color565(255, 128, 128);   //Outline color if empty
     const uint16_t battIconBackground = config.theme.background;
                               /* {{ left, top, fontsize, align }, width, height, outlined } */
-    const FillConfig battIconConf = {{285, 193, 0, WA_LEFT }, 25, 12, true };
+    const FillConfig battIconConf = {{BATT_ICON_POS, 0, WA_LEFT }, 25, 12, true }; //position on TFT and icon size
     const char    *langs[6]  = {"EN","RU","HU","PL","NL","EL"};
-    const char *warnings[6]  = {"Battery low",        // EN
-                                "Battery low",        // RU
-                                "Battery low",        // HU
-                                "Mało prundu",        // PL
-                                "Battery low",        // NL
-                                "Battery low"};       // EL
+    const char *warnings[6]  = {"Battery low",          // EN
+                                "низкий заряд батареи", // RU
+                                "Alacsony akkumulátor", // HU
+                                "Mało prundu",          // PL
+                                "Batterij bijna leeg",  // NL
+                                "Χαμηλή μπαταρία"};     // EL
     const char *critical[6]  = {"Battery critical", 
-                                "Battery critical", 
-                                "Battery critical", 
+                                "критический заряд батареи", 
+                                "Kritikus akkumulátor", 
                                 "Koniec prundu", 
-                                "Battery critical", 
-                                "Battery critical"};
+                                "Batterij kritisch", 
+                                "Κρίσιμη μπαταρία"};
 
     // do not modify any bellow
     SliderWidget *_battIcon;

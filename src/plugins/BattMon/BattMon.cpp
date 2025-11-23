@@ -36,30 +36,30 @@ void battMon::on_ticker() {
   if(config.store.dspon && _adcChan >= 0 && display.mode() == PLAYER) {
     uint16_t adcraw = adc1_get_raw((adc1_channel_t)_adcChan);
     #ifdef ADC_RAW_DEBUG
-    Serial.printf("ADC= %4d,  ", adcraw);
+    Serial.printf("ADC= %4d, ", adcraw);
     #endif
     if(filter < 500) filter = (float)adcraw;
     filter = (1.0f-BATT_FILTER)*filter + BATT_FILTER*(float)adcraw;
-    adcraw = filter;
+    adcraw = filter * BATT_ADC_SCALE;
     #ifdef ADC_RAW_DEBUG
-    Serial.printf("Filtered= %4d\r\n", adcraw);
+    Serial.printf("Filtered= %4d, Voltage= %04dmV\r\n", (uint16_t)filter, adcraw);
     #endif
     if(adcraw > BATT_FULL) adcraw = BATT_FULL;
-    uint16_t ubatt = map(adcraw, BATT_EMPTY, BATT_FULL, 0, 100);
+    uint16_t battpercent = map(adcraw, BATT_EMPTY, BATT_FULL, 0, 100);
     if(adcraw <= BATT_EMPTY) {
-      ubatt = 0;
+      battpercent = 0;
       blink = !blink;
       _battIcon->setActive(blink, !blink);
       dsp.fillRect(battIconConf.widget.left + battIconConf.width, battIconConf.widget.top + 3, 3,6, blink ? battIconOutEmpty:battIconBackground);
-      ttsProc(true);
+      if(BATT_CRITICAL_INTERVAL) ttsProc(true);
     } else {
       if(!blink) _battIcon->setActive(true);
-      dsp.fillRect(battIconConf.widget.left + battIconConf.width, battIconConf.widget.top + 3, 3,6, (ubatt <= 20) ? battIconOutEmpty : battIconOut);
+      dsp.fillRect(battIconConf.widget.left + battIconConf.width, battIconConf.widget.top + 3, 3,6, (battpercent <= 20) ? battIconOutEmpty : battIconOut);
       blink = true;
     }
-    if(ubatt <= 20) {_battIcon->setColor(battIconEmpty, battIconOutEmpty); if(ubatt) ttsProc(false);}
-    else            {_battIcon->setColor(battIconIn, battIconOut); ttsTimer = 0;}
-    _battIcon->setValue(ubatt);
+    if(battpercent <= 20) {_battIcon->setColor(battIconEmpty, battIconOutEmpty); if(battpercent && BATT_EMPTY_INTERVAL) ttsProc(false);}
+    else                  {_battIcon->setColor(battIconIn, battIconOut); ttsTimer = 0;}
+    _battIcon->setValue(battpercent);
   }  
 }
 
