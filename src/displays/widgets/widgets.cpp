@@ -871,6 +871,10 @@ bool ClockWidget::_getTime(){
   strftime(_timebuffer, sizeof(_timebuffer), "%H:%M", &network.timeinfo);
   bool ret = network.timeinfo.tm_sec==0 || _forceflag!=network.timeinfo.tm_year;
   _forceflag = network.timeinfo.tm_year;
+  if(_lastminute != network.timeinfo.tm_min) {    // fix for missed 0 seconds in get time
+    _lastminute = network.timeinfo.tm_min;
+    ret = true;
+  }
   return ret;
 }
 

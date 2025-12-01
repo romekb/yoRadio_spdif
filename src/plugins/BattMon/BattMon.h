@@ -1,5 +1,9 @@
 /**
  * BATTERY LEVEL DISPLAYING plugin
+
+ I use 2:1 voltage divider from battery to PIN35 and single cell LiIon battery.
+ 100k resistor in series + 100k resistor to GND.
+ My 1.74f scale value is for this divider and my ESP32 wroom module.
  */
 
 #ifndef BATTMON_H
@@ -17,8 +21,8 @@
 #define BATT_ADC_SCALE  1.74f         // ADC scale fatcor -> set to: (measured batt voltage in mV) / (adc filtered value)
                                       // add "#define ADC_RAW_DEBUG" to myoptions.h file to get ADC reading in debug terminal
 
-#define BATT_EMPTY_INTERVAL     60*5      // in seconds = 5min (set to 0 for disable voice empty warning)
-#define BATT_CRITICAL_INTERVAL  60*1      // in seconds = 1min (set to 0 for disable voice critical warning)
+#define BATT_EMPTY_INTERVAL     60*5      // in seconds = 5min (set to 0 for disable voice empty warning), active bellow 20% of batt
+#define BATT_CRITICAL_INTERVAL  60*1      // in seconds = 1min (set to 0 for disable voice critical warning), active bellow EMPTY treshold
 #define BATT_ICON_POS           285,193   // X,Y for 320x240 displays. For other, need adjust
 
 class battMon : public Plugin {

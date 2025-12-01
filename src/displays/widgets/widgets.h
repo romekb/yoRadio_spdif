@@ -225,7 +225,7 @@ class ClockWidget: public Widget {
   protected:
     char  _timebuffer[20]="00:00";
     char _tmp[33], _datebuf[33]; // Módosítva 33-ra
-    uint8_t _superfont;
+    uint8_t _superfont, _lastminute;
     uint16_t _clockleft, _clockwidth, _timewidth, _dotsleft, _linesleft;
     uint8_t  _clockheight, _timeheight, _dateheight, _space, _namedayFont;
     uint16_t _forceflag = 0;
