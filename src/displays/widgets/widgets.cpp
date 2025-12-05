@@ -322,7 +322,7 @@ void ScrollWidget::_reset(){
 
 /*********************  NAMEDAYS *****************************/
 #ifdef NAMEDAYS_FILE
-bool ScrollWidget::getNamedayUpper() { // commongfx.h - ban van deklarálva.
+bool ScrollWidget::getNamedayUpper() { 
   static uint8_t oldday = 99;
   const char *nameday = getNameDay(network.timeinfo.tm_mon + 1, network.timeinfo.tm_mday);
   char        tmp[32];
@@ -330,15 +330,24 @@ bool ScrollWidget::getNamedayUpper() { // commongfx.h - ban van deklarálva.
   for (int i = 0; tmp[i]; i++) tmp[i] = toupper((unsigned char)tmp[i]);
   strlcpy(_namedayBuf, utf8To(tmp, true), sizeof(_namedayBuf));
 #ifndef HIDE_NAMEDAYS_LABEL
-  dsp.setTextColor(config.theme.date, config.theme.background);
-  dsp.setCursor(_config.left, _config.top - 9*(_config.textsize - 1) - 4);
-  dsp.setTextSize(_config.textsize - 1);
-  if (!config.isScreensaver) dsp.print(utf8To(nameday_label, false));
+  if (!config.isScreensaver) {
+    dsp.setTextColor(config.theme.date, config.theme.background);
+    dsp.setCursor(_config.left, _config.top - 9*(_config.textsize - 1) - 4);
+    dsp.setTextSize(_config.textsize - 1);
+    dsp.print(utf8To(nameday_label, false));
+  }
 #endif
   if(oldday == network.timeinfo.tm_mday) return false;
   oldday = network.timeinfo.tm_mday;  
   return true;
 }
+void ScrollWidget::clearNamedaysLabel() {
+#ifndef HIDE_NAMEDAYS_LABEL
+  dsp.fillRect(_config.left, _config.top - 9*(_config.textsize-1) - 4,
+               45*(_config.textsize-1), 9*(_config.textsize-1), config.theme.background);
+#endif
+}
+
 #endif //NAMEDAYS_FILE
 
 
@@ -1123,12 +1132,18 @@ void BitrateWidget::_draw(){  //Módosítás
   _clear();
   if(_format == BF_UNKNOWN || _bitrate==0) return;
 #if defined(NAMEDAYS_FILE) || DSP_MODEL==DSP_ST7789_76
+  bool wnd = true;
+#else
+  bool wnd = false;
+#endif
+wnd &= config.store.nameday;
+if(wnd) {
   dsp.drawRect(_config.left, _config.top, _dimension * 2, (_dimension / 2) - 1, _fgcolor);
   dsp.fillRect(_config.left + _dimension, _config.top, _dimension, (_dimension / 2) - 1, _fgcolor);
-#else
+} else {
   dsp.drawRect(_config.left, _config.top, _dimension, _dimension, _fgcolor);                              // Eredeti.
   dsp.fillRect(_config.left, _config.top + _dimension / 2 + 1, _dimension, _dimension / 2 - 1, _fgcolor); // Eredeti
-#endif
+}
   dsp.setFont();
   dsp.setTextSize(_config.textsize);
   dsp.setTextColor(_fgcolor, _bgcolor);
@@ -1141,11 +1156,11 @@ void BitrateWidget::_draw(){  //Módosítás
 //#endif
   dsp.print(_buf);
   dsp.setTextColor(_bgcolor, _fgcolor);
-#if defined(NAMEDAYS_FILE) || DSP_MODEL==DSP_ST7789_76
+if(wnd) {
   dsp.setCursor(_config.left + _dimension + _dimension / 2 - _charWidth * 3 / 2, _config.top + _dimension / 4 - _textheight / 2 + 1);
-#else
+} else {
   dsp.setCursor(_config.left + _dimension / 2 - _charWidth * 3 / 2 + 1, _config.top + _dimension / 2 + _dimension / 4 - _textheight / 2 + 1);
-#endif
+}
   switch(_format){
     case BF_MP3:  dsp.print("MP3"); break;
     case BF_AAC:  dsp.print("AAC"); break;
@@ -1160,11 +1175,21 @@ void BitrateWidget::_draw(){  //Módosítás
 
 void BitrateWidget::_clear() {
 #if defined(NAMEDAYS_FILE) || DSP_MODEL==DSP_ST7789_76
-  dsp.fillRect(_config.left, _config.top, _dimension * 2, _dimension / 2, _bgcolor);
+  bool wnd = true;
 #else
-  dsp.fillRect(_config.left, _config.top, _dimension, _dimension, _bgcolor);
+  bool wnd = false;
 #endif
+wnd &= config.store.nameday;
+if(wnd) {
+  dsp.fillRect(_config.left, _config.top, _dimension * 2, _dimension / 2, _bgcolor);
+} else {
+  dsp.fillRect(_config.left, _config.top, _dimension, _dimension, _bgcolor);
+}
 //  VuWidget::setLabelsDrawn(false); // Módosítás! (false) esetén újrarajzolja az L R címkét.
+}
+
+void BitrateWidget::clearAll() {
+  dsp.fillRect(_config.left, _config.top, _dimension * 2, _dimension + 1, _bgcolor);
 }
 
 

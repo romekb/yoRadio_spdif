@@ -124,6 +124,33 @@ void setup() {
 }
 
 void loop() {
+  // check heap memory every 15 seconds
+  // borrowed from https://github.com/Witaliy76/JC3248W535C
+  static uint32_t lastMemoryCheck = 0;
+  static size_t minMemory = SIZE_MAX;
+  static size_t maxMemory = 0;
+  
+  if (millis() - lastMemoryCheck > 15000) { 
+    size_t freeHeap = ESP.getFreeHeap();
+    
+    // statistic
+    if (freeHeap < minMemory) minMemory = freeHeap;
+    if (freeHeap > maxMemory) maxMemory = freeHeap;
+    
+    if (freeHeap < 80000) {  // Только экстренные ситуации
+      Serial.printf("##[EMERGENCY]# Main: EMERGENCY MEMORY! Only %u bytes free\n", freeHeap);
+      Serial.printf("##[STATS]# Main: Memory stats - Min: %u, Max: %u, Current: %u\n", 
+                   minMemory, maxMemory, freeHeap);
+      // Принудительная очистка памяти
+      heap_caps_check_integrity_all(true);
+      delay(5);
+      size_t newFreeHeap = ESP.getFreeHeap();
+      Serial.printf("##[DEBUG]# Main: After cleanup: %u bytes free (+%d)\n", 
+                   newFreeHeap, (int)(newFreeHeap - freeHeap));
+    }
+    lastMemoryCheck = millis();
+  }
+
   timekeeper.loop1();
   telnet.loop();
   if (network.status == CONNECTED || network.status==SDREADY) {

@@ -239,7 +239,7 @@ void NetServer::processQueue(){
           return; 
           break;
         }
-      case GETSYSTEM:     sprintf (wsBuf, "{\"sst\":%d,\"aif\":%d,\"vu\":%d,\"softr\":%d,\"vut\":%d,\"mdns\":\"%s\",\"ipaddr\":\"%s\", \"abuff\": %d, \"telnet\": %d, \"watchdog\": %d }", 
+      case GETSYSTEM:     sprintf (wsBuf, "{\"sst\":%d,\"aif\":%d,\"vu\":%d,\"softr\":%d,\"vut\":%d,\"mdns\":\"%s\",\"ipaddr\":\"%s\", \"abuff\": %d, \"telnet\": %d, \"watchdog\": %d, \"nameday\": %d }", 
                                   config.store.smartstart != 2, 
                                   config.store.audioinfo, 
                                   config.store.vumeter, 
@@ -249,7 +249,8 @@ void NetServer::processQueue(){
                                   config.ipToStr(WiFi.localIP()),
                                   config.store.abuff,
                                   config.store.telnet,
-                                  config.store.watchdog); 
+                                  config.store.watchdog,
+                                  config.store.nameday); 
                                   break;
       case GETSCREEN:     sprintf (wsBuf, "{\"flip\":%d,\"inv\":%d,\"nump\":%d,\"tsf\":%d,\"tsd\":%d,\"dspon\":%d,\"br\":%d,\"con\":%d,\"scre\":%d,\"scrt\":%d,\"scrb\":%d,\"scrpe\":%d,\"scrpt\":%d,\"scrpb\":%d}", 
                                   config.store.flipscreen, 

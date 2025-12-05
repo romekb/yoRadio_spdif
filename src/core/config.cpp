@@ -130,6 +130,7 @@ void Config::_setupVersion(){
       saveValue(&store.abuff, (uint16_t)(VS1053_CS==255?7:10));
       saveValue(&store.telnet, true);
       saveValue(&store.watchdog, true);
+      saveValue(&store.nameday, true);                     // Módosítás új sor "nameday"
       saveValue(&store.timeSyncInterval, (uint16_t)60);    //min
       saveValue(&store.timeSyncIntervalRTC, (uint16_t)24); //hours
       saveValue(&store.weatherSyncInterval, (uint16_t)30); // min
@@ -490,6 +491,7 @@ void Config::resetSystem(const char *val, uint8_t clientId){
     saveValue(&store.abuff, (uint16_t)(VS1053_CS==255?7:10), false);
     saveValue(&store.telnet, true);
     saveValue(&store.watchdog, true);
+    saveValue(&store.nameday, true);                                                 // Módosítás "nameday"
     snprintf(store.mdnsname, MDNS_LENGTH, "yoradio-%x", (unsigned int)getChipId());
     saveValue(store.mdnsname, store.mdnsname, MDNS_LENGTH, true, true);
     display.putRequest(NEWMODE, CLEAR); display.putRequest(NEWMODE, PLAYER);
@@ -619,6 +621,7 @@ void Config::setDefaults() {
   store.screensaverPlayingBlank = false;
   store.abuff = VS1053_CS==255?7:10;
   store.telnet = true;
+  store.nameday = true;           // Módosítás "nameday" kezdő érték.
   store.watchdog = true;
   store.timeSyncInterval = 60;    //min
   store.timeSyncIntervalRTC = 24; //hour

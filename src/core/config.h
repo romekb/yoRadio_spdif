@@ -133,6 +133,7 @@ struct config_t
   uint16_t  abuff;
   bool      telnet;
   bool      watchdog;
+  bool      nameday;    // Módosítás "nameday" új hely a struktúrában
   uint16_t  timeSyncInterval;
   uint16_t  timeSyncIntervalRTC;
   uint16_t  weatherSyncInterval;

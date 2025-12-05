@@ -112,6 +112,7 @@ class ScrollWidget: public TextWidget {
     void setText(const char* txt, const char *format);
   #ifdef NAMEDAYS_FILE
     bool getNamedayUpper();
+    void clearNamedaysLabel();
     char *gNameDay(){ return _namedayBuf; }
   #endif
   private:
@@ -224,7 +225,7 @@ class ClockWidget: public Widget {
   #endif
   protected:
     char  _timebuffer[20]="00:00";
-    char _tmp[33], _datebuf[33]; // Módosítva 33-ra
+    char _tmp[38], _datebuf[38]; // Módosítva 33-ra
     uint8_t _superfont, _lastminute;
     uint16_t _clockleft, _clockwidth, _timewidth, _dotsleft, _linesleft;
     uint8_t  _clockheight, _timeheight, _dateheight, _space, _namedayFont;
@@ -253,6 +254,7 @@ class BitrateWidget: public Widget {
     void init(BitrateConfig bconf, uint16_t fgcolor, uint16_t bgcolor);
     void setBitrate(uint16_t bitrate);
     void setFormat(BitrateFormat format);
+    void clearAll();
   protected:
     BitrateFormat _format;
     char _buf[6];

@@ -98,7 +98,7 @@ bool MyNetwork::wifiBegin(bool silent){
 void searchWiFi(void * pvParameters){
   if(!network.wifiBegin(true)){
     delay(10000);
-    xTaskCreatePinnedToCore(searchWiFi, "searchWiFi", 1024 * 4, NULL, 0, NULL, SEARCH_WIFI_CORE_ID);
+    xTaskCreatePinnedToCore(searchWiFi, "searchWiFi", 1024 * 4, NULL, 3, NULL, SEARCH_WIFI_CORE_ID);
   }else{
     network.status = CONNECTED;
     netserver.begin(true);
@@ -135,7 +135,7 @@ void MyNetwork::begin() {
     #endif
   }else{
     status = SDREADY;
-    xTaskCreatePinnedToCore(searchWiFi, "searchWiFi", 1024 * 4, NULL, 0, NULL, SEARCH_WIFI_CORE_ID);
+    xTaskCreatePinnedToCore(searchWiFi, "searchWiFi", 1024 * 4, NULL, 3, NULL, SEARCH_WIFI_CORE_ID);
   }
   
   Serial.println("##[BOOT]#\tdone");
@@ -166,9 +166,9 @@ void MyNetwork::requestTimeSync(bool withTelnetOutput, uint8_t clientId) {
     char timeStringBuff[50];
     strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%dT%H:%M:%S", &timeinfo);
     if (config.store.tzHour < 0) {
-      telnet.printf(clientId, "##SYS.DATE#: %s%03d:%02d\n> ", timeStringBuff, config.store.tzHour, config.store.tzMin);
+      telnet.printf(clientId, "##SYS.DATE#: %s%03d:%02d\r\n> ", timeStringBuff, config.store.tzHour, config.store.tzMin);
     } else {
-      telnet.printf(clientId, "##SYS.DATE#: %s+%02d:%02d\n> ", timeStringBuff, config.store.tzHour, config.store.tzMin);
+      telnet.printf(clientId, "##SYS.DATE#: %s+%02d:%02d\r\n> ", timeStringBuff, config.store.tzHour, config.store.tzMin);
     }
   }
 }

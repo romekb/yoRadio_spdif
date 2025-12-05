@@ -14,7 +14,7 @@
 #endif
 #define TFT_SPI_MODE   SPI_MODE0
 #define TFT_SPI_HOST   SPI2_HOST
-#define SEND_BUF_SIZE  15360      // 10 chunks per screen 320x480
+#define SEND_BUF_SIZE  12800       // 12 chunks // 15360      // 10 chunks per screen 320x480
 
 #define TFT_MADCTL      0x36
 #define TFT_MAD_MY      0x80

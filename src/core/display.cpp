@@ -527,15 +527,26 @@ void Display::loop() {
         case DRAWPLAYLIST: _drawPlaylist(); break;
         case DRAWVOL: _volume(); progressTicks = millis(); break;
         case DBITRATE: {
-            char buf[20]; 
-            snprintf(buf, 20, bitrateFmt, config.station.bitrate); 
-            if(_bitrate) { _bitrate->setText(config.station.bitrate==0?"":buf); } 
-            if(_fullbitrate) { 
-              _fullbitrate->setBitrate(config.station.bitrate); 
-              _fullbitrate->setFormat(config.configFmt); 
-            } 
-          }
-          break;
+            if (_mode == PLAYER) {  // csak a lejátszás képernyőn frissíti a bitrateWidgetet
+              char buf[20]; 
+              snprintf(buf, 20, bitrateFmt, config.station.bitrate); 
+              if(_bitrate) { _bitrate->setText(config.station.bitrate==0?"":buf); } 
+              if(_fullbitrate) { 
+                _fullbitrate->setBitrate(config.station.bitrate); 
+                _fullbitrate->setFormat(config.configFmt); 
+              } 
+            }
+            _nameday->setActive(config.store.nameday, !config.store.nameday);
+          } break;
+        case CLEARALLBITRATE: {                         // "nameday"
+            if (_mode == PLAYER && _fullbitrate) {
+              _fullbitrate->clearAll();
+              _fullbitrate->setBitrate(0);
+            }
+            #ifdef NAMEDAYS_FILE
+             _nameday->clearNamedaysLabel();
+            #endif
+          } break;
         case AUDIOINFO: if(_heapbar)  { _heapbar->lock(!config.store.audioinfo); _heapbar->setValue(player.inBufferFilled()); } break;
         case SHOWVUMETER: {
           if(_vuwidget){
@@ -711,7 +722,7 @@ void Display::_time(bool redraw) {
     _clock->moveTo({lt, ft, 0});
   }
   #ifdef NAMEDAYS_FILE
-    if(_nameday && network.timeinfo.tm_year > 100) {
+    if(_nameday && config.store.nameday && network.timeinfo.tm_year > 100) {
       if( _nameday->getNamedayUpper() ) _nameday->setText( _nameday->gNameDay() );
     }
   #endif

@@ -90,7 +90,7 @@ static void AxsTask(void * pvParameters){
         tftSendChunk(chunk);
         while(spi_device_get_trans_result(spi, &res, 1) != ESP_OK) yield();
         xSemaphoreGive(mutex_tft);
-        if(++chunk >= 10) { 
+        if(++chunk >= 12) { 
             vTaskDelay(7); 
             chunk = 0; 
             memcpy(frameBuffer2, frameBuffer, _buflen*2); 
