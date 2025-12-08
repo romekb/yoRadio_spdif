@@ -536,7 +536,9 @@ void Display::loop() {
                 _fullbitrate->setFormat(config.configFmt); 
               } 
             }
-            _nameday->setActive(config.store.nameday, !config.store.nameday);
+            #ifdef NAMEDAYS_FILE
+            if(_nameday) _nameday->setActive(config.store.nameday, !config.store.nameday);
+            #endif
           } break;
         case CLEARALLBITRATE: {                         // "nameday"
             if (_mode == PLAYER && _fullbitrate) {
@@ -544,7 +546,7 @@ void Display::loop() {
               _fullbitrate->setBitrate(0);
             }
             #ifdef NAMEDAYS_FILE
-             _nameday->clearNamedaysLabel();
+            if(_nameday) _nameday->clearNamedaysLabel();
             #endif
           } break;
         case AUDIOINFO: if(_heapbar)  { _heapbar->lock(!config.store.audioinfo); _heapbar->setValue(player.inBufferFilled()); } break;
