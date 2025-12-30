@@ -209,6 +209,9 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #ifndef BTN_MODE
   #define BTN_MODE             255
 #endif
+#ifndef BTN_SPDIF
+  #define BTN_SPDIF             255
+#endif
 #ifndef BTN_INTERNALPULLUP
   #define BTN_INTERNALPULLUP    true
 #endif

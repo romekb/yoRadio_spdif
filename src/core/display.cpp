@@ -120,6 +120,10 @@ void Display::init() {
     adc1_config_channel_atten((adc1_channel_t)_adcChan, ADC_ATTEN_DB_12);   // 0 - 3.3V
   }
 #endif
+#ifdef DISP_BT_SIGN
+  uint16_t bt[4] = DISP_BT_SIGN;
+  pinMode(bt[0], INPUT);
+#endif
   _bootStep = 0;
   dsp.initDisplay();
   displayQueue=NULL;
@@ -432,7 +436,8 @@ void Display::_swichMode(displayMode_e newmode) {
   if (newmode == UPDATING)  { config.setDspOn(config.store.dspon, false); _showDialog(LANG::const_DlgUpdate); }
   if (newmode == SLEEPING)  _showDialog("SLEEPING");
   if (newmode == SDCHANGE)  _showDialog(LANG::const_waitForSD);
-  if (newmode == INFO || newmode == SETTINGS || newmode == TIMEZONE || newmode == WIFI) _showDialog(LANG::const_DlgNextion);
+  if (newmode == INFO)      _showDialog(config.store.dbgtouch ? "SPDIF ON":"SPDIF OFF");
+  if (newmode == SETTINGS || newmode == TIMEZONE || newmode == WIFI) _showDialog(LANG::const_DlgNextion);
   if (newmode == NUMBERS) _showDialog("");
   if (newmode == STATIONS) {
     _pager->setPage( pages[PG_PLAYLIST]);
@@ -496,6 +501,7 @@ void Display::_layoutChange(bool played){
 
 void Display::loop() {
   static uint32_t progressTicks;
+  static bool lastNdState;
   if(_bootStep==0) {
     _pager->begin();
     _bootScreen();
@@ -528,6 +534,10 @@ void Display::loop() {
         case DRAWVOL: _volume(); progressTicks = millis(); break;
         case DBITRATE: {
             if (_mode == PLAYER) {  // csak a lejátszás képernyőn frissíti a bitrateWidgetet
+            #ifdef NAMEDAYS_FILE
+              if(_nameday && config.store.nameday!=lastNdState) _nameday->lock(!config.store.nameday);
+              lastNdState = config.store.nameday;
+            #endif
               char buf[20]; 
               snprintf(buf, 20, bitrateFmt, config.station.bitrate); 
               if(_bitrate) { _bitrate->setText(config.station.bitrate==0?"":buf); } 
@@ -536,9 +546,6 @@ void Display::loop() {
                 _fullbitrate->setFormat(config.configFmt); 
               } 
             }
-            #ifdef NAMEDAYS_FILE
-            if(_nameday) _nameday->setActive(config.store.nameday, !config.store.nameday);
-            #endif
           } break;
         case CLEARALLBITRATE: {                         // "nameday"
             if (_mode == PLAYER && _fullbitrate) {
@@ -712,6 +719,7 @@ void Display::_time(bool redraw) {
     config.setBrightness(AUTOBACKLIGHT(adcraw));
   }
 #endif
+
   if(config.isScreensaver && network.timeinfo.tm_sec % 60 == 0){
     #if TIME_SIZE<19
       uint16_t ft=static_cast<uint16_t>(random(TFT_FRAMEWDT, (dsp.height()-TIME_SIZE*CHARHEIGHT-TFT_FRAMEWDT)));
@@ -732,6 +740,16 @@ void Display::_time(bool redraw) {
   /*#ifdef USE_NEXTION
     nextion.printClock(network.timeinfo);
   #endif*/
+#ifdef DISP_BT_SIGN
+  static const uint16_t bt[4] = DISP_BT_SIGN;
+  if(display.mode() == PLAYER && !config.isScreensaver) {
+    dsp.setTextColor(config.color565(90,90,255), config.theme.background);
+    dsp.setCursor(bt[1], bt[2]);
+    dsp.setFont();
+    dsp.setTextSize(bt[3]);
+    if(digitalRead(bt[0])) dsp.print("\x0b"); else dsp.print(" ");
+  }
+#endif
 }
 
 void Display::_volume() {
@@ -815,6 +833,9 @@ void Display::offAnimation() {
     currx += delta;
   }
   dsp.clearDsp(true);
+  #if (WAKE_PIN!=255)
+  config.doSleepW();
+  #endif
 #endif  
 }
 //============================================================================================================================

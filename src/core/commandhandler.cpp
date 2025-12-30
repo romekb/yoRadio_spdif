@@ -17,11 +17,15 @@ CommandHandler cmd;
 void CommandHandler::_SwitchSPDIF() {
   if(SPDIF_OUT == 255) return;
   int playing = player.status();
+  player.resetQueue();
   player.sendCommand({PR_STOP, 0}); 
+  display.putRequest(NEWMODE, INFO);
+  player.loop();
   delay(500); 
   player.init(); 
   delay(50); 
   if(playing == PLAYING) player.sendCommand({PR_PLAY, config.lastStation()});
+  else display.putRequest(NEWMODE, PLAYER);
 }
 
 bool CommandHandler::exec(const char *command, const char *value, uint8_t cid) {

@@ -21,10 +21,10 @@ uint32_t _seekReturnTout = 0;
 #define DUMMYDISPLAY
 #endif
 
-#define ISPUSHBUTTONS BTN_LEFT!=255 || BTN_CENTER!=255 || BTN_RIGHT!=255 || ENC_BTNB!=255 || BTN_UP!=255 || BTN_DOWN!=255 || ENC2_BTNB!=255 || BTN_MODE!=255
+#define ISPUSHBUTTONS BTN_LEFT!=255 || BTN_CENTER!=255 || BTN_RIGHT!=255 || ENC_BTNB!=255 || BTN_UP!=255 || BTN_DOWN!=255 || ENC2_BTNB!=255 || BTN_MODE!=255 || BTN_SPDIF!=255
 #if ISPUSHBUTTONS
 #include "../OneButton/OneButton.h"
-OneButton button[] {{BTN_LEFT, true, BTN_INTERNALPULLUP}, {BTN_CENTER, true, BTN_INTERNALPULLUP}, {BTN_RIGHT, true, BTN_INTERNALPULLUP}, {ENC_BTNB, true, ENC_INTERNALPULLUP}, {BTN_UP, true, BTN_INTERNALPULLUP}, {BTN_DOWN, true, BTN_INTERNALPULLUP}, {ENC2_BTNB, true, ENC2_INTERNALPULLUP}, {BTN_MODE, true, BTN_INTERNALPULLUP}};
+OneButton button[] {{BTN_LEFT, true, BTN_INTERNALPULLUP}, {BTN_CENTER, true, BTN_INTERNALPULLUP}, {BTN_RIGHT, true, BTN_INTERNALPULLUP}, {ENC_BTNB, true, ENC_INTERNALPULLUP}, {BTN_UP, true, BTN_INTERNALPULLUP}, {BTN_DOWN, true, BTN_INTERNALPULLUP}, {ENC2_BTNB, true, ENC2_INTERNALPULLUP}, {BTN_MODE, true, BTN_INTERNALPULLUP}, {BTN_SPDIF, true, BTN_INTERNALPULLUP}};
 constexpr uint8_t nrOfButtons = sizeof(button) / sizeof(button[0]);
 #endif
 
@@ -57,20 +57,25 @@ constexpr uint8_t nrOfButtons = sizeof(button) / sizeof(button[0]);
   #include "touchscreen.h"
   TouchScreen touchscreen;
 #endif
+#if SPDIF_OUT!=255
+  #include "commandhandler.h"
+#endif  
 
 #if IR_PIN!=255
 #include <assert.h>
 
 #include "../IRremoteESP8266/IRrecv.h"
 #include "../IRremoteESP8266/IRremoteESP8266.h"
-#include "../IRremoteESP8266/IRac.h"
-#include "../IRremoteESP8266/IRtext.h"
+//#include "../IRremoteESP8266/IRac.h"
+//#include "../IRremoteESP8266/IRtext.h"
 #include "../IRremoteESP8266/IRutils.h"
 uint8_t irVolRepeat = 0;
 //const uint16_t kCaptureBufferSize = 1024;
 const uint16_t kMinUnknownSize = 12;
 #define LEGACY_TIMING_INFO false
-
+#ifndef IR_REC_PARAMS
+ #define IR_REC_PARAMS  4,100		// default max_skip & noise_floor parameters for IR decode routine
+#endif
 IRrecv irrecv(IR_PIN, IR_BUFSIZE, IR_TIMEOUT, true);
 decode_results irResults;
 #endif
@@ -108,7 +113,7 @@ void initControls() {
 #if ISPUSHBUTTONS
   for (int i = 0; i < nrOfButtons; i++)
   {
-    if ((i == 0 && BTN_LEFT == 255) || (i == 1 && BTN_CENTER == 255) || (i == 2 && BTN_RIGHT == 255) || (i == 3 && ENC_BTNB == 255) || (i == 4 && BTN_UP == 255) || (i == 5 && BTN_DOWN == 255) || (i == 6 && ENC2_BTNB == 255) || (i == 7 && BTN_MODE == 255)) continue;
+    if ((i == 0 && BTN_LEFT == 255) || (i == 1 && BTN_CENTER == 255) || (i == 2 && BTN_RIGHT == 255) || (i == 3 && ENC_BTNB == 255) || (i == 4 && BTN_UP == 255) || (i == 5 && BTN_DOWN == 255) || (i == 6 && ENC2_BTNB == 255) || (i == 7 && BTN_MODE == 255) || (i == 8 && BTN_SPDIF == 255)) continue;
     button[i].attachClick([](void* p) {
       onBtnClick((int)p);
     }, (void*)i);
@@ -152,7 +157,7 @@ void loopControls() {
 #if ISPUSHBUTTONS
   for (unsigned i = 0; i < nrOfButtons; i++)
   {
-    if ((i == 0 && BTN_LEFT == 255) || (i == 1 && BTN_CENTER == 255) || (i == 2 && BTN_RIGHT == 255) || (i == 3 && ENC_BTNB == 255) || (i == 4 && BTN_UP == 255) || (i == 5 && BTN_DOWN == 255) || (i == 6 && ENC2_BTNB == 255)) continue;
+    if ((i == 0 && BTN_LEFT == 255) || (i == 1 && BTN_CENTER == 255) || (i == 2 && BTN_RIGHT == 255) || (i == 3 && ENC_BTNB == 255) || (i == 4 && BTN_UP == 255) || (i == 5 && BTN_DOWN == 255) || (i == 6 && ENC2_BTNB == 255)  || (i == 7 && BTN_MODE == 255) ||  (i == 8 && BTN_SPDIF == 255)) continue;
     button[i].tick();
     if (lpId >= 0) {
       if (DSP_MODEL == DSP_DUMMY && (lpId == 4 || lpId == 5)) continue;
@@ -258,7 +263,7 @@ void irNumber(uint8_t num) {
 }
 
 void irLoop() {
-  if (irrecv.decode(&irResults, NULL, 4, 100)) {      // 100 is 100us filter for noisy IR reception
+  if (irrecv.decode(&irResults, NULL, IR_REC_PARAMS)) {
     if(irResults.value<256) return;
     if (netserver.irRecordEnable) {
       Serial.print(resultToHumanReadableBasic(&irResults));
@@ -302,10 +307,15 @@ wkup:
           }
           switch (target){
             case IR_PWR: {
-              player.lockOutput = true;
-              player.sendCommand({PR_STOP, 0});
-              delay(200);
-              display.putRequest(NEWMODE, SCREENBLANK);
+              #if (SPDIF_OUT!=255)
+              if(display.mode() == STATIONS) {
+                cmd.exec("dbgtouch", (config.store.dbgtouch ? "0":"1"), 0);
+                delay(100);
+                display.putRequest(NEWMODE, PLAYER);
+                break;
+              }
+              #endif
+              DoPwrOff();
               break;
             }
             case IR_MUTE: {
@@ -613,6 +623,14 @@ void onBtnClick(int id) {
       break;
     }
     #endif
+    #if(SPDIF_OUT != 255)
+    case EVT_BTNSPDIF: {
+      cmd.exec("dbgtouch", (config.store.dbgtouch ? "0":"1"), 0);
+      delay(100);
+      display.putRequest(NEWMODE, PLAYER);
+      break;
+      }
+    #endif  
     default: break;
   }
 }
@@ -665,4 +683,11 @@ void flipTS(){
 #if (TS_MODEL!=TS_MODEL_UNDEFINED) && (DSP_MODEL!=DSP_DUMMY)
   touchscreen.flip();
 #endif
+}
+
+void DoPwrOff() {
+    player.lockOutput = true;
+    player.sendCommand({PR_STOP, 0});
+    delay(200);
+    display.putRequest(NEWMODE, SCREENBLANK);
 }

@@ -26,11 +26,11 @@ void MyNetwork::WiFiReconnected(WiFiEvent_t event, WiFiEventInfo_t info){
   network.beginReconnect = false;
   player.lockOutput = false;
   delay(100);
-  display.putRequest(NEWMODE, PLAYER);
+  if(display.mode()!=SCREENBLANK) display.putRequest(NEWMODE, PLAYER);
   if(config.getMode()==PM_SDCARD) {
     network.status=CONNECTED;
     display.putRequest(NEWIP, 0);
-  }else{
+  }else if(display.mode()!=SCREENBLANK) {
     display.putRequest(NEWMODE, PLAYER);
     if (network.lostPlaying) player.sendCommand({PR_PLAY, config.lastStation()});
   }
@@ -48,7 +48,7 @@ void MyNetwork::WiFiLostConnection(WiFiEvent_t event, WiFiEventInfo_t info){
     }else{
       network.lostPlaying = player.isRunning();
       if (network.lostPlaying) { player.lockOutput = true; player.sendCommand({PR_STOP, 0}); }
-      display.putRequest(NEWMODE, LOST);
+      if(display.mode()!=SCREENBLANK) display.putRequest(NEWMODE, LOST);
     }
   }
   network.beginReconnect = true;

@@ -236,10 +236,7 @@ void TouchScreen::loop(){
           }
         } else { 
           if(player.status() == STOPPED && display.mode() == PLAYER && display.mode() != SCREENSAVER) {
-            player.lockOutput = true;                 // longpress during stop -> power off
-            player.sendCommand({PR_STOP, 0});
-            delay(200);
-            display.putRequest(NEWMODE, SCREENBLANK);
+            DoPwrOff();
           } else {                                    // longpress during stations -> return
             display.allowReboot = true;               // longpress during sleep -> reboot
             display.putRequest(NEWMODE, display.mode() == PLAYER ? STATIONS : PLAYER); 
