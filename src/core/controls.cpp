@@ -623,7 +623,7 @@ void onBtnClick(int id) {
       break;
     }
     #endif
-    #if(SPDIF_OUT != 255)
+    #if(SPDIF_OUT != 255 && BTN_SPDIF != 255)
     case EVT_BTNSPDIF: {
       cmd.exec("dbgtouch", (config.store.dbgtouch ? "0":"1"), 0);
       delay(100);
@@ -660,6 +660,14 @@ void onBtnDoubleClick(int id) {
         player.next();
         break;
       }
+    #if(SPDIF_OUT != 255 && BTN_MODE != 255 && BTN_SPDIF == 255)
+    case EVT_BTNMODE: {
+      cmd.exec("dbgtouch", (config.store.dbgtouch ? "0":"1"), 0);
+      delay(100);
+      display.putRequest(NEWMODE, PLAYER);
+      break;
+      }
+    #endif      
     default:
         break;
   }
