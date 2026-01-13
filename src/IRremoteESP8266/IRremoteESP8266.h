@@ -51,14 +51,24 @@
 #include <iostream>
 #include <string>
 #endif  // UNIT_TEST
+#if 0 //__cplusplus >= 202002L
+#include <atomic>
+typedef std::atomic< bool > atomic_bool;
+typedef std::atomic<uint32_t> atomic_uint32_t;
+#else
+typedef volatile bool atomic_bool;
+typedef volatile uint32_t atomic_uint32_t;
+#endif
+typedef volatile uint16_t atomic_uint16_t;
+typedef volatile const uint16_t atomic_const_uint16_t;
 
 // Library Version Information
 // Major version number (X.x.x)
 #define _IRREMOTEESP8266_VERSION_MAJOR 2
 // Minor version number (x.X.x)
-#define _IRREMOTEESP8266_VERSION_MINOR 8
+#define _IRREMOTEESP8266_VERSION_MINOR 9
 // Patch version number (x.x.X)
-#define _IRREMOTEESP8266_VERSION_PATCH 6
+#define _IRREMOTEESP8266_VERSION_PATCH 0
 // Macro to convert version info into an integer
 #define _IRREMOTEESP8266_VERSION_VAL(major, minor, patch) \
                                     (((major) << 16) | ((minor) << 8) | (patch))
@@ -112,7 +122,7 @@
 
 // Semi-unique code for unknown messages
 #ifndef DECODE_HASH
-#define DECODE_HASH            true
+#define DECODE_HASH            _IR_ENABLE_DEFAULT_
 #endif  // DECODE_HASH
 
 #ifndef SEND_RAW
@@ -323,7 +333,7 @@
 #endif  // SEND_FUJITSU_AC
 
 #ifndef DECODE_INAX
-#define DECODE_INAX            _IR_ENABLE_DEFAULT_
+#define DECODE_INAX            true
 #endif  // DECODE_INAX
 #ifndef SEND_INAX
 #define SEND_INAX              _IR_ENABLE_DEFAULT_
@@ -400,7 +410,7 @@
 #endif  // SEND_TROTEC_3550
 
 #ifndef DECODE_NIKAI
-#define DECODE_NIKAI           _IR_ENABLE_DEFAULT_
+#define DECODE_NIKAI           true
 #endif  // DECODE_NIKAI
 #ifndef SEND_NIKAI
 #define SEND_NIKAI             _IR_ENABLE_DEFAULT_
@@ -414,7 +424,7 @@
 #endif  // SEND_TOSHIBA_AC
 
 #ifndef DECODE_MAGIQUEST
-#define DECODE_MAGIQUEST       _IR_ENABLE_DEFAULT_
+#define DECODE_MAGIQUEST       true
 #endif  // DECODE_MAGIQUEST
 #ifndef SEND_MAGIQUEST
 #define SEND_MAGIQUEST         _IR_ENABLE_DEFAULT_
@@ -435,7 +445,7 @@
 #endif  // SEND_MIDEA24
 
 #ifndef DECODE_LASERTAG
-#define DECODE_LASERTAG        _IR_ENABLE_DEFAULT_
+#define DECODE_LASERTAG        true
 #endif  // DECODE_LASERTAG
 #ifndef SEND_LASERTAG
 #define SEND_LASERTAG          _IR_ENABLE_DEFAULT_
@@ -533,7 +543,7 @@
 #endif  // SEND_HITACHI_AC424
 
 #ifndef DECODE_GICABLE
-#define DECODE_GICABLE         _IR_ENABLE_DEFAULT_
+#define DECODE_GICABLE         true
 #endif  // DECODE_GICABLE
 #ifndef SEND_GICABLE
 #define SEND_GICABLE           _IR_ENABLE_DEFAULT_
@@ -554,7 +564,7 @@
 #endif  // SEND_WHIRLPOOL_AC
 
 #ifndef DECODE_LUTRON
-#define DECODE_LUTRON          _IR_ENABLE_DEFAULT_
+#define DECODE_LUTRON          true
 #endif  // DECODE_LUTRON
 #ifndef SEND_LUTRON
 #define SEND_LUTRON            _IR_ENABLE_DEFAULT_
@@ -610,7 +620,7 @@
 #endif  // SEND_VESTEL_AC
 
 #ifndef DECODE_TECO
-#define DECODE_TECO            _IR_ENABLE_DEFAULT_
+#define DECODE_TECO            true
 #endif  // DECODE_TECO
 #ifndef SEND_TECO
 #define SEND_TECO              _IR_ENABLE_DEFAULT_
@@ -701,7 +711,7 @@
 #endif  // SEND_EPSON
 
 #ifndef DECODE_SYMPHONY
-#define DECODE_SYMPHONY        _IR_ENABLE_DEFAULT_
+#define DECODE_SYMPHONY        true
 #endif  // DECODE_SYMPHONY
 #ifndef SEND_SYMPHONY
 #define SEND_SYMPHONY          _IR_ENABLE_DEFAULT_
@@ -715,7 +725,7 @@
 #endif  // SEND_DAIKIN64
 
 #ifndef DECODE_AIRWELL
-#define DECODE_AIRWELL         _IR_ENABLE_DEFAULT_
+#define DECODE_AIRWELL         true
 #endif  // DECODE_AIRWELL
 #ifndef SEND_AIRWELL
 #define SEND_AIRWELL           _IR_ENABLE_DEFAULT_
@@ -729,14 +739,14 @@
 #endif  // SEND_DELONGHI_AC
 
 #ifndef DECODE_DOSHISHA
-#define DECODE_DOSHISHA        _IR_ENABLE_DEFAULT_
+#define DECODE_DOSHISHA        true
 #endif  // DECODE_DOSHISHA
 #ifndef SEND_DOSHISHA
 #define SEND_DOSHISHA          _IR_ENABLE_DEFAULT_
 #endif  // SEND_DOSHISHA
 
 #ifndef DECODE_MULTIBRACKETS
-#define DECODE_MULTIBRACKETS   _IR_ENABLE_DEFAULT_
+#define DECODE_MULTIBRACKETS   true
 #endif  // DECODE_MULTIBRACKETS
 #ifndef SEND_MULTIBRACKETS
 #define SEND_MULTIBRACKETS     _IR_ENABLE_DEFAULT_
@@ -757,7 +767,7 @@
 #endif  // SEND_CORONA_AC
 
 #ifndef DECODE_ZEPEAL
-#define DECODE_ZEPEAL          _IR_ENABLE_DEFAULT_
+#define DECODE_ZEPEAL          true
 #endif  // DECODE_ZEPEAL
 #ifndef SEND_ZEPEAL
 #define SEND_ZEPEAL            _IR_ENABLE_DEFAULT_
@@ -778,7 +788,7 @@
 #endif  // SEND_METZ
 
 #ifndef DECODE_TRANSCOLD
-#define DECODE_TRANSCOLD       _IR_ENABLE_DEFAULT_
+#define DECODE_TRANSCOLD       true
 #endif  // DECODE_TRANSCOLD
 #ifndef SEND_TRANSCOLD
 #define SEND_TRANSCOLD         _IR_ENABLE_DEFAULT_
@@ -792,14 +802,14 @@
 #endif  // SEND_MIRAGE
 
 #ifndef DECODE_ELITESCREENS
-#define DECODE_ELITESCREENS    _IR_ENABLE_DEFAULT_
+#define DECODE_ELITESCREENS    true
 #endif  // DECODE_ELITESCREENS
 #ifndef SEND_ELITESCREENS
 #define SEND_ELITESCREENS      _IR_ENABLE_DEFAULT_
 #endif  // SEND_ELITESCREENS
 
 #ifndef DECODE_MILESTAG2
-#define DECODE_MILESTAG2    _IR_ENABLE_DEFAULT_
+#define DECODE_MILESTAG2    true
 #endif  // DECODE_MILESTAG2
 #ifndef SEND_MILESTAG2
 #define SEND_MILESTAG2      _IR_ENABLE_DEFAULT_
@@ -813,14 +823,14 @@
 #endif  // SEND_ECOCLIM
 
 #ifndef DECODE_XMP
-#define DECODE_XMP          _IR_ENABLE_DEFAULT_
+#define DECODE_XMP          true
 #endif  // DECODE_XMP
 #ifndef SEND_XMP
 #define SEND_XMP            _IR_ENABLE_DEFAULT_
 #endif  // SEND_XMP
 
 #ifndef DECODE_TRUMA
-#define DECODE_TRUMA        _IR_ENABLE_DEFAULT_
+#define DECODE_TRUMA        true
 #endif  // DECODE_TRUMA
 #ifndef SEND_TRUMA
 #define SEND_TRUMA          _IR_ENABLE_DEFAULT_
@@ -855,7 +865,7 @@
 #endif  // SEND_BOSE
 
 #ifndef DECODE_ARRIS
-#define DECODE_ARRIS        _IR_ENABLE_DEFAULT_
+#define DECODE_ARRIS        true
 #endif  // DECODE_ARRIS
 #ifndef SEND_ARRIS
 #define SEND_ARRIS          _IR_ENABLE_DEFAULT_
@@ -869,7 +879,7 @@
 #endif  // SEND_RHOSS
 
 #ifndef DECODE_AIRTON
-#define DECODE_AIRTON       _IR_ENABLE_DEFAULT_
+#define DECODE_AIRTON       true
 #endif  // DECODE_AIRTON
 #ifndef SEND_AIRTON
 #define SEND_AIRTON         _IR_ENABLE_DEFAULT_
@@ -897,7 +907,7 @@
 #endif  // SEND_HAIER_AC160
 
 #ifndef DECODE_TOTO
-#define DECODE_TOTO         _IR_ENABLE_DEFAULT_
+#define DECODE_TOTO         true
 #endif  // DECODE_TOTO
 #ifndef SEND_TOTO
 #define SEND_TOTO           _IR_ENABLE_DEFAULT_
@@ -925,14 +935,14 @@
 #endif  // SEND_DAIKIN312
 
 #ifndef DECODE_GORENJE
-#define DECODE_GORENJE      _IR_ENABLE_DEFAULT_
+#define DECODE_GORENJE      true
 #endif  // DECODE_GORENJE
 #ifndef SEND_GORENJE
 #define SEND_GORENJE        _IR_ENABLE_DEFAULT_
 #endif  // SEND_GORENJE
 
 #ifndef DECODE_WOWWEE
-#define DECODE_WOWWEE      _IR_ENABLE_DEFAULT_
+#define DECODE_WOWWEE      true
 #endif  // DECODE_WOWWEE
 #ifndef SEND_WOWWEE
 #define SEND_WOWWEE        _IR_ENABLE_DEFAULT_
@@ -952,6 +962,20 @@
 #define SEND_YORK           _IR_ENABLE_DEFAULT_
 #endif  // SEND_YORK
 
+#ifndef DECODE_BLUESTARHEAVY
+#define DECODE_BLUESTARHEAVY         _IR_ENABLE_DEFAULT_
+#endif  // DECODE_BLUESTARHEAVY
+#ifndef SEND_BLUESTARHEAVY
+#define SEND_BLUESTARHEAVY           _IR_ENABLE_DEFAULT_
+#endif  // SEND_BLUESTARHEAVY
+
+#ifndef DECODE_EUROM
+#define DECODE_EUROM         _IR_ENABLE_DEFAULT_
+#endif  // DECODE_EUROM
+#ifndef SEND_EUROM
+#define SEND_EUROM           _IR_ENABLE_DEFAULT_
+#endif  // SEND_EUROM
+
 #if (DECODE_ARGO || DECODE_DAIKIN || DECODE_FUJITSU_AC || DECODE_GREE || \
      DECODE_KELVINATOR || DECODE_MITSUBISHI_AC || DECODE_TOSHIBA_AC || \
      DECODE_TROTEC || DECODE_HAIER_AC || DECODE_HITACHI_AC || \
@@ -970,7 +994,8 @@
      DECODE_KELON168 || DECODE_HITACHI_AC296 || DECODE_CARRIER_AC128 || \
      DECODE_DAIKIN200 || DECODE_HAIER_AC160 || DECODE_TCL96AC || \
      DECODE_BOSCH144 || DECODE_SANYO_AC152 || DECODE_DAIKIN312 || \
-     DECODE_CARRIER_AC84 || DECODE_YORK || \
+     DECODE_CARRIER_AC84 || DECODE_YORK || DECODE_BLUESTARHEAVY || \
+     DECODE_EUROM || \
      false)
   // Add any DECODE to the above if it uses result->state (see kStateSizeMax)
   // you might also want to add the protocol to hasACState function
@@ -1137,8 +1162,10 @@ enum decode_type_t {
   WOWWEE,
   CARRIER_AC84,  // 125
   YORK,
+  BLUESTARHEAVY,
+  EUROM,
   // Add new entries before this one, and update it to point to the last entry.
-  kLastDecodeType = YORK,
+  kLastDecodeType = EUROM,
 };
 
 // Message lengths & required repeat values
@@ -1165,6 +1192,8 @@ const uint16_t kArgo3TimerStateLength = 9;  // Bytes
 const uint16_t kArgo3ConfigStateLength = 4;  // Bytes
 const uint16_t kArgoDefaultRepeat = kNoRepeat;
 const uint16_t kArrisBits = 32;
+const uint16_t kBluestarHeavyStateLength = 13;
+const uint16_t kBluestarHeavyBits = kBluestarHeavyStateLength * 8;
 const uint16_t kBosch144StateLength = 18;
 const uint16_t kBosch144Bits = kBosch144StateLength * 8;
 const uint16_t kCoolixBits = 24;
@@ -1286,6 +1315,7 @@ const uint16_t kJvcBits = 16;
 const uint16_t kKelonBits = 48;
 const uint16_t kKelon168StateLength = 21;
 const uint16_t kKelon168Bits = kKelon168StateLength * 8;
+const uint16_t kKelon168DefaultRepeat = kNoRepeat;
 const uint16_t kKelvinatorStateLength = 16;
 const uint16_t kKelvinatorBits = kKelvinatorStateLength * 8;
 const uint16_t kKelvinatorDefaultRepeat = kNoRepeat;
@@ -1435,7 +1465,8 @@ const uint16_t kRhossDefaultRepeat = 0;
 const uint16_t kClimaButlerBits = 52;
 const uint16_t kYorkBits = 136;
 const uint16_t kYorkStateLength = 17;
-
+const uint16_t kEuromStateLength = 12;
+const uint16_t kEuromBits = kEuromStateLength * 8;
 
 // Legacy defines. (Deprecated)
 #define AIWA_RC_T501_BITS             kAiwaRcT501Bits
@@ -1498,12 +1529,24 @@ const uint16_t kYorkStateLength = 17;
 
 #ifdef DEBUG
 #ifdef UNIT_TEST
-#define DPRINT(x) do { std::cout << x; } while (0)
-#define DPRINTLN(x) do { std::cout << x << std::endl; } while (0)
+#define DPRINT(x) do { \
+    std::cout << x; \
+  } \
+  while (0)
+#define DPRINTLN(x) do { \
+    std::cout << x << std::endl; \
+  } \
+  while (0)
 #endif  // UNIT_TEST
 #ifdef ARDUINO
-#define DPRINT(x) do { Serial.print(x); } while (0)
-#define DPRINTLN(x) do { Serial.println(x); } while (0)
+#define DPRINT(x) do { \
+    Serial.print(x); \
+  } \
+  while (0)
+#define DPRINTLN(x) do { \
+  Serial.println(x); \
+  } \
+  while (0)
 #endif  // ARDUINO
 #else  // DEBUG
 #define DPRINT(x)
