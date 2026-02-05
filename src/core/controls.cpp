@@ -100,13 +100,13 @@ void initControls() {
 #if ENC_BTNL!=255
   encoder.begin();
   encoder.setup(readEncoderISR);
-  encoder.setBoundaries(0, 254, true);
+  encoder.setBoundaries(0, 256, true);
   encoder.setAcceleration(config.store.encacc);
 #endif
 #if ENC2_BTNL!=255
   encoder2.begin();
   encoder2.setup(readEncoder2ISR);
-  encoder2.setBoundaries(0, 254, true);
+  encoder2.setBoundaries(0, 256, true);
   encoder2.setAcceleration(config.store.encacc);
 #endif
 
