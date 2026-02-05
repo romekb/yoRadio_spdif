@@ -100,13 +100,13 @@ void initControls() {
 #if ENC_BTNL!=255
   encoder.begin();
   encoder.setup(readEncoderISR);
-  encoder.setBoundaries(0, 254, true);
+  encoder.setBoundaries(0, 256, true);
   encoder.setAcceleration(config.store.encacc);
 #endif
 #if ENC2_BTNL!=255
   encoder2.begin();
   encoder2.setup(readEncoder2ISR);
-  encoder2.setBoundaries(0, 254, true);
+  encoder2.setBoundaries(0, 256, true);
   encoder2.setAcceleration(config.store.encacc);
 #endif
 
@@ -253,7 +253,12 @@ void irBlink() {
 
 void irNumber(uint8_t num) {
   uint16_t s;
-  if (display.numOfNextStation == 0 && num == 0) return;
+  if (display.numOfNextStation == 0 && num == 0) {
+    if(config.store.recallStation) {
+      player.sendCommand({PR_PLAY, config.store.recallStation});
+    }
+    return;
+  }
   display.putRequest(NEWMODE, NUMBERS);
   if (display.numOfNextStation > UINT16_MAX / 10) return;
   s = display.numOfNextStation * 10 + num;

@@ -137,6 +137,7 @@ struct config_t
   uint16_t  timeSyncInterval;
   uint16_t  timeSyncIntervalRTC;
   uint16_t  weatherSyncInterval;
+  uint16_t  recallStation;
 };
 
 #if IR_PIN!=255

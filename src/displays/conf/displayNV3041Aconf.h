@@ -27,7 +27,7 @@ const ScrollConfig title2Conf     PROGMEM = {{ TFT_FRAMEWDT, 73, 3, WA_LEFT }, 1
 const ScrollConfig playlistConf   PROGMEM = {{ TFT_FRAMEWDT, 110, 3, WA_LEFT }, 140, true, MAX_WIDTH, 1000, 7, 30 };
 const ScrollConfig apTitleConf    PROGMEM = {{ TFT_FRAMEWDT, TFT_FRAMEWDT, 4, WA_CENTER }, 140, false, MAX_WIDTH, 0, 7, 40 };
 const ScrollConfig apSettConf     PROGMEM = {{ TFT_FRAMEWDT, DSP_HEIGHT-TFT_FRAMEWDT-16, 2, WA_LEFT }, 140, false, MAX_WIDTH, 0, 6, 40 };
-const ScrollConfig weatherConf    PROGMEM = {{ TFT_FRAMEWDT, 104, 3, WA_CENTER }, 140, false, MAX_WIDTH, 0, 6, 50 };
+const ScrollConfig weatherConf    PROGMEM = {{ TFT_FRAMEWDT, 102, 3, WA_CENTER }, 140, false, MAX_WIDTH, 0, 6, 50 };
 const ScrollConfig namedayConf    PROGMEM = {{ TFT_FRAMEWDT, 182, 2, WA_LEFT }, 80, true, 161, 0, 3, 40 };
 
 /* BACKGROUNDS  */                       /* {{ left, top, fontsize, align }, width, height, outlined } */

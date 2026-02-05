@@ -147,7 +147,7 @@ public:
 
 protected:
     SemaphoreHandle_t mutex_buffer;
-    size_t   m_buffSizePSRAM    = 300000;   // most webstreams limit the advance to 100...300Kbytes
+    size_t   m_buffSizePSRAM    = 500000;   // most webstreams limit the advance to 100...300Kbytes
     //size_t   m_buffSizeRAM      = 1600 * 5;
     size_t   m_buffSizeRAM      = 1600;
     size_t   m_buffSize         = 0;

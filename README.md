@@ -11,6 +11,7 @@ Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pami�
 ** nie testowałem tych modeli TFT ale powinny działać.
 
 Co nowego lub się zmieniło:
+- Dodano przestakiwanie pomiędzy dwoma ostatnio wybranymi stacjami (recall). Nacisnienie przycisku "0" na pilocie przechodzi na poprzednio odtwarzaną stację.
 - Aktualizacja biblioteki obsługi pilota do wersji 2.9.0. Nareszcie pilot działa jak powinien. Polecam aktualizację każdemu kto używa pilota IR.
 - Włączanie/wyłączanie wyświetlania imienin z poziomu przeglądarki (strona ustawień). Wymagane ponowne wgranie zawartości folderu data/www do SPIFFS, oraz odświerzenie cache przeglądarki.
 - Dodany plugin monitorowania napięcia baterii (ikona stanu baterii) - w myoptions.h definiuje się pin ADC (#define BATT_MON_PIN) a resztę konfiguruje się w BattMon.h (w folderze plugins).
@@ -76,6 +77,7 @@ Tested with ST7789 320x240 and 272x76 displays, AXS15231B and NV3041A 480x320 fr
 Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported. PSRAM is required especially for AXS15231B display.
 
 What's new or changed:
+- A station recall function has been added to toggle between the two most recently selected stations. Pressing the "0" button on the remote control switches to the previously played station.
 - Updated the remote control library to version 2.9.0. Finally, the remote works as it should. I recommend updating this to anyone who uses an IR remote.
 - Enabling/disabling the display of name days from the browser (settings page). Re-uploading the contents of the data/www folder to SPIFFS and refreshing the browser cache is required.
 - Added a battery voltage monitoring plugin (battery status icon) - the ADC pin is defined in myoptions.h (#define BATT_MON_PIN) and the rest is configured in BattMon.h (in the plugins folder).

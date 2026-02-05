@@ -683,6 +683,7 @@ void Config::setBalance(int8_t balance) {
 }
 
 uint8_t Config::setLastStation(uint16_t val) {
+  if(store.lastStation != val) store.recallStation = store.lastStation;
   lastStation(val);
   return store.lastStation;
 }
