@@ -254,7 +254,9 @@ void irBlink() {
 void irNumber(uint8_t num) {
   uint16_t s;
   if (display.numOfNextStation == 0 && num == 0) {
-    if(config.store.recallStation) {
+    if(config.store.recallStation 
+       && config.store.recallStation <= config.playlistLength() 
+       && config.getMode()==PM_WEB) {
       player.sendCommand({PR_PLAY, config.store.recallStation});
     }
     return;

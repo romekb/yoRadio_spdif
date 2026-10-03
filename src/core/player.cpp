@@ -289,7 +289,7 @@ void Player::browseUrl(){
 void Player::prev(bool startPlay) {
   uint16_t lastStation = config.lastStation();
   if(config.getMode()==PM_WEB || !config.store.sdsnuffle){
-    config.store.recallStation = lastStation;
+    if(config.getMode()==PM_WEB) config.saveValue(&config.store.recallStation, lastStation);
     if (lastStation == 1) config.lastStation(config.playlistLength()); else config.lastStation(lastStation-1);
   }
   if(startPlay) sendCommand({PR_PLAY, config.lastStation()});
@@ -302,7 +302,7 @@ void Player::prev(bool startPlay) {
 void Player::next(bool startPlay) {
   uint16_t lastStation = config.lastStation();
   if(config.getMode()==PM_WEB || !config.store.sdsnuffle){
-    config.store.recallStation = lastStation;
+    if(config.getMode()==PM_WEB) config.saveValue(&config.store.recallStation, lastStation);
     if (lastStation == config.playlistLength()) config.lastStation(1); else config.lastStation(lastStation+1);
   }else{
     config.lastStation(random(1, config.playlistLength()));
