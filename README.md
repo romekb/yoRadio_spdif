@@ -132,7 +132,7 @@ Tested on internet radio provided AAC and MP3 streams, and on MP3 files on SD ca
 
 ## FTP access to the SD card / Dostęp FTP do karty SD
 
-The firmware branch `feature/sd-card-ftp-server` adds an FTP server for the SD card. It uses the existing `SDManager` (`sdman`) instance, so the FTP service and the audio player operate on the same mounted filesystem. The FTP service is polled in the normal Arduino loop in short chunks to avoid creating a second task that competes with audio playback.
+The firmware branch `feature/sd-card-ftp-server` adds an FTP server for the SD card. It uses the existing `SDManager` (`sdman`) instance, so the FTP service and the audio player operate on the same mounted filesystem. When an FTP control session connects, active audio playback is paused so FTP can use the SD card and CPU without competing with the decoder. Playback resumes at the previous station when the FTP control session disconnects. Transfers use an 8 KiB buffer and bounded multi-block batches.
 
 **Configuration:** add these definitions to your local `myoptions.h` (change the password before enabling FTP):
 
