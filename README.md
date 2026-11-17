@@ -128,3 +128,24 @@ I provide my "myoptions.h" file for reference for CYD. File myoptions_32.h is fo
 I use CYD module with additional PSRAM chip, PCM5102A DAC and coaxial spdif output connected to Data pin of DAC for common usage.
 
 Tested on internet radio provided AAC and MP3 streams, and on MP3 files on SD card (testing up to 320kbps MP3 stations and about 200kbps AAC and OGG-FLAC, OGG-OPUS & OGG-VORBIS).
+
+
+## FTP access to the SD card / Dostęp FTP do karty SD
+
+The firmware branch `feature/sd-card-ftp-server` adds an FTP server for the SD card. It uses the existing `SDManager` (`sdman`) instance, so the FTP service and the audio player operate on the same mounted filesystem. The FTP service is polled in the normal Arduino loop in short chunks to avoid creating a second task that competes with audio playback.
+
+**Configuration:** add these definitions to your local `myoptions.h` (change the password before enabling FTP):
+
+```cpp
+#define FTP_SERVER_ENABLED true
+#define FTP_USER "yoradio"
+#define FTP_PASSWORD "replace-with-a-strong-password"
+#define FTP_SERVER_PORT 21
+#define FTP_PASSIVE_PORT 50009
+```
+
+FTP is enabled by default when SD support is compiled in. Set `FTP_SERVER_ENABLED false` to disable it. If `FTP_SERVER_ENABLED` is not defined, the default is enabled. The server starts only when the SD card is mounted and Wi-Fi is connected.
+
+Connect using the ESP32 IP address, port 21, the configured username/password, and **passive (PASV) mode**. The passive data port is fixed at 50009; allow TCP ports 21 and 50009 on the local network/firewall. Supported operations include directory listing, changing directory, download (`RETR`), upload/overwrite (`STOR`), create/remove directory (`MKD`/`RMD`), delete (`DELE`), rename (`RNFR`/`RNTO`), and file size (`SIZE`).
+
+**Security and operational notes:** classic FTP sends credentials and file contents without encryption. Use it only on a trusted LAN; do not expose its ports to the Internet. Change the example password. The server currently supports one control session at a time and does not implement FTPS, SFTP, active mode, or resume/restart transfers. Avoid overwriting or deleting the audio file that is currently playing. The firmware source was updated, but a target-board compile and hardware transfer test are still required before treating this feature as production-verified.
