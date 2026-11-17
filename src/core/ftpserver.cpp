@@ -10,7 +10,7 @@ void SDCardFTPServer::begin() {
   // The SD card is also available over FTP while the radio is in WEB mode.
   // In SD playback mode the existing SDManager mount is reused.
   if (!sdman.ready) {
-    if (millis() - _lastMountAttempt < 5000) return;
+    if (_lastMountAttempt && millis() - _lastMountAttempt < 5000) return;
     _lastMountAttempt = millis();
     if (!sdman.start()) return;
   }
