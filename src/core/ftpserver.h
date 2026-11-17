@@ -40,7 +40,7 @@ class SDCardFTPServer {
   uint32_t _lastMountAttempt = 0;
   bool _indexDirty = false;
   uint32_t _lastActivity = 0;
-  uint8_t _buffer[512];
+  uint8_t _buffer[2048];
 
   void command(String line);
   void reply(uint16_t code, const String &message);
