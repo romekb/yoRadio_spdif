@@ -10,6 +10,7 @@
 #include "core/network.h"
 #include "core/netserver.h"
 #include "core/controls.h"
+#include "core/ftpserver.h"
 //#include "core/mqtt.h"
 #include "core/optionschecker.h"
 #include "core/timekeeper.h"
@@ -146,6 +147,8 @@ void loop() {
     ArduinoOTA.handle();
 #endif
   }
+  // FTP is serviced in small chunks so it does not monopolize the audio loop.
+  ftpServer.loop();
   loopControls();
   #ifdef NETSERVER_LOOP1
   netserver.loop();
