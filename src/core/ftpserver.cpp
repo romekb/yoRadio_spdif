@@ -71,7 +71,10 @@ void SDCardFTPServer::closeTransfer(bool success) {
   if (_data) _data.stop();
   _transfer = IDLE;
   _pasv = false;
-  if (completedUpload) _indexDirty = true;
+  if (completedUpload) {
+    _indexDirty = true;
+    _indexChangeAt = millis();
+  }
   if (success) reply(226, "Transfer complete");
   else if (_client && _client.connected()) reply(426, "Transfer aborted");
 }
@@ -250,7 +253,10 @@ void SDCardFTPServer::command(String line) {
   } else if (verb == "DELE") {
     String path = normalizePath(arg);
     bool removed = sdman.remove(path);
-    if (removed) _indexDirty = true;
+    if (removed) {
+      _indexDirty = true;
+      _indexChangeAt = millis();
+    }
     reply(removed ? 250 : 550, "File delete");
   } else if (verb == "RNFR") {
     _renameFrom = normalizePath(arg);
@@ -258,7 +264,10 @@ void SDCardFTPServer::command(String line) {
   } else if (verb == "RNTO") {
     String path = normalizePath(arg);
     bool renamed = _renameFrom.length() && sdman.rename(_renameFrom, path);
-    if (renamed) _indexDirty = true;
+    if (renamed) {
+      _indexDirty = true;
+      _indexChangeAt = millis();
+    }
     reply(renamed ? 250 : 550, "Rename");
     _renameFrom = "";
   } else if (verb == "SIZE") {
@@ -285,9 +294,9 @@ void SDCardFTPServer::loop() {
     _client.stop();
     _loggedIn = false;
     if (_resumeAfterFTP) {
-      player.sendCommand({PR_PLAY, (int)_resumeStation});
-      _resumeAfterFTP = false;
-      Serial.println("##[FTP]# Resuming playback after FTP session");
+      _resumeCommandSent = false;
+      _resumeAttempts = 0;
+      Serial.printf("##[FTP]# FTP disconnected; scheduling playback resume at station %u\\n", _resumeStation);
     }
   }
   if (!_client || !_client.connected()) {
@@ -322,9 +331,31 @@ void SDCardFTPServer::loop() {
   transferStep();
 
   // yoRadio reads the SD playlist from PLAYLIST_SD_PATH / INDEX_SD_PATH.
-  // Rebuild both after a successful FTP write/delete/rename so new tracks
-  // become visible without rebooting or changing playback mode.
-  if (_indexDirty && _transfer == IDLE && sdman.ready) {
+  // Retry the resume request if the player command queue did not accept it
+  // or playback did not start. Keep the original station until PLAYING.
+  if (_resumeAfterFTP && !_client && _resumeStation > 0) {
+    if (player.status() == PLAYING) {
+      _resumeAfterFTP = false;
+      _resumeCommandSent = false;
+      Serial.println("##[FTP]# Playback resumed");
+    } else if (!_resumeCommandSent || millis() - _resumeCommandAt >= 2500) {
+      if (_resumeAttempts < 3) {
+        player.sendCommand({PR_PLAY, (int)_resumeStation});
+        _resumeCommandSent = true;
+        _resumeCommandAt = millis();
+        ++_resumeAttempts;
+        Serial.printf("##[FTP]# Resume request %u for station %u\\n", _resumeAttempts, _resumeStation);
+      } else {
+        _resumeAfterFTP = false;
+        Serial.println("##[FTP]# Playback resume failed after 3 attempts");
+      }
+    }
+  }
+
+  // Debounce playlist rebuilding: wait until file operations have been idle
+  // for FTP_INDEX_IDLE_MS, so uploading a directory triggers one scan.
+  if (_indexDirty && _transfer == IDLE && sdman.ready &&
+      millis() - _indexChangeAt >= FTP_INDEX_IDLE_MS) {
     _indexDirty = false;
     Serial.println("##[FTP]# Rebuilding SD audio playlist index");
     sdman.indexSDPlaylist();
