@@ -90,7 +90,7 @@ void SDCardFTPServer::acceptData() {
   }
 }
 
-void SDCardFTPServer::startTransfer(Transfer transfer, const String &path) {
+void SDCardFTPServer::startTransfer(Transfer transfer, const String &path, bool append) {
   if (!_loggedIn) { reply(530, "Please login"); return; }
   if (!_pasv) { reply(425, "Use PASV first"); return; }
   _pendingPath = normalizePath(path);
@@ -104,7 +104,7 @@ void SDCardFTPServer::startTransfer(Transfer transfer, const String &path) {
     _file = sdman.open(_pendingPath, FILE_READ);
     if (!_file || _file.isDirectory()) { closeTransfer(false); reply(550, "File unavailable"); }
   } else if (transfer == UPLOADING) {
-    _file = sdman.open(_pendingPath, FILE_WRITE);
+    _file = sdman.open(_pendingPath, append ? FILE_APPEND : FILE_WRITE);
     if (!_file || _file.isDirectory()) { closeTransfer(false); reply(550, "Cannot create file"); }
   }
 }
@@ -243,7 +243,7 @@ void SDCardFTPServer::command(String line) {
                  String(FTP_PASSIVE_PORT / 256) + "," + String(FTP_PASSIVE_PORT % 256) + ")");
   } else if (verb == "LIST" || verb == "NLST") startTransfer(LISTING, arg);
   else if (verb == "RETR") startTransfer(DOWNLOADING, arg);
-  else if (verb == "STOR") startTransfer(UPLOADING, arg);
+  else if (verb == "STOR") startTransfer(UPLOADING, arg, false);\n  else if (verb == "APPE") startTransfer(UPLOADING, arg, true);
   else if (verb == "MKD" || verb == "XMKD") {
     String path = normalizePath(arg);
     reply(sdman.mkdir(path) ? 257 : 550, "Directory create");
