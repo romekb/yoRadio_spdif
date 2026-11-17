@@ -6,7 +6,14 @@
 SDCardFTPServer ftpServer;
 
 void SDCardFTPServer::begin() {
-  if (_started || !sdman.ready || WiFi.status() != WL_CONNECTED) return;
+  if (_started || WiFi.status() != WL_CONNECTED) return;
+  // The SD card is also available over FTP while the radio is in WEB mode.
+  // In SD playback mode the existing SDManager mount is reused.
+  if (!sdman.ready) {
+    if (millis() - _lastMountAttempt < 5000) return;
+    _lastMountAttempt = millis();
+    if (!sdman.start()) return;
+  }
   _control.begin();
   _control.setNoDelay(true);
   _started = true;
@@ -169,10 +176,11 @@ void SDCardFTPServer::command(String line) {
   _lastActivity = millis();
 
   if (verb == "USER") {
+    _userAccepted = (arg == FTP_USER);
     _loggedIn = false;
-    reply(331, "Password required");
+    reply(_userAccepted ? 331 : 530, _userAccepted ? "Password required" : "Invalid username");
   } else if (verb == "PASS") {
-    _loggedIn = (arg == FTP_PASSWORD);
+    _loggedIn = (_userAccepted && arg == FTP_PASSWORD);
     reply(_loggedIn ? 230 : 530, _loggedIn ? "Login successful" : "Login incorrect");
   } else if (verb == "QUIT") {
     reply(221, "Goodbye");
@@ -252,6 +260,7 @@ void SDCardFTPServer::loop() {
     if (_client) {
       _client.setNoDelay(true);
       _loggedIn = false;
+      _userAccepted = false;
       _cwd = "/";
       _line = "";
       reply(220, "yoRadio SD FTP ready");
