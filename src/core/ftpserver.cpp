@@ -296,10 +296,10 @@ void SDCardFTPServer::loop() {
     if (_resumeAfterFTP) {
       _resumeCommandSent = false;
       _resumeAttempts = 0;
-      Serial.printf("##[FTP]# FTP disconnected; scheduling playback resume at station %u\\n", _resumeStation);
+      Serial.printf("##[FTP]# FTP disconnected; scheduling playback resume at station %u\n", _resumeStation);
     }
   }
-  if (!_client || !_client.connected()) {
+  if ((!_client || !_client.connected()) && !_resumeAfterFTP) {
     _client = _control.accept();
     if (_client) {
       _client.setNoDelay(true);
@@ -333,7 +333,7 @@ void SDCardFTPServer::loop() {
   // yoRadio reads the SD playlist from PLAYLIST_SD_PATH / INDEX_SD_PATH.
   // Retry the resume request if the player command queue did not accept it
   // or playback did not start. Keep the original station until PLAYING.
-  if (_resumeAfterFTP && !_client && _resumeStation > 0) {
+  if (_resumeAfterFTP && (!_client || !_client.connected()) && _resumeStation > 0) {
     if (player.status() == PLAYING) {
       _resumeAfterFTP = false;
       _resumeCommandSent = false;
@@ -344,7 +344,7 @@ void SDCardFTPServer::loop() {
         _resumeCommandSent = true;
         _resumeCommandAt = millis();
         ++_resumeAttempts;
-        Serial.printf("##[FTP]# Resume request %u for station %u\\n", _resumeAttempts, _resumeStation);
+        Serial.printf("##[FTP]# Resume request %u for station %u\n", _resumeAttempts, _resumeStation);
       } else {
         _resumeAfterFTP = false;
         Serial.println("##[FTP]# Playback resume failed after 3 attempts");
