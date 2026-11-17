@@ -133,7 +133,34 @@ void SDCardFTPServer::listStep() {
 void SDCardFTPServer::transferStep() {
   if (_transfer == IDLE) return;
   acceptData();
-  if (!_data || !_data.connected()) return;
+
+  // A passive connection may arrive after the 150 response. Wait while PASV
+  // is armed; once a data socket was accepted, treat a closed socket as EOF.
+  if (!_data) {
+    if (!_pasv) closeTransfer(false);
+    return;
+  }
+
+  if (_transfer == UPLOADING) {
+    int available = _data.available();
+    if (available > 0) {
+      size_t count = (size_t)available;
+      if (count > sizeof(_buffer)) count = sizeof(_buffer);
+      int got = _data.read(_buffer, count);
+      if (got > 0 && _file.write(_buffer, (size_t)got) != (size_t)got) {
+        closeTransfer(false);
+        return;
+      }
+    } else if (!_data.connected()) {
+      closeTransfer(true);
+    }
+    return;
+  }
+
+  if (!_data.connected()) {
+    closeTransfer(false);
+    return;
+  }
 
   if (_transfer == LISTING) {
     listStep();
@@ -147,19 +174,6 @@ void SDCardFTPServer::transferStep() {
       size_t sent = _data.write(_buffer, count);
       if (sent != count) { closeTransfer(false); return; }
     } else {
-      closeTransfer(true);
-    }
-  } else if (_transfer == UPLOADING) {
-    int available = _data.available();
-    if (available > 0) {
-      size_t count = (size_t)available;
-      if (count > sizeof(_buffer)) count = sizeof(_buffer);
-      int got = _data.read(_buffer, count);
-      if (got > 0 && _file.write(_buffer, (size_t)got) != (size_t)got) {
-        closeTransfer(false);
-        return;
-      }
-    } else if (!_data.connected()) {
       closeTransfer(true);
     }
   }
