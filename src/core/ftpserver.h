@@ -38,6 +38,7 @@ class SDCardFTPServer {
   String _line;
   bool _started = false, _loggedIn = false, _userAccepted = false, _pasv = false;
   uint32_t _lastMountAttempt = 0;
+  bool _indexDirty = false;
   uint32_t _lastActivity = 0;
   uint8_t _buffer[512];
 
