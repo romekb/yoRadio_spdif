@@ -148,7 +148,9 @@ void loop() {
 #endif
   }
   // FTP is serviced in small chunks so it does not monopolize the audio loop.
+  #if defined(USE_SD) && SDC_CS != 255 && (!defined(FTP_SERVER_ENABLED) || FTP_SERVER_ENABLED)
   ftpServer.loop();
+  #endif
   loopControls();
   #ifdef NETSERVER_LOOP1
   netserver.loop();
