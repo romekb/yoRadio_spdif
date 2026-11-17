@@ -2,6 +2,8 @@
 
 #if defined(USE_SD) && SDC_CS != 255 && (!defined(FTP_SERVER_ENABLED) || FTP_SERVER_ENABLED)
 #include <algorithm>
+#include "player.h"
+#include "config.h"
 
 SDCardFTPServer ftpServer;
 
@@ -134,6 +136,8 @@ void SDCardFTPServer::listStep() {
 
 void SDCardFTPServer::transferStep() {
   if (_transfer == IDLE) return;
+  // Wait until Player has processed PR_STOP before accessing the SD card.
+  if (_resumeAfterFTP && player.status() != STOPPED) return;
   acceptData();
 
   // A passive connection may arrive after the 150 response. Wait while PASV
@@ -280,6 +284,11 @@ void SDCardFTPServer::loop() {
     closeTransfer(false);
     _client.stop();
     _loggedIn = false;
+    if (_resumeAfterFTP) {
+      player.sendCommand({PR_PLAY, (int)_resumeStation});
+      _resumeAfterFTP = false;
+      Serial.println("##[FTP]# Resuming playback after FTP session");
+    }
   }
   if (!_client || !_client.connected()) {
     _client = _control.accept();
@@ -289,6 +298,14 @@ void SDCardFTPServer::loop() {
       _userAccepted = false;
       _cwd = "/";
       _line = "";
+      // Give FTP exclusive access to the SD card and CPU while connected.
+      // Remember playback only if it was active before this FTP session.
+      _resumeAfterFTP = player.status() == PLAYING;
+      if (_resumeAfterFTP) {
+        _resumeStation = config.lastStation();
+        player.sendCommand({PR_STOP, 0});
+        Serial.println("##[FTP]# Playback paused for FTP transfer");
+      }
       reply(220, "yoRadio SD FTP ready");
     }
   }
