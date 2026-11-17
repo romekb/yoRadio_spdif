@@ -60,6 +60,7 @@ String SDCardFTPServer::normalizePath(const String &input) {
 }
 
 void SDCardFTPServer::closeTransfer(bool success) {
+  const bool completedUpload = success && _transfer == UPLOADING;
   if (_file) {
     if (_transfer == UPLOADING) _file.flush();
     _file.close();
@@ -68,6 +69,7 @@ void SDCardFTPServer::closeTransfer(bool success) {
   if (_data) _data.stop();
   _transfer = IDLE;
   _pasv = false;
+  if (completedUpload) _indexDirty = true;
   if (success) reply(226, "Transfer complete");
   else if (_client && _client.connected()) reply(426, "Transfer aborted");
 }
@@ -236,13 +238,17 @@ void SDCardFTPServer::command(String line) {
     reply(sdman.rmdir(path) ? 250 : 550, "Directory remove");
   } else if (verb == "DELE") {
     String path = normalizePath(arg);
-    reply(sdman.remove(path) ? 250 : 550, "File delete");
+    bool removed = sdman.remove(path);
+    if (removed) _indexDirty = true;
+    reply(removed ? 250 : 550, "File delete");
   } else if (verb == "RNFR") {
     _renameFrom = normalizePath(arg);
     reply(sdman.exists(_renameFrom) ? 350 : 550, "Send RNTO");
   } else if (verb == "RNTO") {
     String path = normalizePath(arg);
-    reply(_renameFrom.length() && sdman.rename(_renameFrom, path) ? 250 : 550, "Rename");
+    bool renamed = _renameFrom.length() && sdman.rename(_renameFrom, path);
+    if (renamed) _indexDirty = true;
+    reply(renamed ? 250 : 550, "Rename");
     _renameFrom = "";
   } else if (verb == "SIZE") {
     File f = sdman.open(normalizePath(arg), FILE_READ);
@@ -290,5 +296,15 @@ void SDCardFTPServer::loop() {
     }
   }
   transferStep();
+
+  // yoRadio reads the SD playlist from PLAYLIST_SD_PATH / INDEX_SD_PATH.
+  // Rebuild both after a successful FTP write/delete/rename so new tracks
+  // become visible without rebooting or changing playback mode.
+  if (_indexDirty && _transfer == IDLE && sdman.ready) {
+    _indexDirty = false;
+    Serial.println("##[FTP]# Rebuilding SD audio playlist index");
+    sdman.indexSDPlaylist();
+    Serial.println("##[FTP]# SD audio playlist index updated");
+  }
 }
 #endif
