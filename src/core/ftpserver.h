@@ -3,6 +3,7 @@
 
 #if defined(USE_SD) && SDC_CS != 255 && (!defined(FTP_SERVER_ENABLED) || FTP_SERVER_ENABLED)
 #include <WiFi.h>
+#include <SD.h>
 #include <FS.h>
 #include "sdmanager.h"
 
