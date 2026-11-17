@@ -206,7 +206,7 @@ void SDCardFTPServer::command(String line) {
                  String(FTP_PASSIVE_PORT / 256) + "," + String(FTP_PASSIVE_PORT % 256) + ")");
   } else if (verb == "LIST" || verb == "NLST") startTransfer(LISTING, arg);
   else if (verb == "RETR") startTransfer(DOWNLOADING, arg);
-  else if (verb == "STOR" || verb == "APPE") startTransfer(UPLOADING, arg);
+  else if (verb == "STOR") startTransfer(UPLOADING, arg);
   else if (verb == "MKD" || verb == "XMKD") {
     String path = normalizePath(arg);
     reply(sdman.mkdir(path) ? 257 : 550, "Directory create");
@@ -241,6 +241,11 @@ void SDCardFTPServer::loop() {
   if (WiFi.status() != WL_CONNECTED || !sdman.ready) {
     stop();
     return;
+  }
+  if (_client && !_client.connected()) {
+    closeTransfer(false);
+    _client.stop();
+    _loggedIn = false;
   }
   if (!_client || !_client.connected()) {
     _client = _control.accept();
