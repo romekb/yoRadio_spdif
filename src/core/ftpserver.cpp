@@ -243,7 +243,8 @@ void SDCardFTPServer::command(String line) {
                  String(FTP_PASSIVE_PORT / 256) + "," + String(FTP_PASSIVE_PORT % 256) + ")");
   } else if (verb == "LIST" || verb == "NLST") startTransfer(LISTING, arg);
   else if (verb == "RETR") startTransfer(DOWNLOADING, arg);
-  else if (verb == "STOR") startTransfer(UPLOADING, arg, false);\n  else if (verb == "APPE") startTransfer(UPLOADING, arg, true);
+  else if (verb == "STOR") startTransfer(UPLOADING, arg, false);
+  else if (verb == "APPE") startTransfer(UPLOADING, arg, true);
   else if (verb == "MKD" || verb == "XMKD") {
     String path = normalizePath(arg);
     reply(sdman.mkdir(path) ? 257 : 550, "Directory create");
