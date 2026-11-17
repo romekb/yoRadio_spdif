@@ -139,12 +139,16 @@ void SDCardFTPServer::transferStep() {
   // A passive connection may arrive after the 150 response. Wait while PASV
   // is armed; once a data socket was accepted, treat a closed socket as EOF.
   if (_transfer == UPLOADING) {
-    int available = _data.available();
-    if (!_data && available == 0) {
+    if (!_data && _data.available() == 0) {
       if (!_pasv) closeTransfer(true);
       return;
     }
-    if (available > 0) {
+    // Drain several 2 KiB blocks per main-loop pass. This removes the
+    // previous 512-byte-per-pass throughput ceiling while keeping a bound
+    // on the time spent away from the audio decoder.
+    for (uint8_t n = 0; n < 4; ++n) {
+      int available = _data.available();
+      if (available <= 0) break;
       size_t count = (size_t)available;
       if (count > sizeof(_buffer)) count = sizeof(_buffer);
       int got = _data.read(_buffer, count);
@@ -152,9 +156,9 @@ void SDCardFTPServer::transferStep() {
         closeTransfer(false);
         return;
       }
-    } else if (!_data.connected()) {
-      closeTransfer(true);
+      if (got <= 0) break;
     }
+    if (!_data.connected() && _data.available() == 0) closeTransfer(true);
     return;
   }
 
@@ -170,12 +174,15 @@ void SDCardFTPServer::transferStep() {
   if (!_file) { closeTransfer(false); return; }
 
   if (_transfer == DOWNLOADING) {
-    size_t count = _file.read(_buffer, sizeof(_buffer));
-    if (count) {
+    // Send up to 8 KiB per pass, yielding back to the radio loop regularly.
+    for (uint8_t n = 0; n < 4; ++n) {
+      size_t count = _file.read(_buffer, sizeof(_buffer));
+      if (!count) {
+        closeTransfer(true);
+        return;
+      }
       size_t sent = _data.write(_buffer, count);
       if (sent != count) { closeTransfer(false); return; }
-    } else {
-      closeTransfer(true);
     }
   }
 }
