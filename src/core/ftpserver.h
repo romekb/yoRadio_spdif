@@ -7,6 +7,9 @@
 #include <FS.h>
 #include "sdmanager.h"
 
+#ifndef FTP_INDEX_IDLE_MS
+#define FTP_INDEX_IDLE_MS 5000
+#endif
 #ifndef FTP_SERVER_PORT
 #define FTP_SERVER_PORT 21
 #endif
@@ -39,6 +42,10 @@ class SDCardFTPServer {
   bool _started = false, _loggedIn = false, _userAccepted = false, _pasv = false;
   uint32_t _lastMountAttempt = 0;
   bool _indexDirty = false;
+  uint32_t _indexChangeAt = 0;
+  bool _resumeCommandSent = false;
+  uint32_t _resumeCommandAt = 0;
+  uint8_t _resumeAttempts = 0;
   bool _resumeAfterFTP = false;
   uint16_t _resumeStation = 0;
   uint32_t _lastActivity = 0;
