@@ -47,8 +47,8 @@ String SDCardFTPServer::normalizePath(const String &input) {
     if (end < 0) end = path.length();
     String part = path.substring(start, end);
     if (part == "..") {
-      int slash = result.lastIndexOf('/', result.length() - 2);
-      result = slash >= 0 ? result.substring(0, slash + 1) : "/";
+      int slash = result.lastIndexOf('/');
+      result = slash > 0 ? result.substring(0, slash) : "/";
     } else if (part.length() && part != ".") {
       if (!result.endsWith("/")) result += "/";
       result += part;
