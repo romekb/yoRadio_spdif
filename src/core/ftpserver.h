@@ -35,7 +35,8 @@ class SDCardFTPServer {
   String _cwd = "/";
   String _pendingPath, _renameFrom;
   String _line;
-  bool _started = false, _loggedIn = false, _pasv = false;
+  bool _started = false, _loggedIn = false, _userAccepted = false, _pasv = false;
+  uint32_t _lastMountAttempt = 0;
   uint32_t _lastActivity = 0;
   uint8_t _buffer[512];
 
