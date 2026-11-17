@@ -305,6 +305,8 @@ void SDCardFTPServer::loop() {
       _client.setNoDelay(true);
       _loggedIn = false;
       _userAccepted = false;
+      _resumeAttempts = 0;
+      _resumeCommandSent = false;
       _cwd = "/";
       _line = "";
       // Give FTP exclusive access to the SD card and CPU while connected.
@@ -333,6 +335,10 @@ void SDCardFTPServer::loop() {
   // yoRadio reads the SD playlist from PLAYLIST_SD_PATH / INDEX_SD_PATH.
   // Retry the resume request if the player command queue did not accept it
   // or playback did not start. Keep the original station until PLAYING.
+  if (_resumeAfterFTP && _resumeStation == 0) {
+    _resumeAfterFTP = false;
+    Serial.println("##[FTP]# Cannot resume playback: saved station is 0");
+  }
   if (_resumeAfterFTP && (!_client || !_client.connected()) && _resumeStation > 0) {
     if (player.status() == PLAYING) {
       _resumeAfterFTP = false;
