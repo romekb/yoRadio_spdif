@@ -54,7 +54,7 @@ class SDCardFTPServer {
   void command(String line);
   void reply(uint16_t code, const String &message);
   String normalizePath(const String &path);
-  void startTransfer(Transfer transfer, const String &path);
+  void startTransfer(Transfer transfer, const String &path, bool append = false);
   void acceptData();
   void transferStep();
   void closeTransfer(bool success);
