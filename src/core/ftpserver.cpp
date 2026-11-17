@@ -136,13 +136,12 @@ void SDCardFTPServer::transferStep() {
 
   // A passive connection may arrive after the 150 response. Wait while PASV
   // is armed; once a data socket was accepted, treat a closed socket as EOF.
-  if (!_data) {
-    if (!_pasv) closeTransfer(false);
-    return;
-  }
-
   if (_transfer == UPLOADING) {
     int available = _data.available();
+    if (!_data && available == 0) {
+      if (!_pasv) closeTransfer(true);
+      return;
+    }
     if (available > 0) {
       size_t count = (size_t)available;
       if (count > sizeof(_buffer)) count = sizeof(_buffer);
@@ -157,8 +156,8 @@ void SDCardFTPServer::transferStep() {
     return;
   }
 
-  if (!_data.connected()) {
-    closeTransfer(false);
+  if (!_data || !_data.connected()) {
+    if (!_pasv) closeTransfer(false);
     return;
   }
 
