@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "player.h"
 #include "config.h"
+#include "../displays/tools/l10n.h"
 
 SDCardFTPServer ftpServer;
 
@@ -98,6 +99,7 @@ void SDCardFTPServer::startTransfer(Transfer transfer, const String &path, bool 
   reply(150, "Opening data connection");
   acceptData();
   if (transfer == LISTING) {
+    config.setTitle("[ F T P ]");
     _directory = sdman.open(_pendingPath);
     if (!_directory || !_directory.isDirectory()) { closeTransfer(false); reply(550, "Not a directory"); }
   } else if (transfer == DOWNLOADING) {
@@ -153,7 +155,7 @@ void SDCardFTPServer::transferStep() {
     // Drain several 2 KiB blocks per main-loop pass. This removes the
     // previous 512-byte-per-pass throughput ceiling while keeping a bound
     // on the time spent away from the audio decoder.
-    for (uint8_t n = 0; n < 4; ++n) {
+    for (uint8_t n = 0; n < 16; ++n) {
       int available = _data.available();
       if (available <= 0) break;
       size_t count = (size_t)available;
@@ -182,7 +184,7 @@ void SDCardFTPServer::transferStep() {
 
   if (_transfer == DOWNLOADING) {
     // Send up to 8 KiB per pass, yielding back to the radio loop regularly.
-    for (uint8_t n = 0; n < 4; ++n) {
+    for (uint8_t n = 0; n < 16; ++n) {
       size_t count = _file.read(_buffer, sizeof(_buffer));
       if (!count) {
         closeTransfer(true);
@@ -215,6 +217,7 @@ void SDCardFTPServer::command(String line) {
     reply(221, "Goodbye");
     closeTransfer(false);
     _client.stop();
+    config.setTitle(LANG::const_PlStopped);
   } else if (verb == "SYST") reply(215, "UNIX Type: L8");
   else if (verb == "FEAT") {
     _client.print("211-Features\r\n PASV\r\n SIZE\r\n UTF8\r\n211 End\r\n");
@@ -330,6 +333,8 @@ void SDCardFTPServer::loop() {
         _line = "";
       } else if (c != '\r' && _line.length() < 512) _line += c;
     }
+    config.screensaverTicks=SCREENSAVERSTARTUPDELAY;
+    config.screensaverPlayingTicks=SCREENSAVERSTARTUPDELAY;    
   }
   transferStep();
 
