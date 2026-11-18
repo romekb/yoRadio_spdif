@@ -20,7 +20,7 @@
 #define FTP_USER "yoradio"
 #endif
 #ifndef FTP_PASSWORD
-#define FTP_PASSWORD "change_me"
+#define FTP_PASSWORD "yoradio"
 #endif
 
 class SDCardFTPServer {
