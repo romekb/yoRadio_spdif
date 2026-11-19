@@ -65,9 +65,10 @@ void mqttplaylistSend() {
 }
 #endif
 
-char* updateError() {
-  sprintf(netserver.nsBuf, "Update failed with error (%d)<br /> %s", (int)Update.getError(), Update.errorString());
-  return netserver.nsBuf;
+String updateError() {
+  char errorBuffer[128];
+  snprintf(errorBuffer, sizeof(errorBuffer), "Update failed with error (%d)<br /> %s", (int)Update.getError(), Update.errorString());
+  return String(errorBuffer);
 }
 
 bool NetServer::begin(bool quiet) {
@@ -97,43 +98,39 @@ bool NetServer::begin(bool quiet) {
   return true;
 }
 
-size_t NetServer::chunkedHtmlPageCallback(uint8_t* buffer, size_t maxLen, size_t index){
-  File requiredfile;
-  bool sdpl = strcmp(netserver.chunkedPathBuffer, PLAYLIST_SD_PATH) == 0;
-  if(sdpl){
-    requiredfile = config.SDPLFS()->open(netserver.chunkedPathBuffer, "r");
-  }else{
-    requiredfile = SPIFFS.open(netserver.chunkedPathBuffer, "r");
-  }
-  if (!requiredfile) return 0;
-  size_t filesize = requiredfile.size();
-  size_t needread = filesize - index;
-  if (!needread) {
-    requiredfile.close();
-    display.unlock();
-    return 0;
-  }
-  #ifdef MAX_PL_READ_BYTES
-    if(maxLen>MAX_PL_READ_BYTES) maxLen=MAX_PL_READ_BYTES;
-  #endif
-  size_t canread = (needread > maxLen) ? maxLen : needread;
-  DBGVB("[%s] seek to %d in %s and read %d bytes with maxLen=%d", __func__, index, netserver.chunkedPathBuffer, canread, maxLen);
-  //netserver.loop();
-  requiredfile.seek(index, SeekSet);
-  requiredfile.read(buffer, canread);
-  index += canread;
-  if (requiredfile) requiredfile.close();
-  return canread;
-}
-
 void NetServer::chunkedHtmlPage(const String& contentType, AsyncWebServerRequest *request, const char * path) {
-  memset(chunkedPathBuffer, 0, sizeof(chunkedPathBuffer));
-  strlcpy(chunkedPathBuffer, path, sizeof(chunkedPathBuffer)-1);
+  // Keep the path with this response: concurrent HTTP requests must not overwrite it.
+  const String responsePath(path);
   AsyncWebServerResponse *response;
   #ifndef NETSERVER_LOOP1
   display.lock();
   #endif
-  response = request->beginChunkedResponse(contentType, chunkedHtmlPageCallback);
+  response = request->beginChunkedResponse(contentType, [responsePath](uint8_t* buffer, size_t maxLen, size_t index) -> size_t {
+    File requiredfile;
+    const bool sdpl = responsePath == PLAYLIST_SD_PATH;
+    if(sdpl){
+      requiredfile = config.SDPLFS()->open(responsePath.c_str(), "r");
+    }else{
+      requiredfile = SPIFFS.open(responsePath.c_str(), "r");
+    }
+    if (!requiredfile) return 0;
+    const size_t filesize = requiredfile.size();
+    if (index >= filesize) {
+      requiredfile.close();
+      display.unlock();
+      return 0;
+    }
+    #ifdef MAX_PL_READ_BYTES
+      if(maxLen>MAX_PL_READ_BYTES) maxLen=MAX_PL_READ_BYTES;
+    #endif
+    const size_t needread = filesize - index;
+    const size_t canread = (needread > maxLen) ? maxLen : needread;
+    DBGVB("[chunkedHtmlPage] seek to %d in %s and read %d bytes with maxLen=%d", index, responsePath.c_str(), canread, maxLen);
+    requiredfile.seek(index, SeekSet);
+    const size_t bytesRead = requiredfile.read(buffer, canread);
+    requiredfile.close();
+    return bytesRead;
+  });
   response->addHeader("Cache-Control","max-age=31536000");
   request->send(response);
 }
@@ -334,7 +331,6 @@ void NetServer::loop() {
     ESP.restart();
   }
   processQueue();
-  websocket.cleanupClients();
   switch (importRequest) {
     case IMPL:    importPlaylist();  importRequest = IMDONE; break;
     case IMWIFI:  config.saveWifi(); importRequest = IMDONE; break;
@@ -609,8 +605,9 @@ void handleNotFound(AsyncWebServerRequest * request) {
     return;
   }
   if (request->url() == "/variables.js") {
-    sprintf (netserver.nsBuf, "var yoVersion='%s';\nvar formAction='%s';\nvar playMode='%s';\n", YOVERSION, (network.status == CONNECTED && !config.emptyFS)?"webboard":"", (network.status == CONNECTED)?"player":"ap");
-    request->send(200, "text/html", netserver.nsBuf);
+    char variablesBuffer[128];
+    snprintf(variablesBuffer, sizeof(variablesBuffer), "var yoVersion='%s';\nvar formAction='%s';\nvar playMode='%s';\n", YOVERSION, (network.status == CONNECTED && !config.emptyFS)?"webboard":"", (network.status == CONNECTED)?"player":"ap");
+    request->send(200, "text/html", variablesBuffer);
     return;
   }
   if (strcmp(request->url().c_str(), "/settings.html") == 0 || strcmp(request->url().c_str(), "/update.html") == 0 || strcmp(request->url().c_str(), "/ir.html") == 0){
@@ -634,10 +631,9 @@ void handleIndex(AsyncWebServerRequest * request) {
     if(request->url()=="/" && request->method() == HTTP_GET ) { request->send_P(200, "text/html", emptyfs_html); return; }
     if(request->url()=="/" && request->method() == HTTP_POST) {
       if(request->arg("ssid")!="" && request->arg("pass")!=""){
-        netserver.nsBuf[0]='\0';
-        snprintf(netserver.nsBuf, sizeof(netserver.nsBuf), "%s\t%s", request->arg("ssid").c_str(), request->arg("pass").c_str());
+        String wifiCredentials = request->arg("ssid") + "\t" + request->arg("pass");
         request->redirect("/");
-        config.saveWifiFromNextion(netserver.nsBuf);
+        config.saveWifiFromNextion(wifiCredentials.c_str());
         return;
       }
       request->redirect("/"); 
