@@ -9,14 +9,9 @@
 SDCardFTPServer ftpServer;
 
 void SDCardFTPServer::begin() {
-  if (_started || WiFi.status() != WL_CONNECTED) return;
-  // The SD card is also available over FTP while the radio is in WEB mode.
-  // In SD playback mode the existing SDManager mount is reused.
-  if (!sdman.ready) {
-    if (_lastMountAttempt && millis() - _lastMountAttempt < 5000) return;
-    _lastMountAttempt = millis();
-    if (!sdman.start()) return;
-  }
+  // Mounting is deliberately kept out of the FTP service. Boot performs one
+  // SD mount attempt in WEB mode; SD playback mounts it when switching modes.
+  if (_started || WiFi.status() != WL_CONNECTED || !sdman.ready) return;
   _control.begin();
   _control.setNoDelay(true);
   _started = true;
@@ -286,7 +281,9 @@ void SDCardFTPServer::command(String line) {
 
 void SDCardFTPServer::loop() {
   if (!_started) {
-    begin();
+    // Do not retry SD mounting here. Start FTP only after another subsystem
+    // (boot setup or SD playback mode switch) has mounted the card.
+    if (sdman.ready) begin();
     return;
   }
   if (WiFi.status() != WL_CONNECTED || !sdman.ready) {
