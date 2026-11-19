@@ -153,11 +153,19 @@ void Config::changeMode(int newmode){
     delay(50);
     ESP.restart();
   }
-  if(!sdman.ready && newmode!=PM_WEB) {
-    if(pir) {                                 // stop play before init SD card
-      player.sendCommand({PR_STOP, 0});
-      while(player.isRunning()) player.loop();
-    }
+  // Resolve the target mode before touching the SD card. FTP may have
+  // mounted it while WEB playback is active, so sdman.ready alone does not
+  // mean it is safe to switch the player to SD mode.
+  const bool targetSD = (newmode < 0 || newmode > MAX_PLAY_MODE)
+                          ? (getMode() != PM_SDCARD)
+                          : (newmode == PM_SDCARD);
+  bool playerStoppedForSD = false;
+  if(targetSD && pir && (!sdman.ready || getMode() != PM_SDCARD)) {
+    player.sendCommand({PR_STOP, 0});
+    while(player.isRunning()) player.loop();
+    playerStoppedForSD = true;
+  }
+  if(targetSD && !sdman.ready) {
     if(!sdman.start()){
       Serial.println("##[ERROR]#\tSD Not Found");
       netserver.requestOnChange(GETPLAYERMODE, 0);
@@ -174,7 +182,7 @@ void Config::changeMode(int newmode){
   saveValue(&store.play_mode, store.play_mode, true, true);
   _SDplaylistFS = getMode()==PM_SDCARD?&sdman:(true?&SPIFFS:_SDplaylistFS);
   if(getMode()==PM_SDCARD){
-    if(pir) player.sendCommand({PR_STOP, 0});
+    if(pir && !playerStoppedForSD) player.sendCommand({PR_STOP, 0});
     display.putRequest(NEWMODE, SDCHANGE);
     #ifdef NETSERVER_LOOP1
     while(display.mode()!=SDCHANGE)
@@ -277,7 +285,7 @@ void Config::initPlaylistMode(){
   uint16_t cs = playlistLength();
   #ifdef USE_SD
     if(getMode()==PM_SDCARD){
-      if(!sdman.start()){
+      if(!sdman.ready && !sdman.start()){
         store.play_mode=PM_WEB;
         Serial.println("SD Mount Failed");
         changeMode(PM_WEB);
