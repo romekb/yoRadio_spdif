@@ -221,6 +221,13 @@ void SDCardFTPServer::command(String line) {
   else if (verb == "NOOP") reply(200, "OK");
   else if (verb == "PWD" || verb == "XPWD") reply(257, "\"" + _cwd + "\"");
   else if (!_loggedIn) reply(530, "Please login");
+  else if (!sdman.ready &&
+           (verb == "CWD" || verb == "XCWD" || verb == "LIST" || verb == "NLST" ||
+            verb == "RETR" || verb == "STOR" || verb == "APPE" ||
+            verb == "MKD" || verb == "XMKD" || verb == "RMD" || verb == "XRMD" ||
+            verb == "DELE" || verb == "RNFR" || verb == "RNTO" || verb == "SIZE")) {
+    reply(550, "No media");
+  }
   else if (verb == "CWD" || verb == "XCWD") {
     String path = normalizePath(arg);
     File dir = sdman.open(path);
