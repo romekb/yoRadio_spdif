@@ -41,6 +41,7 @@ class SDCardFTPServer {
   String _line;
   bool _started = false, _loggedIn = false, _userAccepted = false, _pasv = false;
   bool _indexDirty = false;
+  bool _mountPending = false;
   uint32_t _indexChangeAt = 0;
   bool _resumeCommandSent = false;
   uint32_t _resumeCommandAt = 0;
