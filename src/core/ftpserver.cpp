@@ -23,6 +23,7 @@ void SDCardFTPServer::stop() {
   if (_client) _client.stop();
   _control.stop();
   _passive.stop();
+  _mountPending = false;
   _started = false;
 }
 
@@ -298,6 +299,7 @@ void SDCardFTPServer::loop() {
   }
   if (_client && !_client.connected()) {
     closeTransfer(false);
+    _mountPending = false;
     _client.stop();
     _loggedIn = false;
     if (_resumeAfterFTP) {
