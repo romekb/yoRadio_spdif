@@ -91,14 +91,6 @@ void setup() {
     display.putRequest(WAITFORSD, 0);
     Serial.print("##[BOOT]#\tSD search\t");
   }
-  // In WEB mode, make one non-blocking-in-the-audio-lifecycle SD mount attempt
-  // during boot, before playback starts. If no card is present, FTP stays
-  // disabled until SD playback successfully mounts the card later.
-  #if defined(USE_SD) && SDC_CS != 255 && (!defined(FTP_SERVER_ENABLED) || FTP_SERVER_ENABLED)
-  if (config.getMode() == PM_WEB && !sdman.ready) {
-    sdman.start();
-  }
-  #endif
   config.initPlaylistMode();
   netserver.begin();
   telnet.begin();
