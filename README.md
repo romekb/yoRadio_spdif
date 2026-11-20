@@ -128,3 +128,27 @@ I provide my "myoptions.h" file for reference for CYD. File myoptions_32.h is fo
 I use CYD module with additional PSRAM chip, PCM5102A DAC and coaxial spdif output connected to Data pin of DAC for common usage.
 
 Tested on internet radio provided AAC and MP3 streams, and on MP3 files on SD card (testing up to 320kbps MP3 stations and about 200kbps AAC and OGG-FLAC, OGG-OPUS & OGG-VORBIS).
+
+
+## FTP access to the SD card / Dostęp FTP do karty SD
+
+The firmware branch `feature/sd-card-ftp-server` adds an FTP server for the SD card. It uses the existing `SDManager` (`sdman`) instance, so the FTP service and the audio player operate on the same mounted filesystem. When an FTP control session connects, active audio playback is paused so FTP can use the SD card and CPU without competing with the decoder. Playback is requested at the previous station when the FTP control session disconnects; the firmware retries the request if playback does not restart. Transfers use an 8 KiB buffer and bounded multi-block batches. After a successful upload, delete or rename, SD playlist indexing is delayed until there have been 5 seconds without further file changes, so uploading a directory triggers a single rebuild.
+
+**Configuration:** add these definitions to your local `myoptions.h` (change the password before enabling FTP):
+
+```cpp
+#define FTP_SERVER_ENABLED true
+#define FTP_USER "yoradio"
+#define FTP_PASSWORD "replace-with-a-strong-password"
+#define FTP_SERVER_PORT 21
+#define FTP_PASSIVE_PORT 50009
+```
+
+FTP is enabled by default when SD support is compiled in. Set `FTP_SERVER_ENABLED false` to disable it. If `FTP_SERVER_ENABLED` is not defined, the default is enabled. The FTP control server starts whenever Wi-Fi is connected, regardless of SD-card availability. The firmware attempts to mount the SD card only when a client opens a new FTP control session and the card is not already mounted. If mounting fails, the FTP session remains available, but file and directory operations return `550 No media`; the next new FTP session can trigger another mount attempt. A pending mount waits until audio playback has stopped.
+
+Connect using the ESP32 IP address, port 21, the configured username/password, and **passive (PASV) mode**. The passive data port is fixed at 50009; allow TCP ports 21 and 50009 on the local network/firewall. Supported operations include directory listing, changing directory, download (`RETR`), upload/overwrite (`STOR`), append/resume upload (`APPE`), create/remove directory (`MKD`/`RMD`), delete (`DELE`), rename (`RNFR`/`RNTO`), and file size (`SIZE`).
+
+**Security and operational notes:** classic FTP sends credentials and file contents without encryption. Use it only on a trusted LAN; do not expose its ports to the Internet. Change the example password. The server currently supports one control session at a time and does not implement FTPS, SFTP, active mode, or offset-based restart with `REST`. Interrupted uploads can be continued by an FTP client that uses `APPE`, which appends the remaining bytes to the existing file. Avoid overwriting or deleting the audio file that is currently playing. The firmware source was updated, but a target-board compile and hardware transfer test are still required before treating this feature as production-verified.
+
+
+After a successful FTP upload (`STOR` or `APPE`), delete (`DELE`) or rename (`RNTO`), the firmware rebuilds yoRadio's SD playlist and index files after the 5-second idle debounce (`/data/playlistsd.csv` and `/data/indexsd.dat`, as defined by the project configuration). This makes supported audio files visible without rebooting when yoRadio is operating in SD-card playback mode. In WEB playback mode yoRadio intentionally uses its separate SPIFFS web-radio playlist, so files on SD are not added to that web-radio station list. The SD playlist scanner currently indexes MP3, M4A, AAC, WAV and FLAC files; other file types are not added to the audio station list.
