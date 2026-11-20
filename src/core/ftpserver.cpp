@@ -9,9 +9,9 @@
 SDCardFTPServer ftpServer;
 
 void SDCardFTPServer::begin() {
-  // Mounting is deliberately kept out of the FTP service. Boot performs one
-  // SD mount attempt in WEB mode; SD playback mounts it when switching modes.
-  if (_started || WiFi.status() != WL_CONNECTED || !sdman.ready) return;
+  // The FTP control service is independent of SD availability. The card is
+  // mounted lazily when a client opens a control session.
+  if (_started || WiFi.status() != WL_CONNECTED) return;
   _control.begin();
   _control.setNoDelay(true);
   _started = true;
@@ -88,6 +88,7 @@ void SDCardFTPServer::acceptData() {
 
 void SDCardFTPServer::startTransfer(Transfer transfer, const String &path, bool append) {
   if (!_loggedIn) { reply(530, "Please login"); return; }
+  if (!sdman.ready) { reply(550, "No media"); return; }
   if (!_pasv) { reply(425, "Use PASV first"); return; }
   _pendingPath = normalizePath(path);
   _transfer = transfer;
@@ -281,12 +282,10 @@ void SDCardFTPServer::command(String line) {
 
 void SDCardFTPServer::loop() {
   if (!_started) {
-    // Do not retry SD mounting here. Start FTP only after another subsystem
-    // (boot setup or SD playback mode switch) has mounted the card.
-    if (sdman.ready) begin();
+    begin();
     return;
   }
-  if (WiFi.status() != WL_CONNECTED || !sdman.ready) {
+  if (WiFi.status() != WL_CONNECTED) {
     stop();
     return;
   }
@@ -310,6 +309,7 @@ void SDCardFTPServer::loop() {
       _resumeCommandSent = false;
       _cwd = "/";
       _line = "";
+      _mountPending = !sdman.ready;
       // Give FTP exclusive access to the SD card and CPU while connected.
       // Remember playback only if it was active before this FTP session.
       _resumeAfterFTP = player.status() == PLAYING;
@@ -321,6 +321,19 @@ void SDCardFTPServer::loop() {
       reply(220, "yoRadio SD FTP ready");
     }
   }
+
+  // Mount only once per new FTP session, and only after playback has stopped.
+  // This keeps SD initialization out of the audio path and avoids retry loops.
+  if (_mountPending) {
+    if (player.status() != STOPPED) return;
+    _mountPending = false;
+    if (sdman.start()) {
+      Serial.println("##[FTP]# SD card mounted for FTP session");
+    } else {
+      Serial.println("##[FTP]# No SD media available for this FTP session");
+    }
+  }
+
   if (_client && _client.connected()) {
     uint8_t budget = 128;
     while (_client.available() && budget--) {
