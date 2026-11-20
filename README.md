@@ -144,7 +144,7 @@ The firmware branch `feature/sd-card-ftp-server` adds an FTP server for the SD c
 #define FTP_PASSIVE_PORT 50009
 ```
 
-FTP is enabled by default when SD support is compiled in. Set `FTP_SERVER_ENABLED false` to disable it. If `FTP_SERVER_ENABLED` is not defined, the default is enabled. The server starts when Wi-Fi is connected; if the SD card is not already mounted (for example, while the radio is in WEB mode), it attempts to mount it through the existing SDManager.
+FTP is enabled by default when SD support is compiled in. Set `FTP_SERVER_ENABLED false` to disable it. If `FTP_SERVER_ENABLED` is not defined, the default is enabled. The FTP control server starts whenever Wi-Fi is connected, regardless of SD-card availability. The firmware attempts to mount the SD card only when a client opens a new FTP control session and the card is not already mounted. If mounting fails, the FTP session remains available, but file and directory operations return `550 No media`; the next new FTP session can trigger another mount attempt. A pending mount waits until audio playback has stopped.
 
 Connect using the ESP32 IP address, port 21, the configured username/password, and **passive (PASV) mode**. The passive data port is fixed at 50009; allow TCP ports 21 and 50009 on the local network/firewall. Supported operations include directory listing, changing directory, download (`RETR`), upload/overwrite (`STOR`), append/resume upload (`APPE`), create/remove directory (`MKD`/`RMD`), delete (`DELE`), rename (`RNFR`/`RNTO`), and file size (`SIZE`).
 
