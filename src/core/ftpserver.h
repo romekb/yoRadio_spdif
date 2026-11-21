@@ -42,6 +42,8 @@ class SDCardFTPServer {
   bool _started = false, _loggedIn = false, _userAccepted = false, _pasv = false;
   bool _indexDirty = false;
   bool _mountPending = false;
+  bool _spdifPausePending = false;
+  bool _spdifPausedForFTP = false;
   uint32_t _indexChangeAt = 0;
   bool _resumeCommandSent = false;
   uint32_t _resumeCommandAt = 0;
@@ -49,7 +51,8 @@ class SDCardFTPServer {
   bool _resumeAfterFTP = false;
   uint16_t _resumeStation = 0;
   uint32_t _lastActivity = 0;
-  uint8_t _buffer[8192];
+  uint8_t *_buffer = nullptr;
+  uint16_t _bufferSize = 0;
 
   void command(String line);
   void reply(uint16_t code, const String &message);

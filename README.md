@@ -11,6 +11,9 @@ Obsługiwany jest standardowy układ ESP32 WROVER (lub WROOM + zewnętrzna pami�
 ** nie testowałem tych modeli TFT ale powinny działać.
 
 Co nowego lub się zmieniło:
+- Ulepszono obsługę SPDIF. Teraz stream SPDIF nie jest przerywany przy zmianie utworu lub przerwach w dekodowaniu. Wysyłana jest "cisza" poprawnie zakodowana w BMC.
+- Poprawa stabilności serwera WWW.
+- Dodano serwer FTP do przesyłania plików do/z karty SD. Szczegółowy opis poniżej.
 - Dodano przestakiwanie pomiędzy dwoma ostatnio wybranymi stacjami (recall). Nacisnienie przycisku "0" na pilocie przechodzi na poprzednio odtwarzaną stację.
 - Aktualizacja biblioteki obsługi pilota do wersji 2.9.0. Nareszcie pilot działa jak powinien. Polecam aktualizację każdemu kto używa pilota IR.
 - Włączanie/wyłączanie wyświetlania imienin z poziomu przeglądarki (strona ustawień). Wymagane ponowne wgranie zawartości folderu data/www do SPIFFS, oraz odświerzenie cache przeglądarki.
@@ -77,6 +80,9 @@ Tested with ST7789 320x240 and 272x76 displays, AXS15231B and NV3041A 480x320 fr
 Standard ESP32 WROVER (or WROOM + External PSRAM) or ESP32-S3 is supported. PSRAM is required especially for AXS15231B display.
 
 What's new or changed:
+- Improved SPDIF handling. The SPDIF stream is no longer interrupted when changing tracks or during pauses in decoding; instead, "silence" encoded in the BMC format is transmitted.
+- Improved web server stability.
+- Added an FTP server for transferring files to/from the SD card. See the detailed description below.
 - A station recall function has been added to toggle between the two most recently selected stations. Pressing the "0" button on the remote control switches to the previously played station.
 - Updated the remote control library to version 2.9.0. Finally, the remote works as it should. I recommend updating this to anyone who uses an IR remote.
 - Enabling/disabling the display of name days from the browser (settings page). Re-uploading the contents of the data/www folder to SPIFFS and refreshing the browser cache is required.
@@ -132,7 +138,7 @@ Tested on internet radio provided AAC and MP3 streams, and on MP3 files on SD ca
 
 ## FTP access to the SD card / Dostęp FTP do karty SD
 
-The firmware branch `feature/sd-card-ftp-server` adds an FTP server for the SD card. It uses the existing `SDManager` (`sdman`) instance, so the FTP service and the audio player operate on the same mounted filesystem. When an FTP control session connects, active audio playback is paused so FTP can use the SD card and CPU without competing with the decoder. Playback is requested at the previous station when the FTP control session disconnects; the firmware retries the request if playback does not restart. Transfers use an 8 KiB buffer and bounded multi-block batches. After a successful upload, delete or rename, SD playlist indexing is delayed until there have been 5 seconds without further file changes, so uploading a directory triggers a single rebuild.
+The firmware provide an FTP server for the SD card. It uses the existing `SDManager` (`sdman`) instance, so the FTP service and the audio player operate on the same mounted filesystem. When an FTP control session connects, active audio playback is paused so FTP can use the SD card and CPU without competing with the decoder. Playback is requested at the previous station when the FTP control session disconnects; the firmware retries the request if playback does not restart. Transfers use an 8 KiB buffer and bounded multi-block batches. After a successful upload, delete or rename, SD playlist indexing is delayed until there have been 5 seconds without further file changes, so uploading a directory triggers a single rebuild.
 
 **Configuration:** add these definitions to your local `myoptions.h` (change the password before enabling FTP):
 
@@ -144,7 +150,7 @@ The firmware branch `feature/sd-card-ftp-server` adds an FTP server for the SD c
 #define FTP_PASSIVE_PORT 50009
 ```
 
-FTP is enabled by default when SD support is compiled in. Set `FTP_SERVER_ENABLED false` to disable it. If `FTP_SERVER_ENABLED` is not defined, the default is enabled. The FTP control server starts whenever Wi-Fi is connected, regardless of SD-card availability. The firmware attempts to mount the SD card only when a client opens a new FTP control session and the card is not already mounted. If mounting fails, the FTP session remains available, but file and directory operations return `550 No media`; the next new FTP session can trigger another mount attempt. A pending mount waits until audio playback has stopped.
+FTP is enabled by default when SD support is compiled in. Set `FTP_SERVER_ENABLED false` to disable it. Default username and password are "yoradio". If `FTP_SERVER_ENABLED` is not defined, the default is enabled. The FTP control server starts whenever Wi-Fi is connected, regardless of SD-card availability. The firmware attempts to mount the SD card only when a client opens a new FTP control session and the card is not already mounted. If mounting fails, the FTP session remains available, but file and directory operations return `550 No media`; the next new FTP session can trigger another mount attempt. A pending mount waits until audio playback has stopped.
 
 Connect using the ESP32 IP address, port 21, the configured username/password, and **passive (PASV) mode**. The passive data port is fixed at 50009; allow TCP ports 21 and 50009 on the local network/firewall. Supported operations include directory listing, changing directory, download (`RETR`), upload/overwrite (`STOR`), append/resume upload (`APPE`), create/remove directory (`MKD`/`RMD`), delete (`DELE`), rename (`RNFR`/`RNTO`), and file size (`SIZE`).
 

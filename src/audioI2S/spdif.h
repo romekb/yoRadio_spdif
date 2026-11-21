@@ -20,8 +20,10 @@
 void spdif_init(int rate);
 
 /*
- * send PCM data to S/PDIF transmitter
- *   src: pointer to 16bit PCM stereo data
- *   size: number of data bytes
+ * Queue one 16-bit stereo PCM frame for the asynchronous S/PDIF transmitter.
+ * Returns false if the S/PDIF output task is not initialized.
  */
 bool spdif_write(int16_t smp[2]);
+void spdif_set_sample_rate(uint32_t rate);
+void spdif_clear_queue();
+void spdif_set_ftp_mode(bool active);

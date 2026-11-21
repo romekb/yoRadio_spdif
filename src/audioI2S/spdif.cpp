@@ -12,6 +12,10 @@
 #define CONFIG_I2S_SUPPRESS_DEPRECATE_WARN true
 #define CONFIG_ADC_SUPPRESS_DEPRECATE_WARN true
 #include <driver/i2s.h>
+#include <esp_heap_caps.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
 using namespace std;
 
 #define I2S_NUM			        I2S_NUM_0
@@ -20,6 +24,19 @@ using namespace std;
 
 static uint32_t spdif_buf[SPDIF_BUF_ARRAY_SIZE];
 static uint32_t *spdif_ptr;
+
+// PCM queue separates the decoder from the real-time SPDIF/I2S output task.
+#define SPDIF_QUEUE_SAMPLES 2048
+static int16_t (*spdif_samples)[2] = nullptr;
+static volatile uint16_t spdif_write_index = 0;
+static volatile uint16_t spdif_read_index = 0;
+static portMUX_TYPE spdif_queue_mux = portMUX_INITIALIZER_UNLOCKED;
+static TaskHandle_t spdif_task_handle = nullptr;
+static volatile uint32_t spdif_pending_rate = 0;
+static volatile bool spdif_ftp_paused = false;
+
+static void spdif_output_task(void *parameter);
+static void spdif_encode_sample(const int16_t smp[2]);
 
 // BMC (Biphase Mark Coded) values (bit order reversed, i.e. LSB first)
 static const uint16_t spdif_bmclookup[256] = {
@@ -83,7 +100,11 @@ void spdif_init(int rate)
         .data_in_num = -1,
     };
 
-    i2s_driver_install((i2s_port_t)I2S_NUM, &i2s_config, 0, NULL);
+    esp_err_t installErr = i2s_driver_install((i2s_port_t)I2S_NUM, &i2s_config, 0, NULL);
+    if (installErr != ESP_OK) {
+        log_e("SPDIF I2S driver install failed: %d", installErr);
+        return;
+    }
     i2s_set_pin((i2s_port_t)I2S_NUM, &pin_config);
 #if (I2S_BCLK != 255)
     pinMode(I2S_BCLK, OUTPUT);
@@ -91,21 +112,42 @@ void spdif_init(int rate)
 #if (I2S_LRC != 255)
     pinMode(I2S_LRC, OUTPUT);
 #endif
-    // initialize S/PDIF buffer ptr
+    // Allocate the PCM queue in PSRAM when available to preserve internal RAM.
+    if (!spdif_samples) {
+        spdif_samples = (int16_t (*)[2])heap_caps_malloc(
+            SPDIF_QUEUE_SAMPLES * sizeof(*spdif_samples),
+            MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        if (!spdif_samples) {
+            spdif_samples = (int16_t (*)[2])malloc(
+                SPDIF_QUEUE_SAMPLES * sizeof(*spdif_samples));
+        }
+    }
+    if (!spdif_samples) {
+        log_e("SPDIF PCM queue allocation failed");
+        return;
+    }
+    spdif_write_index = 0;
+    spdif_read_index = 0;
     spdif_ptr = spdif_buf;
+
+    if (!spdif_task_handle) {
+        BaseType_t taskCreated = xTaskCreate(
+            spdif_output_task, "SPDIF_OUT", 4096, nullptr, 2, &spdif_task_handle);
+        if (taskCreated != pdPASS) {
+            spdif_task_handle = nullptr;
+            log_e("SPDIF output task creation failed");
+        }
+    }
 }
 
 
-// write audio data to I2S buffer
-bool spdif_write(int16_t smp[2])
-{
+// Encode one stereo PCM frame into the SPDIF BMC buffer.
+static void spdif_encode_sample(const int16_t smp[2]) {
     uint16_t hi, lo, aux;
 
     uint16_t sample_left = smp[0];
-    // BMC encode and flip left channel bits
     hi = pgm_read_word(&spdif_bmclookup[(uint8_t)(sample_left >> 8)]);
     lo = pgm_read_word(&spdif_bmclookup[(uint8_t)sample_left]);
-    // Low word is inverted depending on first bit of high word
     lo ^= (~((int16_t)hi) >> 16);
     aux = 0xb333 ^ (((uint32_t)((int16_t)lo)) >> 17);
 #if !defined(ARDUINO_ESP32S3_DEV)
@@ -121,8 +163,8 @@ bool spdif_write(int16_t smp[2])
 #if defined(ARDUINO_ESP32S3_DEV)
     *spdif_ptr++ = ((uint32_t)lo << 16) | hi;
 #endif
+
     uint16_t sample_right = smp[1];
-    // BMC encode right channel, similar as above
     hi = pgm_read_word(&spdif_bmclookup[(uint8_t)(sample_right >> 8)]);
     lo = pgm_read_word(&spdif_bmclookup[(uint8_t)sample_right]);
     lo ^= (~((int16_t)hi) >> 16);
@@ -134,23 +176,120 @@ bool spdif_write(int16_t smp[2])
     *spdif_ptr++ = ((uint32_t)lo << 16) | hi;
     *spdif_ptr++ = VUCP_PREAMBLE_W | aux;
 #endif
-	if (spdif_ptr >= &spdif_buf[SPDIF_BUF_ARRAY_SIZE]) {
-    	size_t i2s_write_len;
-	    esp_err_t err = i2s_write((i2s_port_t)I2S_NUM, spdif_buf, sizeof(spdif_buf), &i2s_write_len, portMAX_DELAY);
-	    spdif_ptr = spdif_buf;
-        if(err != ESP_OK) {
-            log_e("ESP32 Errorcode %i", err);
-            return false;
-        }
-        if(i2s_write_len < sizeof(spdif_buf)) {
-            log_e("Can't stuff any more in I2S..."); // increase waitingtime or outputbuffer
-            return false;
-        }
-    }
-    return true;
 }
 
+// Dedicated real-time task. When the PCM queue is empty, valid SPDIF
+// subframes containing digital silence are generated continuously.
+static void spdif_output_task(void *parameter) {
+    int16_t sample[2];
+
+    for (;;) {
+        // Pause at an I2S buffer boundary while FTP is active.
+        bool ftpPaused;
+        do {
+            portENTER_CRITICAL(&spdif_queue_mux);
+            ftpPaused = spdif_ftp_paused;
+            portEXIT_CRITICAL(&spdif_queue_mux);
+            if (ftpPaused) ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        } while (ftpPaused);
+
+        spdif_ptr = spdif_buf;
+        while (spdif_ptr < &spdif_buf[SPDIF_BUF_ARRAY_SIZE]) {
+            bool haveSample = false;
+
+            portENTER_CRITICAL(&spdif_queue_mux);
+            if (spdif_read_index != spdif_write_index) {
+                sample[0] = spdif_samples[spdif_read_index][0];
+                sample[1] = spdif_samples[spdif_read_index][1];
+                spdif_read_index = (spdif_read_index + 1) % SPDIF_QUEUE_SAMPLES;
+                haveSample = true;
+            }
+            portEXIT_CRITICAL(&spdif_queue_mux);
+
+            if (!haveSample) {
+                sample[0] = 0;
+                sample[1] = 0;
+            }
+            spdif_encode_sample(sample);
+        }
+
+        size_t written = 0;
+        esp_err_t err = i2s_write((i2s_port_t)I2S_NUM, spdif_buf,
+                                  sizeof(spdif_buf), &written, portMAX_DELAY);
+
+        // Apply a pending sample-rate change only after the current DMA write
+        // has completed. This task is then the sole owner of I2S reconfiguration.
+        uint32_t pendingRate = 0;
+        portENTER_CRITICAL(&spdif_queue_mux);
+        pendingRate = spdif_pending_rate;
+        spdif_pending_rate = 0;
+        portEXIT_CRITICAL(&spdif_queue_mux);
+        if (pendingRate) {
+            esp_err_t rateErr = i2s_set_sample_rates((i2s_port_t)I2S_NUM, pendingRate);
+            if (rateErr != ESP_OK) log_e("SPDIF sample rate change failed: %d", rateErr);
+        }
+
+        if (err != ESP_OK) {
+            log_e("SPDIF I2S write error: %d", err);
+        } else if (written < sizeof(spdif_buf)) {
+            log_e("Incomplete SPDIF I2S write: %u/%u",
+                  (unsigned)written, (unsigned)sizeof(spdif_buf));
+        }
+    }
+}
+
+// Change the I2S clock without racing the output task.
+void spdif_set_sample_rate(uint32_t rate) {
+    // Do not wait for DMA here. The SPDIF task applies the new clock
+    // immediately after its current I2S buffer has been transmitted.
+    portENTER_CRITICAL(&spdif_queue_mux);
+    spdif_pending_rate = rate;
+    portEXIT_CRITICAL(&spdif_queue_mux);
+}
+
+// Pause/resume the output task for FTP without deleting the task or
+// reinitializing I2S. Already queued DMA buffers drain naturally.
+void spdif_set_ftp_mode(bool active) {
+    portENTER_CRITICAL(&spdif_queue_mux);
+    spdif_ftp_paused = active;
+    if (active) spdif_read_index = spdif_write_index;
+    portEXIT_CRITICAL(&spdif_queue_mux);
+    if (!active && spdif_task_handle) xTaskNotifyGive(spdif_task_handle);
+}
+
+// Discard queued samples at a track/pause boundary. The output task keeps
+// transmitting valid zero-valued SPDIF frames instead of clearing DMA to raw zeros.
+void spdif_clear_queue() {
+    portENTER_CRITICAL(&spdif_queue_mux);
+    spdif_read_index = spdif_write_index;
+    portEXIT_CRITICAL(&spdif_queue_mux);
+}
+
+// Queue decoded PCM. If the consumer falls behind, apply backpressure to
+// the decoder rather than dropping audio samples.
+bool spdif_write(int16_t smp[2]) {
+    if (!spdif_samples || !spdif_task_handle) return false;
+
+    for (;;) {
+        bool queued = false;
+        portENTER_CRITICAL(&spdif_queue_mux);
+        uint16_t next = (spdif_write_index + 1) % SPDIF_QUEUE_SAMPLES;
+        if (next != spdif_read_index) {
+            spdif_samples[spdif_write_index][0] = smp[0];
+            spdif_samples[spdif_write_index][1] = smp[1];
+            spdif_write_index = next;
+            queued = true;
+        }
+        portEXIT_CRITICAL(&spdif_queue_mux);
+
+        if (queued) return true;
+        vTaskDelay(1);
+    }
+}
 #else
  void spdif_init(int rate) {}
  bool spdif_write(int16_t smp[2]) {return true;}
+ void spdif_set_sample_rate(uint32_t rate) {}
+ void spdif_clear_queue() {}
+ void spdif_set_ftp_mode(bool active) {}
 #endif

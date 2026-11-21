@@ -2189,7 +2189,8 @@ uint32_t Audio::stopSong() {
         log_w("Closing audio file");  // for debug
     }
     memset(m_outBuff, 0, sizeof(m_outBuff));     //Clear OutputBuffer
-    i2s_zero_dma_buffer((i2s_port_t) m_i2s_num);
+    if (m_spdif_output) spdif_clear_queue();
+    else i2s_zero_dma_buffer((i2s_port_t) m_i2s_num);
     return pos;
 }
 //---------------------------------------------------------------------------------------------------------------------
@@ -2201,7 +2202,8 @@ bool Audio::pauseResume() {
         retVal = true;
         if(!m_f_running) {
             memset(m_outBuff, 0, sizeof(m_outBuff));               //Clear OutputBuffer
-            i2s_zero_dma_buffer((i2s_port_t) m_i2s_num);
+            if (m_spdif_output) spdif_clear_queue();
+            else i2s_zero_dma_buffer((i2s_port_t) m_i2s_num);
         }
     }
     xSemaphoreGive(mutex_audioTask);
@@ -4232,7 +4234,8 @@ int Audio::sendBytes(uint8_t* data, size_t len) {
     }
     if(ret < 0) { // Error, skip the frame...
         if(m_f_Log) if(m_codec == CODEC_M4A){log_i("begin not found"); return 1;}
-        i2s_zero_dma_buffer((i2s_port_t)m_i2s_num);
+        if (m_spdif_output) spdif_clear_queue();
+        else i2s_zero_dma_buffer((i2s_port_t)m_i2s_num);
         if(!getChannels() && (ret == -2)) {
              ; // suppress errorcode MAINDATA_UNDERFLOW
         }
@@ -4599,7 +4602,8 @@ bool Audio::audioFileSeek(const float speed) {
         while(sr < 32000) sr *= 2; 
         sr *= 2; 
     }
-    i2s_set_sample_rates((i2s_port_t)m_i2s_num, sr);
+    if (m_spdif_output) spdif_set_sample_rate(sr);
+    else i2s_set_sample_rates((i2s_port_t)m_i2s_num, sr);
     return true;
 }
 //---------------------------------------------------------------------------------------------------------------------
@@ -4610,7 +4614,8 @@ bool Audio::setSampleRate(uint32_t sampRate) {
         while(sr < 32000) sr *= 2; 
         sr *= 2;
     } 
-    i2s_set_sample_rates((i2s_port_t)m_i2s_num, sr);   
+    if (m_spdif_output) spdif_set_sample_rate(sr);
+    else i2s_set_sample_rates((i2s_port_t)m_i2s_num, sr);
     m_sampleRate = sampRate;
     IIR_calculateCoefficients(m_gain0, m_gain1, m_gain2); // must be recalculated after each samplerate change
     return true;

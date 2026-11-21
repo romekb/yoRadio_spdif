@@ -2,8 +2,10 @@
 
 #if defined(USE_SD) && SDC_CS != 255 && (!defined(FTP_SERVER_ENABLED) || FTP_SERVER_ENABLED)
 #include <algorithm>
+#include "esp32-hal-psram.h"
 #include "player.h"
 #include "config.h"
+#include "../audioI2S/spdif.h"
 #include "../displays/tools/l10n.h"
 
 SDCardFTPServer ftpServer;
@@ -12,19 +14,42 @@ void SDCardFTPServer::begin() {
   // The FTP control service is independent of SD availability. The card is
   // mounted lazily when a client opens a control session.
   if (_started || WiFi.status() != WL_CONNECTED) return;
+  if (!_buffer) {
+    if (psramInit()) {
+      _bufferSize = 8192;
+      _buffer = (uint8_t *)ps_calloc(_bufferSize, sizeof(uint8_t));
+    }
+    if (!_buffer) {
+      _bufferSize = 1024;
+      _buffer = (uint8_t *)calloc(_bufferSize, sizeof(uint8_t));
+    }
+    if (!_buffer) {
+      _bufferSize = 0;
+      Serial.println("##[FTP]# FTP buffer allocation failed");
+      return;
+    }
+  }
   _control.begin();
   _control.setNoDelay(true);
   _started = true;
-  Serial.printf("##[FTP]# FTP control listening on port %u\n", FTP_SERVER_PORT);
+  Serial.printf("##[FTP]# FTP control listening on port %u, buffer: %u bytes\n", FTP_SERVER_PORT, (unsigned)_bufferSize);
 }
 
 void SDCardFTPServer::stop() {
+  if (_spdifPausedForFTP) spdif_set_ftp_mode(false);
+  _spdifPausedForFTP = false;
+  _spdifPausePending = false;
   closeTransfer(false);
   if (_client) _client.stop();
   _control.stop();
   _passive.stop();
   _mountPending = false;
   _started = false;
+  if (_buffer) {
+    free(_buffer);
+    _buffer = nullptr;
+    _bufferSize = 0;
+  }
 }
 
 void SDCardFTPServer::reply(uint16_t code, const String &message) {
@@ -59,7 +84,8 @@ String SDCardFTPServer::normalizePath(const String &input) {
 }
 
 void SDCardFTPServer::closeTransfer(bool success) {
-  const bool completedUpload = success && _transfer == UPLOADING;
+  const bool wasUpload = _transfer == UPLOADING;
+  const bool completedUpload = success && wasUpload;
   if (_file) {
     if (_transfer == UPLOADING) _file.flush();
     _file.close();
@@ -70,8 +96,9 @@ void SDCardFTPServer::closeTransfer(bool success) {
   _pasv = false;
   if (completedUpload) {
     _indexDirty = true;
-    _indexChangeAt = millis();
+//    _indexChangeAt = millis();
   }
+  _indexChangeAt = millis();
   if (success) reply(226, "Transfer complete");
   else if (_client && _client.connected()) reply(426, "Transfer aborted");
 }
@@ -156,11 +183,14 @@ void SDCardFTPServer::transferStep() {
       int available = _data.available();
       if (available <= 0) break;
       size_t count = (size_t)available;
-      if (count > sizeof(_buffer)) count = sizeof(_buffer);
+      if (count > _bufferSize) count = _bufferSize;
       int got = _data.read(_buffer, count);
-      if (got > 0 && _file.write(_buffer, (size_t)got) != (size_t)got) {
-        closeTransfer(false);
-        return;
+      if (got > 0) {
+        size_t saved = _file.write(_buffer, (size_t)got);
+        if (saved != (size_t)got) {
+          closeTransfer(false);
+          return;
+        }
       }
       if (got <= 0) break;
     }
@@ -182,7 +212,7 @@ void SDCardFTPServer::transferStep() {
   if (_transfer == DOWNLOADING) {
     // Send up to 8 KiB per pass, yielding back to the radio loop regularly.
     for (uint8_t n = 0; n < 16; ++n) {
-      size_t count = _file.read(_buffer, sizeof(_buffer));
+      size_t count = _file.read(_buffer, _bufferSize);
       if (!count) {
         closeTransfer(true);
         return;
@@ -302,6 +332,12 @@ void SDCardFTPServer::loop() {
     _mountPending = false;
     _client.stop();
     _loggedIn = false;
+    if (_spdifPausedForFTP) {
+      spdif_set_ftp_mode(false);
+      Serial.println("##[FTP]# SPDIF output resumed");
+    }
+    _spdifPausedForFTP = false;
+    _spdifPausePending = false;
     if (_resumeAfterFTP) {
       _resumeCommandSent = false;
       _resumeAttempts = 0;
@@ -319,6 +355,7 @@ void SDCardFTPServer::loop() {
       _cwd = "/";
       _line = "";
       _mountPending = !sdman.ready;
+      _spdifPausePending = true;
       // Give FTP exclusive access to the SD card and CPU while connected.
       // Remember playback only if it was active before this FTP session.
       _resumeAfterFTP = player.status() == PLAYING;
@@ -331,6 +368,14 @@ void SDCardFTPServer::loop() {
     }
   }
 
+  // Do not pause the SPDIF consumer until the player has fully stopped:
+  // otherwise a decoder could fill the PCM queue and block before PR_STOP.
+  if (_spdifPausePending && player.status() == STOPPED) {
+    spdif_set_ftp_mode(true);
+    _spdifPausePending = false;
+    _spdifPausedForFTP = true;
+    Serial.println("##[FTP]# SPDIF output paused for FTP session");
+  }
   // Mount only once per new FTP session, and only after playback has stopped.
   // This keeps SD initialization out of the audio path and avoids retry loops.
   if (_mountPending) {
