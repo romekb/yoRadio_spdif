@@ -245,6 +245,10 @@ void SDCardFTPServer::command(String line) {
     closeTransfer(false);
     _client.stop();
     config.setTitle(LANG::const_PlStopped);
+    if (_spdifPausedForFTP) {
+      spdif_set_ftp_mode(false);
+      Serial.println("##[FTP]# SPDIF output resumed");
+    }
   } else if (verb == "SYST") reply(215, "UNIX Type: L8");
   else if (verb == "FEAT") {
     _client.print("211-Features\r\n PASV\r\n SIZE\r\n UTF8\r\n211 End\r\n");
